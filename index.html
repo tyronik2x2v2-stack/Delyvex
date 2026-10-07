@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Nexora — игровой маркетплейс</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Inter,Arial,sans-serif;background:#0b0d12;color:#f4f6fb}
+button,input{font:inherit}button{cursor:pointer}.wrap{max-width:1150px;margin:auto;padding:20px}
+header{position:sticky;top:0;z-index:5;background:#10131aee;backdrop-filter:blur(12px);border-bottom:1px solid #252a35}
+.head{display:flex;gap:14px;align-items:center}.logo{font-size:25px;font-weight:800;color:#7c5cff}
+.search{flex:1;background:#191d26;border:1px solid #2b3140;color:white;border-radius:10px;padding:11px 14px;outline:none}
+.btn{border:0;border-radius:9px;padding:10px 14px;background:#252b38;color:#fff}.primary{background:#7c5cff}.danger{background:#c7445b}
+.hero{margin-top:28px;padding:42px;border:1px solid #2b3040;border-radius:18px;background:linear-gradient(135deg,#17152a,#101923)}
+.hero h1{font-size:42px;margin:0 0 10px}.hero p{color:#aeb5c4;max-width:650px;line-height:1.5}
+.actions{display:flex;gap:10px;margin-top:20px;flex-wrap:wrap}
+h2{margin-top:30px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:15px}
+.card{background:#141820;border:1px solid #292f3b;border-radius:14px;padding:17px}.icon{height:105px;border-radius:10px;background:#202533;display:grid;place-items:center;font-size:40px;margin-bottom:12px}
+.muted{color:#929aaa;font-size:14px}.tag{display:inline-block;padding:5px 8px;border-radius:7px;background:#222734;color:#bfc6d5;font-size:12px;margin:8px 0}
+.panel{background:#141820;border:1px solid #292f3b;border-radius:14px;padding:18px;margin-top:20px}.hidden{display:none}
+.modal-bg{position:fixed;inset:0;background:#000b;display:none;place-items:center;padding:20px;z-index:20}.modal{width:min(420px,100%);background:#151922;border:1px solid #303746;border-radius:15px;padding:22px}
+label{display:block;color:#aeb5c4;font-size:13px;margin:12px 0 6px}input{width:100%;padding:12px;border-radius:9px;border:1px solid #303746;background:#0d1016;color:#fff;outline:none}
+.modal-actions{display:flex;gap:9px;margin-top:18px}.modal-actions>*{flex:1}.error{color:#ff7186;min-height:18px;font-size:13px;margin-top:8px}
+.profile{display:flex;align-items:center;gap:8px}.avatar{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:#7c5cff;font-weight:bold}
+footer{text-align:center;color:#737b8b;padding:35px 20px}
+@media(max-width:700px){.head{flex-wrap:wrap}.search{order:3;flex-basis:100%}.hero{padding:28px}.hero h1{font-size:32px}}
+</style>
+</head>
+<body>
+<header><div class="wrap head">
+  <div class="logo">Nexora</div>
+  <input id="search" class="search" placeholder="Поиск игр и товаров...">
+  <div id="guestNav"><button class="btn" id="login">Войти</button> <button class="btn primary" id="signup">Регистрация</button></div>
+  <div id="userNav" class="profile hidden"><div id="avatar" class="avatar">N</div><span id="emailText"></span><button class="btn danger" id="logout">Выйти</button></div>
+</div></header>
+
+<main class="wrap">
+<section class="hero">
+<h1>Добро пожаловать в Nexora</h1>
+<p>Игровой маркетплейс с настоящими аккаунтами и базой данных. Начинаем с безопасной основы: регистрация, профили, объявления и поиск.</p>
+<div class="actions"><button class="btn primary" id="heroSignup">Создать аккаунт</button><button class="btn" id="heroLogin">Войти</button></div>
+</section>
+
+<section id="profilePanel" class="panel hidden">
+<h2 style="margin-top:0">Личный кабинет</h2>
+<p id="profileInfo" class="muted"></p>
+<button class="btn" id="withdraw">Вывод средств</button>
+</section>
+
+<h2>Категории</h2>
+<div class="grid">
+<div class="card"><div class="icon">⛏️</div><b>Minecraft</b><p class="muted">Игровые предложения</p></div>
+<div class="card"><div class="icon">🧱</div><b>Roblox</b><p class="muted">Игровые предложения</p></div>
+<div class="card"><div class="icon">🚗</div><b>GTA</b><p class="muted">Игровые предложения</p></div>
+<div class="card"><div class="icon">🎯</div><b>CS2</b><p class="muted">Игровые предложения</p></div>
+</div>
+
+<h2>Объявления</h2>
+<div id="products" class="grid"></div>
+<p id="empty" class="muted">Объявлений пока нет.</p>
+</main>
+<footer>© 2026 Nexora</footer>
+
+<div id="modalBg" class="modal-bg"><div class="modal">
+<h2 id="modalTitle" style="margin-top:0">Регистрация</h2>
+<label>Email</label><input id="email" type="email" autocomplete="email" placeholder="you@example.com">
+<label>Пароль</label><input id="password" type="password" autocomplete="current-password" placeholder="Минимум 6 символов">
+<div id="error" class="error"></div>
+<div class="modal-actions"><button class="btn" id="close">Отмена</button><button class="btn primary" id="submit">Зарегистрироваться</button></div>
+</div></div>
+
+<script>
+/*
+  ВСТАВЬ СЮДА ДВА ПУБЛИЧНЫХ ЗНАЧЕНИЯ ИЗ SUPABASE:
+  1) Project URL
+  2) anon/public key
+  Никогда не вставляй service_role key.
+*/
+const SUPABASE_URL = "https://gisdufgixjfudblxydvm.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_irNKt_PStZrQ2NCEdaD5sg_quCmigAn";
+const configured = !SUPABASE_URL.startsWith("PASTE_") && !SUPABASE_ANON_KEY.startsWith("PASTE_");
+const sb = configured ? supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+
+let authMode="signup";
+
+const $=id=>document.getElementById(id);
+function openAuth(mode){authMode=mode;$("modalTitle").textContent=mode==="signup"?"Регистрация":"Вход";$("submit").textContent=mode==="signup"?"Зарегистрироваться":"Войти";$("error").textContent="";$("email").value="";$("password").value="";$("modalBg").style.display="grid"}
+function closeAuth(){$("modalBg").style.display="none"}
+
+$("signup").onclick=$("heroSignup").onclick=()=>openAuth("signup");
+$("login").onclick=$("heroLogin").onclick=()=>openAuth("login");
+$("close").onclick=closeAuth;
+$("modalBg").onclick=e=>{if(e.target===$("modalBg"))closeAuth()};
+
+$("submit").onclick=async()=>{
+ if(!configured){$("error").textContent="Сначала подключите Supabase в index.html.";return}
+ const email=$("email").value.trim(), password=$("password").value;
+ if(!email||password.length<6){$("error").textContent="Введите email и пароль минимум из 6 символов.";return}
+ $("submit").disabled=true;
+ const result=authMode==="signup"
+   ? await sb.auth.signUp({email,password})
+   : await sb.auth.signInWithPassword({email,password});
+ $("submit").disabled=false;
+ if(result.error){$("error").textContent=result.error.message;return}
+ closeAuth();
+ await refresh();
+ if(authMode==="signup" && !result.data.session) alert("Регистрация создана. Проверьте email для подтверждения.");
+};
+
+$("logout").onclick=async()=>{if(sb)await sb.auth.signOut();await refresh()};
+
+$("withdraw").onclick=()=>alert("Вывод средств пока отключён. Кнопка оставлена как элемент интерфейса; финансовые операции не подключены.");
+
+async function refresh(){
+ if(!configured){$("products").innerHTML='<div class="panel">Supabase ещё не подключён. После вставки Project URL и anon key сайт сможет использовать настоящую авторизацию и базу.</div>';return}
+ const {data:{session}}=await sb.auth.getSession();
+ if(session){
+   const email=session.user.email||"";
+   $("guestNav").classList.add("hidden");$("userNav").classList.remove("hidden");
+   $("emailText").textContent=email;$("avatar").textContent=email.charAt(0).toUpperCase();
+   $("profilePanel").classList.remove("hidden");$("profileInfo").textContent="Вы вошли как "+email;
+ }else{
+   $("guestNav").classList.remove("hidden");$("userNav").classList.add("hidden");$("profilePanel").classList.add("hidden");
+ }
+ await loadListings();
+}
+
+async function loadListings(){
+ const {data,error}=await sb.from("listings").select("id,title,description,category,price").eq("is_active",true).order("created_at",{ascending:false});
+ if(error){$("products").innerHTML='<div class="panel">Не удалось загрузить объявления. Проверьте SQL-схему и политики RLS.</div>';return}
+ $("products").innerHTML="";
+ $("empty").style.display=data.length?"none":"block";
+ data.forEach(x=>{
+   const el=document.createElement("div");el.className="card";
+   el.dataset.search=(x.title+" "+(x.description||"")+" "+(x.category||"")).toLowerCase();
+   el.innerHTML='<div class="icon">🎮</div><b></b><div><span class="tag"></span></div><p class="muted"></p>';
+   el.querySelector("b").textContent=x.title;
+   el.querySelector(".tag").textContent=x.category||"Игра";
+   el.querySelector(".muted").textContent=x.description||"Без описания";
+   $("products").appendChild(el);
+ });
+}
+$("search").oninput=()=>{const q=$("search").value.toLowerCase().trim();let n=0;document.querySelectorAll("#products .card").forEach(c=>{const ok=!q||c.dataset.search.includes(q);c.style.display=ok?"":"none";if(ok)n++});$("empty").style.display=n?"none":"block"};
+if(configured) sb.auth.onAuthStateChange(()=>refresh());
+refresh();
+</script>
+</body>
+</html>
