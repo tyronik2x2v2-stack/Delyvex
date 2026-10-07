@@ -16,7 +16,7 @@ header{position:sticky;top:0;z-index:5;background:#10131aee;backdrop-filter:blur
 .hero h1{font-size:42px;margin:0 0 10px}.hero p{color:#aeb5c4;max-width:650px;line-height:1.5}
 .actions{display:flex;gap:10px;margin-top:20px;flex-wrap:wrap}
 h2{margin-top:30px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:15px}
-.card{background:#141820;border:1px solid #292f3b;border-radius:14px;padding:17px}.icon{height:105px;border-radius:10px;background:#202533;display:grid;place-items:center;font-size:40px;margin-bottom:12px}
+.card{background:#141820;cursor:default;border:1px solid #292f3b;border-radius:14px;padding:17px}.icon{height:105px;border-radius:10px;background:#202533;display:grid;place-items:center;font-size:40px;margin-bottom:12px}
 .muted{color:#929aaa;font-size:14px}.tag{display:inline-block;padding:5px 8px;border-radius:7px;background:#222734;color:#bfc6d5;font-size:12px;margin:8px 0}
 .panel{background:#141820;border:1px solid #292f3b;border-radius:14px;padding:18px;margin-top:20px}.hidden{display:none}
 .modal-bg{position:fixed;inset:0;background:#000b;display:none;place-items:center;padding:20px;z-index:20}.modal{width:min(420px,100%);background:#151922;border:1px solid #303746;border-radius:15px;padding:22px}
@@ -49,12 +49,13 @@ footer{text-align:center;color:#737b8b;padding:35px 20px}
 </section>
 
 <h2>Категории</h2>
-<div class="grid">
-<div class="card"><div class="icon">⛏️</div><b>Minecraft</b><p class="muted">Игровые предложения</p></div>
-<div class="card"><div class="icon">🧱</div><b>Roblox</b><p class="muted">Игровые предложения</p></div>
-<div class="card"><div class="icon">🚗</div><b>GTA</b><p class="muted">Игровые предложения</p></div>
-<div class="card"><div class="icon">🎯</div><b>CS2</b><p class="muted">Игровые предложения</p></div>
+<div id="categories" class="grid">
+<div class="card category" data-category="Minecraft" tabindex="0"><div class="icon">⛏️</div><b>Minecraft</b><p class="muted">Игровые предложения</p></div>
+<div class="card category" data-category="Roblox" tabindex="0"><div class="icon">🧱</div><b>Roblox</b><p class="muted">Игровые предложения</p></div>
+<div class="card category" data-category="GTA" tabindex="0"><div class="icon">🚗</div><b>GTA</b><p class="muted">Игровые предложения</p></div>
+<div class="card category" data-category="CS2" tabindex="0"><div class="icon">🎯</div><b>CS2</b><p class="muted">Игровые предложения</p></div>
 </div>
+<button class="btn" id="clearCategory" style="margin-top:12px">Показать все категории</button>
 
 <h2>Объявления</h2>
 <div id="products" class="grid"></div>
@@ -66,6 +67,10 @@ footer{text-align:center;color:#737b8b;padding:35px 20px}
 <h2 id="modalTitle" style="margin-top:0">Регистрация</h2>
 <label>Email</label><input id="email" type="email" autocomplete="email" placeholder="you@example.com">
 <label>Пароль</label><input id="password" type="password" autocomplete="current-password" placeholder="Минимум 6 символов">
+<div id="otpArea" class="hidden">
+<label>Код из email</label><input id="otp" inputmode="numeric" maxlength="8" placeholder="Введите код">
+<p class="muted">После регистрации код подтверждения придёт на вашу почту.</p>
+</div>
 <div id="error" class="error"></div>
 <div class="modal-actions"><button class="btn" id="close">Отмена</button><button class="btn primary" id="submit">Зарегистрироваться</button></div>
 </div></div>
@@ -83,10 +88,37 @@ const configured = !SUPABASE_URL.startsWith("PASTE_") && !SUPABASE_ANON_KEY.star
 const sb = configured ? supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
 
 let authMode="signup";
+let waitingForOtp=false;
+let pendingEmail="";
 
 const $=id=>document.getElementById(id);
-function openAuth(mode){authMode=mode;$("modalTitle").textContent=mode==="signup"?"Регистрация":"Вход";$("submit").textContent=mode==="signup"?"Зарегистрироваться":"Войти";$("error").textContent="";$("email").value="";$("password").value="";$("modalBg").style.display="grid"}
-function closeAuth(){$("modalBg").style.display="none"}
+function openAuth(mode){
+  authMode=mode; waitingForOtp=false; pendingEmail="";
+  $("modalTitle").textContent=mode==="signup"?"Регистрация":"Вход";
+  $("submit").textContent=mode==="signup"?"Зарегистрироваться":"Войти";
+  $("error").textContent="";
+  $("email").value=""; $("password").value="";
+  $("otp").value="";
+  $("otpArea").classList.add("hidden");
+  $("password").classList.remove("hidden");
+  $("modalBg").style.display="grid";
+}
+function closeAuth(){$("modalBg").style.display="none";waitingForOtp=false}
+function showOtp(){
+  waitingForOtp=true;
+  $("modalTitle").textContent="Подтверждение email";
+  $("email").value=pendingEmail;
+  $("email").readOnly=true;
+  $("password").classList.add("hidden");
+  $("otpArea").classList.remove("hidden");
+  $("submit").textContent="Подтвердить код";
+  $("error").textContent="";
+}
+function resetAuthFields(){
+  $("email").readOnly=false;
+  $("password").classList.remove("hidden");
+  $("otpArea").classList.add("hidden");
+}
 
 $("signup").onclick=$("heroSignup").onclick=()=>openAuth("signup");
 $("login").onclick=$("heroLogin").onclick=()=>openAuth("login");
@@ -94,55 +126,145 @@ $("close").onclick=closeAuth;
 $("modalBg").onclick=e=>{if(e.target===$("modalBg"))closeAuth()};
 
 $("submit").onclick=async()=>{
- if(!configured){$("error").textContent="Сначала подключите Supabase в index.html.";return}
- const email=$("email").value.trim(), password=$("password").value;
- if(!email||password.length<6){$("error").textContent="Введите email и пароль минимум из 6 символов.";return}
- $("submit").disabled=true;
- const result=authMode==="signup"
-   ? await sb.auth.signUp({email,password})
-   : await sb.auth.signInWithPassword({email,password});
- $("submit").disabled=false;
- if(result.error){$("error").textContent=result.error.message;return}
- closeAuth();
- await refresh();
- if(authMode==="signup" && !result.data.session) alert("Регистрация создана. Проверьте email для подтверждения.");
+  if(!configured){$("error").textContent="Сначала подключите Supabase в index.html.";return}
+  const email=$("email").value.trim(), password=$("password").value;
+
+  if(authMode==="signup" && waitingForOtp){
+    const token=$("otp").value.trim();
+    if(!/^\d{8}$/.test(token)){
+      $("error").textContent="Введите 8-значный код из email.";
+      return;
+    }
+    $("submit").disabled=true;
+    const result=await sb.auth.verifyOtp({email:pendingEmail,token,type:"email"});
+    $("submit").disabled=false;
+    if(result.error){$("error").textContent=result.error.message;return}
+    closeAuth();
+    await refresh();
+    return;
+  }
+
+  if(!email||password.length<6){
+    $("error").textContent="Введите email и пароль минимум из 6 символов.";
+    return;
+  }
+
+  $("submit").disabled=true;
+  const result=authMode==="signup"
+    ? await sb.auth.signUp({email,password})
+    : await sb.auth.signInWithPassword({email,password});
+  $("submit").disabled=false;
+
+  if(result.error){$("error").textContent=result.error.message;return}
+
+  if(authMode==="signup" && !result.data.session){
+    pendingEmail=email;
+    showOtp();
+    $("error").textContent="Код отправлен на email. Проверьте входящие и папку «Спам».";
+    return;
+  }
+
+  closeAuth();
+  await refresh();
 };
 
-$("logout").onclick=async()=>{if(sb)await sb.auth.signOut();await refresh()};
+$("logout").onclick=async()=>{
+  if(!sb)return;
+  const {error}=await sb.auth.signOut();
+  if(error){alert("Не удалось выйти: "+error.message);return}
+  await refresh();
+};
 
 $("withdraw").onclick=()=>alert("Вывод средств пока отключён. Кнопка оставлена как элемент интерфейса; финансовые операции не подключены.");
 
+function filterCategory(category){
+  document.querySelectorAll("#products .card").forEach(c=>{
+    const value=(c.dataset.category||"").toLowerCase();
+    c.style.display=(!category || value===category.toLowerCase())?"":"none";
+  });
+  updateEmptyVisibility();
+}
+function updateEmptyVisibility(){
+  const visible=[...document.querySelectorAll("#products .card")].filter(c=>c.style.display!=="none");
+  $("empty").style.display=visible.length?"none":"block";
+}
+document.querySelectorAll(".category").forEach(card=>{
+  const choose=()=>filterCategory(card.dataset.category);
+  card.onclick=choose;
+  card.onkeydown=e=>{if(e.key==="Enter"||e.key===" ")choose()};
+});
+$("clearCategory").onclick=()=>filterCategory("");
+
 async function refresh(){
- if(!configured){$("products").innerHTML='<div class="panel">Supabase ещё не подключён. После вставки Project URL и anon key сайт сможет использовать настоящую авторизацию и базу.</div>';return}
- const {data:{session}}=await sb.auth.getSession();
- if(session){
-   const email=session.user.email||"";
-   $("guestNav").classList.add("hidden");$("userNav").classList.remove("hidden");
-   $("emailText").textContent=email;$("avatar").textContent=email.charAt(0).toUpperCase();
-   $("profilePanel").classList.remove("hidden");$("profileInfo").textContent="Вы вошли как "+email;
- }else{
-   $("guestNav").classList.remove("hidden");$("userNav").classList.add("hidden");$("profilePanel").classList.add("hidden");
- }
- await loadListings();
+  if(!configured){
+    $("products").innerHTML='<div class="panel">Supabase ещё не подключён.</div>';
+    return;
+  }
+  const {data:{session}}=await sb.auth.getSession();
+
+  if(session){
+    const email=session.user.email||"";
+    $("guestNav").classList.add("hidden");
+    $("userNav").classList.remove("hidden");
+    $("emailText").textContent=email;
+    $("avatar").textContent=email.charAt(0).toUpperCase();
+    $("profilePanel").classList.remove("hidden");
+    $("hero").classList.add("hidden");
+    $("profileInfo").textContent="Вы вошли как "+email;
+  }else{
+    $("guestNav").classList.remove("hidden");
+    $("userNav").classList.add("hidden");
+    $("profilePanel").classList.add("hidden");
+    $("hero").classList.remove("hidden");
+    $("emailText").textContent="";
+    $("avatar").textContent="N";
+  }
+  await loadListings();
 }
 
 async function loadListings(){
- const {data,error}=await sb.from("listings").select("id,title,description,category,price").eq("is_active",true).order("created_at",{ascending:false});
- if(error){$("products").innerHTML='<div class="panel">Не удалось загрузить объявления. Проверьте SQL-схему и политики RLS.</div>';return}
- $("products").innerHTML="";
- $("empty").style.display=data.length?"none":"block";
- data.forEach(x=>{
-   const el=document.createElement("div");el.className="card";
-   el.dataset.search=(x.title+" "+(x.description||"")+" "+(x.category||"")).toLowerCase();
-   el.innerHTML='<div class="icon">🎮</div><b></b><div><span class="tag"></span></div><p class="muted"></p>';
-   el.querySelector("b").textContent=x.title;
-   el.querySelector(".tag").textContent=x.category||"Игра";
-   el.querySelector(".muted").textContent=x.description||"Без описания";
-   $("products").appendChild(el);
- });
+  const {data,error}=await sb.from("listings")
+    .select("id,title,description,category,price")
+    .eq("is_active",true)
+    .order("created_at",{ascending:false});
+
+  if(error){
+    $("products").innerHTML='<div class="panel">Не удалось загрузить объявления. Проверьте SQL-схему и политики RLS.</div>';
+    $("empty").style.display="none";
+    return;
+  }
+
+  $("products").innerHTML="";
+  data.forEach(x=>{
+    const el=document.createElement("div");
+    el.className="card";
+    el.dataset.search=(x.title+" "+(x.description||"")+" "+(x.category||"")).toLowerCase();
+    el.dataset.category=x.category||"";
+    el.innerHTML='<div class="icon">🎮</div><b></b><div><span class="tag"></span></div><p class="muted"></p>';
+    el.querySelector("b").textContent=x.title;
+    el.querySelector(".tag").textContent=x.category||"Игра";
+    el.querySelector(".muted").textContent=x.description||"Без описания";
+    $("products").appendChild(el);
+  });
+  filterCategory("");
 }
-$("search").oninput=()=>{const q=$("search").value.toLowerCase().trim();let n=0;document.querySelectorAll("#products .card").forEach(c=>{const ok=!q||c.dataset.search.includes(q);c.style.display=ok?"":"none";if(ok)n++});$("empty").style.display=n?"none":"block"};
-if(configured) sb.auth.onAuthStateChange(()=>refresh());
+
+$("search").oninput=()=>{
+  const q=$("search").value.toLowerCase().trim();
+  document.querySelectorAll("#products .card").forEach(c=>{
+    const ok=!q||c.dataset.search.includes(q);
+    c.style.display=ok?"":"none";
+  });
+  updateEmptyVisibility();
+};
+
+if(configured){
+  sb.auth.onAuthStateChange((event, session)=>{
+    if(event==="SIGNED_OUT" || event==="SIGNED_IN" || event==="USER_UPDATED"){
+      setTimeout(()=>refresh(),0);
+    }
+  });
+}
 refresh();
 </script>
 </body>
