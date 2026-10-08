@@ -3,7 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-
 <title>Delyvex</title>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -102,7 +101,9 @@ header{
   background:#21152e;
 }
 
-.header-profile{margin-left:10px}
+.header-profile{
+  margin-left:10px;
+}
 
 .header-avatar{
   width:40px;
@@ -118,8 +119,13 @@ main{
   padding:25px 18px 100px;
 }
 
-.section{display:none}
-.section.active{display:block}
+.section{
+  display:none;
+}
+
+.section.active{
+  display:block;
+}
 
 .page-title{
   font-size:28px;
@@ -152,7 +158,9 @@ main{
   font-weight:700;
 }
 
-.primary-btn:hover{background:#7c3aed}
+.primary-btn:hover{
+  background:#7c3aed;
+}
 
 .chat-btn{
   border:1px solid #8b5cf6;
@@ -163,7 +171,9 @@ main{
   font-weight:700;
 }
 
-.chat-btn:hover{background:#35204d}
+.chat-btn:hover{
+  background:#35204d;
+}
 
 .card{
   background:#130d1f;
@@ -187,7 +197,9 @@ main{
   flex-shrink:0;
 }
 
-.listing-info{flex:1}
+.listing-info{
+  flex:1;
+}
 
 .listing-title{
   font-size:20px;
@@ -221,7 +233,6 @@ main{
   display:flex;
   align-items:center;
   gap:10px;
-  flex-wrap:wrap;
   margin-top:14px;
   padding-top:12px;
   border-top:1px solid #241733;
@@ -250,7 +261,9 @@ main{
   margin:auto;
 }
 
-.form-group{margin-bottom:17px}
+.form-group{
+  margin-bottom:17px;
+}
 
 .form-group label{
   display:block;
@@ -337,7 +350,9 @@ main{
   margin:5px 0;
 }
 
-.rating-count{color:#999}
+.rating-count{
+  color:#999;
+}
 
 .avatar-grid{
   display:grid;
@@ -353,7 +368,6 @@ main{
   border:3px solid transparent;
   padding:3px;
   background:#0b0812;
-  transition:.15s;
 }
 
 .avatar-option:hover{
@@ -363,7 +377,6 @@ main{
 
 .avatar-option.selected{
   border-color:#c084fc;
-  box-shadow:0 0 18px rgba(168,85,247,.45);
 }
 
 .avatar-option img{
@@ -397,7 +410,9 @@ main{
   margin-bottom:10px;
 }
 
-.chat-item:hover{border-color:#8b5cf6}
+.chat-item:hover{
+  border-color:#8b5cf6;
+}
 
 .chat-window{
   max-width:750px;
@@ -428,7 +443,9 @@ main{
   background:#6d3cc7;
 }
 
-.message.theirs{background:#241733}
+.message.theirs{
+  background:#241733;
+}
 
 .chat-send{
   display:flex;
@@ -450,7 +467,9 @@ main{
   padding:50px 20px;
 }
 
-.mobile-nav{display:none}
+.mobile-nav{
+  display:none;
+}
 
 @media(max-width:700px){
 
@@ -459,9 +478,17 @@ main{
     padding:0 15px;
   }
 
-  .header-logo{font-size:21px}
-  .header-nav{display:none}
-  .header-profile{margin-left:auto}
+  .header-logo{
+    font-size:21px;
+  }
+
+  .header-nav{
+    display:none;
+  }
+
+  .header-profile{
+    margin-left:auto;
+  }
 
   main{
     padding:20px 13px 90px;
@@ -540,7 +567,9 @@ main{
 
 <header>
 
-  <div class="header-logo">Delyvex</div>
+  <div class="header-logo">
+    Delyvex
+  </div>
 
   <div class="header-nav">
 
@@ -820,10 +849,7 @@ main{
 
     <button
       class="primary-btn"
-      style="
-        margin-top:10px;
-        background:#241733;
-      "
+      style="margin-top:10px;background:#241733"
       onclick="logout()"
     >
       Выйти
@@ -845,7 +871,9 @@ main{
       ← Назад
     </button>
 
-    <h2 id="chatTitle">Чат</h2>
+    <h2 id="chatTitle">
+      Чат
+    </h2>
 
     <div
       id="chatMessages"
@@ -908,9 +936,9 @@ main{
 
 <script>
 
-/* =========================
-SUPABASE
-========================= */
+/* ========================================
+   SUPABASE
+======================================== */
 
 const SUPABASE_URL =
 "https://gisdufgixjfudblxydvm.supabase.co";
@@ -928,27 +956,55 @@ const GITHUB_URL =
 "https://tyronik2x2v2-stack.github.io/Delyvex/";
 
 
-/* =========================
-STATE
-========================= */
+/* ========================================
+   STATE
+======================================== */
 
-let currentUser=null;
-let listings=[];
-let selectedAvatar=null;
-let selectedProductImage=null;
-let currentChat=null;
-let currentReceiver=null;
-let currentListing=null;
+let currentUser = null;
+
+let listings = [];
+
+let selectedAvatar = null;
+
+let selectedProductImage = null;
+
+let currentChat = null;
+
+let currentReceiver = null;
+
+let currentListing = null;
 
 
-/* =========================
-AVATARS
-========================= */
+/*
+  ВАЖНО.
+
+  Эти переменные защищают от повторной загрузки
+  и повторного рендера.
+
+  Даже если Supabase отправит несколько auth-событий,
+  объявления не будут нарисованы несколько раз.
+*/
+
+let appInitialized = false;
+
+let authProcessing = false;
+
+let listingsLoading = false;
+
+let listingsRenderToken = 0;
+
+
+/* ========================================
+   AVATARS
+======================================== */
 
 function makeAvatar(bg,face){
 
-  const svg=`
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  const svg = `
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 100 100"
+  >
 
     <circle
       cx="50"
@@ -991,14 +1047,18 @@ function makeAvatar(bg,face){
       stroke-linecap="round"
     />
 
-  </svg>`;
+  </svg>
+  `;
 
-  return "data:image/svg+xml;charset=UTF-8,"+
-    encodeURIComponent(svg);
+  return(
+    "data:image/svg+xml;charset=UTF-8,"+
+    encodeURIComponent(svg)
+  );
+
 }
 
 
-const AVATARS=[
+const AVATARS = [
 
   makeAvatar("#8b5cf6","#4c1d95"),
   makeAvatar("#ec4899","#831843"),
@@ -1023,18 +1083,18 @@ const AVATARS=[
 
 ];
 
-selectedAvatar=AVATARS[0];
+selectedAvatar = AVATARS[0];
 
 
-/* =========================
-AUTH
-========================= */
+/* ========================================
+   AUTH
+======================================== */
 
 async function loginWithGoogle(){
 
   try{
 
-    const result=
+    const result =
       await sb.auth.signInWithOAuth({
 
         provider:"google",
@@ -1052,6 +1112,11 @@ async function loginWithGoogle(){
 
     if(result.error){
 
+      console.error(
+        "Google OAuth error:",
+        result.error
+      );
+
       alert(
         "Ошибка входа:\n\n"+
         result.error.message
@@ -1060,6 +1125,8 @@ async function loginWithGoogle(){
     }
 
   }catch(error){
+
+    console.error(error);
 
     alert(
       "Ошибка входа:\n\n"+
@@ -1089,21 +1156,36 @@ function hideAuthGate(){
 }
 
 
-/* =========================
-INITIALIZE
-========================= */
+/* ========================================
+   INITIALIZE
+======================================== */
 
 async function initialize(){
+
+  /*
+    Если initialize уже выполнялся,
+    второй раз его не запускаем.
+  */
+
+  if(appInitialized){
+
+    return;
+
+  }
 
   const {
     data,
     error
-  }=
+  } =
     await sb.auth.getSession();
 
   if(error){
 
-    console.error(error);
+    console.error(
+      "getSession error:",
+      error
+    );
+
     return;
 
   }
@@ -1111,11 +1193,12 @@ async function initialize(){
   if(!data.session){
 
     showAuthGate();
+
     return;
 
   }
 
-  currentUser=
+  currentUser =
     data.session.user;
 
   hideAuthGate();
@@ -1126,30 +1209,71 @@ async function initialize(){
 
   renderAvatars();
 
+  appInitialized = true;
+
 }
 
 
+/*
+  ВАЖНО:
+
+  onAuthStateChange больше НЕ вызывает
+  initialize/loadListings на каждое событие.
+
+  Это и убирает одну из главных причин
+  повторного рендера объявлений.
+*/
+
 sb.auth.onAuthStateChange(
-  async(event,session)=>{
+  (event,session)=>{
+
+    if(event==="SIGNED_OUT"){
+
+      currentUser = null;
+
+      appInitialized = false;
+
+      listings = [];
+
+      showAuthGate();
+
+      return;
+
+    }
+
+    if(
+      session &&
+      currentUser &&
+      currentUser.id === session.user.id
+    ){
+
+      /*
+        Пользователь уже загружен.
+        Ничего повторно не делаем.
+      */
+
+      return;
+
+    }
 
     if(session){
 
-      currentUser=
+      currentUser =
         session.user;
 
       hideAuthGate();
 
-      await loadProfile();
+      /*
+        Запускаем отдельную синхронизацию
+        только если приложение ещё не было
+        полностью инициализировано.
+      */
 
-      await loadListings();
+      if(!appInitialized){
 
-      renderAvatars();
+        initialize();
 
-    }else{
-
-      currentUser=null;
-
-      showAuthGate();
+      }
 
     }
 
@@ -1157,15 +1281,16 @@ sb.auth.onAuthStateChange(
 );
 
 
-/* =========================
-NAVIGATION
-========================= */
+/* ========================================
+   NAVIGATION
+======================================== */
 
 function showSection(section){
 
   if(!currentUser){
 
     showAuthGate();
+
     return;
 
   }
@@ -1173,96 +1298,127 @@ function showSection(section){
   document
     .querySelectorAll(".section")
     .forEach(
-      el=>el.classList.remove("active")
+      element =>
+        element.classList.remove("active")
     );
 
-  const target=
+  const target =
     document.getElementById(section);
 
   if(target){
+
     target.classList.add("active");
+
   }
 
   if(section==="chats"){
+
     loadChats();
+
   }
 
   if(section==="profile"){
+
     loadProfile();
+
     renderAvatars();
+
   }
 
 }
 
 
-/* =========================
-PROFILE
-========================= */
+/* ========================================
+   PROFILE
+======================================== */
 
 async function loadProfile(){
 
-  if(!currentUser)return;
+  if(!currentUser){
+
+    return;
+
+  }
 
   const {
     data,
     error
-  }=
+  } =
     await sb
       .from("profiles")
       .select("*")
-      .eq("id",currentUser.id)
+      .eq(
+        "id",
+        currentUser.id
+      )
       .maybeSingle();
 
   if(error){
-    console.error(error);
+
+    console.error(
+      "Profile error:",
+      error
+    );
+
   }
 
-  const nickname=
-    data?.nickname||
-    currentUser.user_metadata?.full_name||
-    currentUser.user_metadata?.name||
+  const nickname =
+    data?.nickname ||
+    currentUser.user_metadata?.full_name ||
+    currentUser.user_metadata?.name ||
     "Пользователь";
 
-  let avatar=
+  let avatar =
     data?.avatar_url;
 
   if(
-    !avatar||
+    !avatar ||
     !avatar.startsWith("data:image")
   ){
-    avatar=AVATARS[0];
+
+    avatar =
+      AVATARS[0];
+
   }
 
-  selectedAvatar=avatar;
+  selectedAvatar =
+    avatar;
 
   document.getElementById(
     "nicknameInput"
-  ).value=nickname;
+  ).value =
+    nickname;
 
   document.getElementById(
     "profileNickname"
-  ).textContent=nickname;
+  ).textContent =
+    nickname;
 
   document.getElementById(
     "profileEmail"
-  ).textContent=
-    currentUser.email||"";
+  ).textContent =
+    currentUser.email || "";
 
   document.getElementById(
     "profileAvatar"
-  ).src=avatar;
+  ).src =
+    avatar;
 
   document.getElementById(
     "selectedAvatarPreview"
-  ).src=avatar;
+  ).src =
+    avatar;
 
   document.getElementById(
     "headerAvatar"
-  ).src=avatar;
+  ).src =
+    avatar;
 
   document.getElementById(
     "headerAvatar"
-  ).classList.remove("hidden");
+  ).classList.remove(
+    "hidden"
+  );
 
   renderAvatars();
 
@@ -1273,58 +1429,74 @@ async function loadProfile(){
 }
 
 
-/* =========================
-AVATARS
-========================= */
+/* ========================================
+   AVATARS
+======================================== */
 
 function renderAvatars(){
 
-  const grid=
+  const grid =
     document.getElementById(
       "avatarGrid"
     );
 
-  if(!grid)return;
+  if(!grid){
 
-  grid.innerHTML="";
+    return;
+
+  }
+
+  grid.innerHTML = "";
 
   AVATARS.forEach(
     (avatar,index)=>{
 
-      const button=
-        document.createElement("button");
-
-      button.type="button";
-
-      button.className=
-        "avatar-option"+
-        (
-          selectedAvatar===avatar
-            ?" selected"
-            :""
+      const button =
+        document.createElement(
+          "button"
         );
 
-      const img=
-        document.createElement("img");
+      button.type =
+        "button";
 
-      img.src=avatar;
-      img.alt="Аватар "+(index+1);
+      button.className =
+        "avatar-option" +
+        (
+          selectedAvatar === avatar
+            ? " selected"
+            : ""
+        );
+
+      const img =
+        document.createElement(
+          "img"
+        );
+
+      img.src =
+        avatar;
+
+      img.alt =
+        "Аватар "+(index+1);
 
       button.appendChild(img);
 
-      button.onclick=()=>{
+      button.onclick = ()=>{
 
-        selectedAvatar=avatar;
+        selectedAvatar =
+          avatar;
 
         document.getElementById(
           "selectedAvatarPreview"
-        ).src=avatar;
+        ).src =
+          avatar;
 
         renderAvatars();
 
       };
 
-      grid.appendChild(button);
+      grid.appendChild(
+        button
+      );
 
     }
   );
@@ -1335,33 +1507,46 @@ function renderAvatars(){
 async function saveProfile(){
 
   if(!currentUser){
+
     showAuthGate();
+
     return;
+
   }
 
-  const nickname=
+  const nickname =
     document
-      .getElementById("nicknameInput")
+      .getElementById(
+        "nicknameInput"
+      )
       .value
       .trim();
 
   if(!nickname){
 
-    alert("Введите никнейм.");
+    alert(
+      "Введите никнейм."
+    );
+
     return;
 
   }
 
   const {
     error
-  }=
+  } =
     await sb
       .from("profiles")
       .upsert({
 
-        id:currentUser.id,
-        nickname:nickname,
-        avatar_url:selectedAvatar
+        id:
+          currentUser.id,
+
+        nickname:
+          nickname,
+
+        avatar_url:
+          selectedAvatar
 
       });
 
@@ -1380,81 +1565,96 @@ async function saveProfile(){
 
   document.getElementById(
     "profileNickname"
-  ).textContent=nickname;
+  ).textContent =
+    nickname;
 
   document.getElementById(
     "profileAvatar"
-  ).src=selectedAvatar;
+  ).src =
+    selectedAvatar;
 
   document.getElementById(
     "headerAvatar"
-  ).src=selectedAvatar;
+  ).src =
+    selectedAvatar;
 
-  alert("Профиль сохранён!");
+  alert(
+    "Профиль сохранён!"
+  );
 
 }
 
 
-/* =========================
-RATING
-========================= */
+/* ========================================
+   RATING
+======================================== */
 
 async function loadProfileRating(userId){
 
   const {
     data,
     error
-  }=
+  } =
     await sb
       .from("reviews")
       .select("rating")
-      .eq("seller_id",userId);
+      .eq(
+        "seller_id",
+        userId
+      );
 
   if(error){
 
     console.error(error);
+
     return;
 
   }
 
-  const reviews=data||[];
+  const reviews =
+    data || [];
 
-  const count=reviews.length;
+  const count =
+    reviews.length;
 
-  let average=0;
+  let average = 0;
 
   if(count){
 
-    average=
+    average =
       reviews.reduce(
         (sum,item)=>
-          sum+Number(item.rating),
+          sum + Number(item.rating),
         0
-      )/count;
+      ) / count;
 
   }
 
-  average=
-    Math.round(average*10)/10;
+  average =
+    Math.round(
+      average * 10
+    ) / 10;
 
-  const rounded=Math.round(average);
+  const rounded =
+    Math.round(average);
 
-  const stars=
-    "★".repeat(rounded)+
+  const stars =
+    "★".repeat(rounded) +
     "☆".repeat(5-rounded);
 
   document.getElementById(
     "profileRating"
-  ).textContent=
+  ).textContent =
     average.toFixed(1);
 
   document.getElementById(
     "profileStars"
-  ).textContent=stars;
+  ).textContent =
+    stars;
 
   document.getElementById(
     "profileReviewCount"
-  ).textContent=
+  ).textContent =
     getReviewText(count);
 
 }
@@ -1462,32 +1662,51 @@ async function loadProfileRating(userId){
 
 function getReviewText(count){
 
-  if(count===0)return"0 отзывов";
-  if(count===1)return"1 отзыв";
-  if(count>=2&&count<=4)
-    return`${count} отзыва`;
+  if(count===0){
 
-  return`${count} отзывов`;
+    return "0 отзывов";
+
+  }
+
+  if(count===1){
+
+    return "1 отзыв";
+
+  }
+
+  if(
+    count>=2 &&
+    count<=4
+  ){
+
+    return `${count} отзыва`;
+
+  }
+
+  return `${count} отзывов`;
 
 }
 
 
-/* =========================
-PRODUCT IMAGE
-========================= */
+/* ========================================
+   PRODUCT IMAGE
+======================================== */
 
 function previewProductImage(){
 
-  const input=
+  const input =
     document.getElementById(
       "sellImageFile"
     );
 
-  const file=input.files[0];
+  const file =
+    input.files[0];
 
   if(!file){
 
-    selectedProductImage=null;
+    selectedProductImage =
+      null;
+
     return;
 
   }
@@ -1498,35 +1717,38 @@ function previewProductImage(){
       "Можно выбрать только изображение."
     );
 
-    input.value="";
+    input.value = "";
+
     return;
 
   }
 
-  if(file.size>5*1024*1024){
+  if(file.size > 5*1024*1024){
 
     alert(
       "Картинка должна быть меньше 5 МБ."
     );
 
-    input.value="";
+    input.value = "";
+
     return;
 
   }
 
-  const reader=new FileReader();
+  const reader =
+    new FileReader();
 
-  reader.onload=function(){
+  reader.onload = function(){
 
-    selectedProductImage=
+    selectedProductImage =
       reader.result;
 
-    const preview=
+    const preview =
       document.getElementById(
         "productImagePreview"
       );
 
-    preview.src=
+    preview.src =
       selectedProductImage;
 
     preview.classList.remove(
@@ -1540,105 +1762,174 @@ function previewProductImage(){
 }
 
 
-/* =========================
-LOAD LISTINGS
-========================= */
+/* ========================================
+   LOAD LISTINGS
+======================================== */
 
 async function loadListings(){
 
-  const container=
-    document.getElementById(
-      "listingsContainer"
-    );
+  /*
+    КЛЮЧЕВОЕ ИСПРАВЛЕНИЕ №1.
 
-  container.innerHTML=`
-    <div class="empty">
-      Загрузка объявлений...
-    </div>
-  `;
+    Если загрузка уже идёт,
+    второй запрос НЕ запускаем.
+  */
 
-  const {
-    data,
-    error
-  }=
-    await sb
-      .from("listings")
-      .select("*")
-      .order(
-        "created_at",
-        {
-          ascending:false
-        }
-      );
-
-  if(error){
-
-    console.error(error);
-
-    container.innerHTML=`
-      <div class="empty">
-        Ошибка загрузки объявлений.
-      </div>
-    `;
+  if(listingsLoading){
 
     return;
 
   }
 
-  /*
-    Удаляем дубликаты по ID.
-  */
+  listingsLoading = true;
 
-  const uniqueListings=[];
-  const seenIds=new Set();
-
-  (data||[]).forEach(listing=>{
-
-    const id=String(listing.id);
-
-    if(seenIds.has(id)){
-      return;
-    }
-
-    seenIds.add(id);
-
-    uniqueListings.push(
-      listing
+  const container =
+    document.getElementById(
+      "listingsContainer"
     );
 
-  });
+  container.innerHTML = `
+    <div class="empty">
+      Загрузка объявлений...
+    </div>
+  `;
 
-  listings=uniqueListings;
+  try{
 
-  await renderListings(
-    listings
-  );
+    const {
+      data,
+      error
+    } =
+      await sb
+        .from("listings")
+        .select("*")
+        .order(
+          "created_at",
+          {
+            ascending:false
+          }
+        );
+
+    if(error){
+
+      console.error(
+        "Listings error:",
+        error
+      );
+
+      container.innerHTML = `
+        <div class="empty">
+          Ошибка загрузки объявлений.
+        </div>
+      `;
+
+      return;
+
+    }
+
+
+    /*
+      КЛЮЧЕВОЕ ИСПРАВЛЕНИЕ №2.
+
+      Один ID = одна карточка.
+    */
+
+    const uniqueListings =
+      [];
+
+    const seenIds =
+      new Set();
+
+    (data || []).forEach(
+      listing=>{
+
+        const id =
+          String(listing.id);
+
+        if(
+          seenIds.has(id)
+        ){
+
+          return;
+
+        }
+
+        seenIds.add(id);
+
+        uniqueListings.push(
+          listing
+        );
+
+      }
+    );
+
+
+    listings =
+      uniqueListings;
+
+
+    await renderListings(
+      listings
+    );
+
+  }finally{
+
+    listingsLoading = false;
+
+  }
 
 }
 
 
-/* =========================
-RENDER LISTINGS
-========================= */
+/* ========================================
+   RENDER LISTINGS
+======================================== */
 
 async function renderListings(items){
 
-  const container=
+  /*
+    КЛЮЧЕВОЕ ИСПРАВЛЕНИЕ №3.
+
+    Каждый вызов получает собственный номер.
+    Старый вызов после await уже не сможет
+    нарисовать карточки поверх нового.
+  */
+
+  const renderToken =
+    ++listingsRenderToken;
+
+  const container =
     document.getElementById(
       "listingsContainer"
     );
 
   /*
-    Главное исправление:
-    полностью очищаем список.
+    СРАЗУ полностью очищаем контейнер.
   */
 
-  container.innerHTML="";
+  container.innerHTML = "";
 
 
-  if(!items||!items.length){
+  if(
+    !items ||
+    !items.length
+  ){
 
-    container.innerHTML=`
+    /*
+      Не даём старому render дописать
+      что-либо после этого.
+    */
+
+    if(
+      renderToken !==
+      listingsRenderToken
+    ){
+
+      return;
+
+    }
+
+    container.innerHTML = `
       <div class="empty">
         Объявлений пока нет.
       </div>
@@ -1650,44 +1941,58 @@ async function renderListings(items){
 
 
   /*
-    Ещё раз удаляем дубликаты.
+    Уникальные товары.
   */
 
-  const uniqueItems=[];
-  const seenIds=new Set();
+  const uniqueItems =
+    [];
 
-  items.forEach(listing=>{
+  const seenIds =
+    new Set();
 
-    const id=String(listing.id);
 
-    if(seenIds.has(id)){
-      return;
+  items.forEach(
+    listing=>{
+
+      const id =
+        String(listing.id);
+
+      if(
+        seenIds.has(id)
+      ){
+
+        return;
+
+      }
+
+      seenIds.add(id);
+
+      uniqueItems.push(
+        listing
+      );
+
     }
-
-    seenIds.add(id);
-
-    uniqueItems.push(
-      listing
-    );
-
-  });
+  );
 
 
   /*
-    ID продавцов.
+    Загружаем продавцов.
   */
 
-  const sellerIds=[
-    ...new Set(
-      uniqueItems.map(
-        item=>item.seller_id
+  const sellerIds =
+    [
+      ...new Set(
+        uniqueItems.map(
+          item =>
+            item.seller_id
+        )
       )
-    )
-  ];
+    ];
 
 
-  let profiles=[];
-  let reviews=[];
+  let profiles = [];
+
+  let reviews = [];
 
 
   if(sellerIds.length){
@@ -1695,7 +2000,7 @@ async function renderListings(items){
     const {
       data:profileData,
       error:profileError
-    }=
+    } =
       await sb
         .from("profiles")
         .select(
@@ -1706,17 +2011,18 @@ async function renderListings(items){
           sellerIds
         );
 
+
     if(profileError){
 
       console.error(
-        "Ошибка профилей:",
+        "Ошибка загрузки профилей:",
         profileError
       );
 
     }else{
 
-      profiles=
-        profileData||[];
+      profiles =
+        profileData || [];
 
     }
 
@@ -1724,7 +2030,7 @@ async function renderListings(items){
     const {
       data:reviewData,
       error:reviewError
-    }=
+    } =
       await sb
         .from("reviews")
         .select(
@@ -1735,281 +2041,351 @@ async function renderListings(items){
           sellerIds
         );
 
+
     if(reviewError){
 
       console.error(
-        "Ошибка отзывов:",
+        "Ошибка загрузки отзывов:",
         reviewError
       );
 
     }else{
 
-      reviews=
-        reviewData||[];
+      reviews =
+        reviewData || [];
 
     }
 
   }
 
 
-  const profileMap=
+  /*
+    Если во время await начался новый render,
+    старый полностью прекращаем.
+  */
+
+  if(
+    renderToken !==
+    listingsRenderToken
+  ){
+
+    return;
+
+  }
+
+
+  const profileMap =
     new Map();
 
-  profiles.forEach(profile=>{
 
-    profileMap.set(
-      profile.id,
-      profile
-    );
+  profiles.forEach(
+    profile=>{
 
-  });
-
-
-  const reviewMap=
-    new Map();
-
-  reviews.forEach(review=>{
-
-    if(
-      !reviewMap.has(
-        review.seller_id
-      )
-    ){
-
-      reviewMap.set(
-        review.seller_id,
-        []
+      profileMap.set(
+        profile.id,
+        profile
       );
 
     }
+  );
 
-    reviewMap
-      .get(review.seller_id)
-      .push(
-        Number(review.rating)
-      );
 
-  });
+  const reviewMap =
+    new Map();
+
+
+  reviews.forEach(
+    review=>{
+
+      if(
+        !reviewMap.has(
+          review.seller_id
+        )
+      ){
+
+        reviewMap.set(
+          review.seller_id,
+          []
+        );
+
+      }
+
+      reviewMap
+        .get(
+          review.seller_id
+        )
+        .push(
+          Number(
+            review.rating
+          )
+        );
+
+    }
+  );
 
 
   /*
-    Создаём КАЖДУЮ карточку только один раз.
+    Теперь рисуем карточки.
   */
 
-  uniqueItems.forEach(listing=>{
+  uniqueItems.forEach(
+    listing=>{
 
-    const card=
-      document.createElement("div");
+      /*
+        Дополнительная проверка.
+      */
 
-    card.className=
-      "card listing-card";
+      if(
+        renderToken !==
+        listingsRenderToken
+      ){
 
+        return;
 
-    const image=
-      listing.image_url||
-      "https://placehold.co/600x400/130d1f/c084fc?text=Нет+фото";
-
-
-    const profile=
-      profileMap.get(
-        listing.seller_id
-      );
+      }
 
 
-    const sellerName=
-      profile?.nickname||
-      "Продавец";
+      const card =
+        document.createElement(
+          "div"
+        );
+
+      card.className =
+        "card listing-card";
 
 
-    const sellerAvatar=
-      profile?.avatar_url||
-      AVATARS[0];
+      const image =
+        listing.image_url ||
+        "https://placehold.co/600x400/130d1f/c084fc?text=Нет+фото";
 
 
-    const sellerReviews=
-      reviewMap.get(
-        listing.seller_id
-      )||[];
+      const profile =
+        profileMap.get(
+          listing.seller_id
+        );
 
 
-    const reviewCount=
-      sellerReviews.length;
+      const sellerName =
+        profile?.nickname ||
+        "Продавец";
 
 
-    let sellerRating=0;
+      const sellerAvatar =
+        profile?.avatar_url ||
+        AVATARS[0];
 
 
-    if(reviewCount){
-
-      sellerRating=
-        sellerReviews.reduce(
-          (sum,rating)=>
-            sum+rating,
-          0
-        )/reviewCount;
-
-    }
+      const sellerReviews =
+        reviewMap.get(
+          listing.seller_id
+        ) || [];
 
 
-    sellerRating=
-      Math.round(
-        sellerRating*10
-      )/10;
+      const reviewCount =
+        sellerReviews.length;
 
 
-    let actions="";
+      let sellerRating = 0;
 
 
-    if(
-      currentUser&&
-      listing.seller_id!==currentUser.id
-    ){
+      if(reviewCount){
 
-      actions=`
+        sellerRating =
+          sellerReviews.reduce(
+            (sum,rating)=>
+              sum + rating,
+            0
+          ) / reviewCount;
 
-        <div class="listing-actions">
-
-          <button
-            class="primary-btn"
-            onclick="
-              buyListing('${listing.id}')
-            "
-          >
-            🛒 Купить
-          </button>
-
-          <button
-            class="chat-btn"
-            onclick="
-              openChat(
-                '${listing.id}',
-                '${listing.seller_id}',
-                '${escapeJs(
-                  listing.title||"Чат"
-                )}'
-              )
-            "
-          >
-            💬 Чат
-          </button>
-
-        </div>
-
-      `;
-
-    }else{
-
-      actions=`
-
-        <div
-          style="
-            margin-top:14px;
-            color:#888;
-          "
-        >
-          Это твоё объявление
-        </div>
-
-      `;
-
-    }
+      }
 
 
-    card.innerHTML=`
+      sellerRating =
+        Math.round(
+          sellerRating * 10
+        ) / 10;
 
-      <img
-        class="listing-image"
-        src="${escapeHtml(image)}"
-        alt="Товар"
-      >
 
-      <div class="listing-info">
+      let actions = "";
 
-        <div class="game-tag">
-          ${escapeHtml(
-            listing.game||"Игра"
-          )}
-        </div>
 
-        <div class="listing-title">
-          ${escapeHtml(
-            listing.title||
-            "Без названия"
-          )}
-        </div>
+      if(
+        currentUser &&
+        listing.seller_id !==
+        currentUser.id
+      ){
 
-        <div class="description">
-          ${escapeHtml(
-            listing.description||""
-          )}
-        </div>
+        actions = `
 
-        <div class="price">
-          ${escapeHtml(
-            String(
-              listing.price??""
-            )
-          )} ₽
-        </div>
+          <div class="listing-actions">
 
-        <div class="seller-info">
+            <button
+              class="primary-btn"
+              onclick="
+                buyListing('${escapeJs(
+                  listing.id
+                )}')
+              "
+            >
+              🛒 Купить
+            </button>
 
-          <img
-            src="${escapeHtml(
-              sellerAvatar
-            )}"
+            <button
+              class="chat-btn"
+              onclick="
+                openChat(
+                  '${escapeJs(
+                    listing.id
+                  )}',
+                  '${escapeJs(
+                    listing.seller_id
+                  )}',
+                  '${escapeJs(
+                    listing.title ||
+                    "Чат"
+                  )}'
+                )
+              "
+            >
+              💬 Чат
+            </button>
+
+          </div>
+
+        `;
+
+      }else{
+
+        actions = `
+
+          <div
             style="
-              width:36px;
-              height:36px;
-              border-radius:50%;
-              object-fit:cover;
-              border:2px solid #8b5cf6;
+              margin-top:14px;
+              color:#888;
             "
-            alt="Аватар продавца"
           >
+            Это твоё объявление
+          </div>
 
-          <div>
+        `;
 
-            <div class="seller-name">
-              👤 ${escapeHtml(
-                sellerName
-              )}
-            </div>
+      }
 
-            <div class="seller-rating">
 
-              ⭐ ${sellerRating.toFixed(1)}
-              ·
-              ${getReviewText(
-                reviewCount
-              )}
+      card.innerHTML = `
+
+        <img
+          class="listing-image"
+          src="${escapeHtml(
+            image
+          )}"
+          alt="Товар"
+        >
+
+        <div class="listing-info">
+
+          <div class="game-tag">
+            ${escapeHtml(
+              listing.game ||
+              "Игра"
+            )}
+          </div>
+
+          <div class="listing-title">
+            ${escapeHtml(
+              listing.title ||
+              "Без названия"
+            )}
+          </div>
+
+          <div class="description">
+            ${escapeHtml(
+              listing.description ||
+              ""
+            )}
+          </div>
+
+          <div class="price">
+            ${escapeHtml(
+              String(
+                listing.price ??
+                ""
+              )
+            )} ₽
+          </div>
+
+          <div class="seller-info">
+
+            <img
+              src="${escapeHtml(
+                sellerAvatar
+              )}"
+              style="
+                width:36px;
+                height:36px;
+                border-radius:50%;
+                object-fit:cover;
+                border:2px solid #8b5cf6;
+              "
+              alt="Аватар продавца"
+            >
+
+            <div>
+
+              <div class="seller-name">
+                👤 ${escapeHtml(
+                  sellerName
+                )}
+              </div>
+
+              <div class="seller-rating">
+                ⭐ ${sellerRating.toFixed(1)}
+                ·
+                ${getReviewText(
+                  reviewCount
+                )}
+              </div>
 
             </div>
 
           </div>
 
+          ${actions}
+
         </div>
 
-        ${actions}
-
-      </div>
-    `;
+      `;
 
 
-    container.appendChild(card);
+      /*
+        Перед добавлением ещё раз проверяем
+        token.
+      */
 
-  });
+      if(
+        renderToken ===
+        listingsRenderToken
+      ){
+
+        container.appendChild(
+          card
+        );
+
+      }
+
+    }
+  );
 
 }
 
 
-/* =========================
-SEARCH
-========================= */
+/* ========================================
+   SEARCH
+======================================== */
 
 async function searchListings(){
 
-  const query=
+  const query =
     document
       .getElementById(
         "searchInput"
@@ -2030,31 +2406,33 @@ async function searchListings(){
   }
 
 
-  const result=
-    listings.filter(item=>{
+  const result =
+    listings.filter(
+      item=>{
 
-      const game=
-        String(
-          item.game||""
-        ).toLowerCase();
+        const game =
+          String(
+            item.game || ""
+          ).toLowerCase();
 
-      const title=
-        String(
-          item.title||""
-        ).toLowerCase();
+        const title =
+          String(
+            item.title || ""
+          ).toLowerCase();
 
-      const description=
-        String(
-          item.description||""
-        ).toLowerCase();
+        const description =
+          String(
+            item.description || ""
+          ).toLowerCase();
 
-      return(
-        game.includes(query)||
-        title.includes(query)||
-        description.includes(query)
-      );
+        return(
+          game.includes(query) ||
+          title.includes(query) ||
+          description.includes(query)
+        );
 
-    });
+      }
+    );
 
 
   await renderListings(
@@ -2064,50 +2442,59 @@ async function searchListings(){
 }
 
 
-/* =========================
-CREATE LISTING
-========================= */
+/* ========================================
+   CREATE LISTING
+======================================== */
 
 async function createListing(){
 
   if(!currentUser){
 
     showAuthGate();
+
     return;
 
   }
 
 
-  const game=
+  const game =
     document
-      .getElementById("sellGame")
+      .getElementById(
+        "sellGame"
+      )
       .value
       .trim();
 
 
-  const title=
+  const title =
     document
-      .getElementById("sellTitle")
+      .getElementById(
+        "sellTitle"
+      )
       .value
       .trim();
 
 
-  const description=
+  const description =
     document
-      .getElementById("sellDescription")
+      .getElementById(
+        "sellDescription"
+      )
       .value
       .trim();
 
 
-  const price=
+  const price =
     document
-      .getElementById("sellPrice")
+      .getElementById(
+        "sellPrice"
+      )
       .value;
 
 
   if(
-    !game||
-    !title||
+    !game ||
+    !title ||
     !price
   ){
 
@@ -2122,7 +2509,7 @@ async function createListing(){
 
   const {
     error
-  }=
+  } =
     await sb
       .from("listings")
       .insert({
@@ -2150,7 +2537,10 @@ async function createListing(){
 
   if(error){
 
-    console.error(error);
+    console.error(
+      "Create listing error:",
+      error
+    );
 
     alert(
       "Ошибка публикации:\n\n"+
@@ -2162,25 +2552,29 @@ async function createListing(){
   }
 
 
+  /*
+    Очищаем форму.
+  */
+
   document.getElementById(
     "sellGame"
-  ).value="";
+  ).value = "";
 
   document.getElementById(
     "sellTitle"
-  ).value="";
+  ).value = "";
 
   document.getElementById(
     "sellDescription"
-  ).value="";
+  ).value = "";
 
   document.getElementById(
     "sellPrice"
-  ).value="";
+  ).value = "";
 
   document.getElementById(
     "sellImageFile"
-  ).value="";
+  ).value = "";
 
   document.getElementById(
     "productImagePreview"
@@ -2188,37 +2582,53 @@ async function createListing(){
     "hidden"
   );
 
-  selectedProductImage=null;
+  selectedProductImage =
+    null;
+
+
+  /*
+    ВАЖНО:
+    НЕ добавляем новый товар вручную
+    в массив listings.
+
+    Просто заново читаем базу.
+    Поэтому одна запись БД = одна карточка.
+  */
+
+  await loadListings();
+
 
   alert(
     "Объявление опубликовано!"
   );
 
-  await loadListings();
 
-  showSection("home");
+  showSection(
+    "home"
+  );
 
 }
 
 
-/* =========================
-BUY
-========================= */
+/* ========================================
+   BUY
+======================================== */
 
 async function buyListing(listingId){
 
   if(!currentUser){
 
     showAuthGate();
+
     return;
 
   }
 
 
-  const listing=
+  const listing =
     listings.find(
-      item=>
-        String(item.id)===
+      item =>
+        String(item.id) ===
         String(listingId)
     );
 
@@ -2235,7 +2645,7 @@ async function buyListing(listingId){
 
 
   if(
-    listing.seller_id===
+    listing.seller_id ===
     currentUser.id
   ){
 
@@ -2248,18 +2658,22 @@ async function buyListing(listingId){
   }
 
 
-  const confirmed=
+  const confirmed =
     confirm(
       `Купить "${listing.title}" за ${listing.price} ₽?`
     );
 
 
-  if(!confirmed)return;
+  if(!confirmed){
+
+    return;
+
+  }
 
 
   const {
     data:existing
-  }=
+  } =
     await sb
       .from("purchases")
       .select("id")
@@ -2288,7 +2702,7 @@ async function buyListing(listingId){
   const {
     data:purchase,
     error
-  }=
+  } =
     await sb
       .from("purchases")
       .insert({
@@ -2339,31 +2753,35 @@ async function buyListing(listingId){
 }
 
 
-/* =========================
-REVIEW
-========================= */
+/* ========================================
+   REVIEW
+======================================== */
 
 async function writeReview(
   purchase,
   listing
 ){
 
-  const ratingText=
+  const ratingText =
     prompt(
       "Оцени продавца от 1 до 5:"
     );
 
 
-  if(ratingText===null)return;
+  if(ratingText===null){
+
+    return;
+
+  }
 
 
-  const rating=
+  const rating =
     Number(ratingText);
 
 
   if(
-    !Number.isInteger(rating)||
-    rating<1||
+    !Number.isInteger(rating) ||
+    rating<1 ||
     rating>5
   ){
 
@@ -2376,18 +2794,22 @@ async function writeReview(
   }
 
 
-  const review=
+  const review =
     prompt(
       "Напиши отзыв о продавце:"
     );
 
 
-  if(review===null)return;
+  if(review===null){
+
+    return;
+
+  }
 
 
   const {
     error
-  }=
+  } =
     await sb
       .from("reviews")
       .insert({
@@ -2441,22 +2863,26 @@ async function writeReview(
 }
 
 
-/* =========================
-CHATS
-========================= */
+/* ========================================
+   CHATS
+======================================== */
 
 async function loadChats(){
 
-  if(!currentUser)return;
+  if(!currentUser){
+
+    return;
+
+  }
 
 
-  const container=
+  const container =
     document.getElementById(
       "chatsContainer"
     );
 
 
-  container.innerHTML=`
+  container.innerHTML = `
     <div class="empty">
       Загрузка чатов...
     </div>
@@ -2466,7 +2892,7 @@ async function loadChats(){
   const {
     data,
     error
-  }=
+  } =
     await sb
       .from("messages")
       .select("*")
@@ -2485,7 +2911,7 @@ async function loadChats(){
 
     console.error(error);
 
-    container.innerHTML=`
+    container.innerHTML = `
       <div class="empty">
         Ошибка загрузки чатов.
       </div>
@@ -2498,7 +2924,7 @@ async function loadChats(){
 
   if(!data?.length){
 
-    container.innerHTML=`
+    container.innerHTML = `
       <div class="empty">
         У тебя пока нет чатов.
       </div>
@@ -2509,43 +2935,50 @@ async function loadChats(){
   }
 
 
-  const chats=new Map();
+  const chats =
+    new Map();
 
 
-  data.forEach(message=>{
+  data.forEach(
+    message=>{
 
-    const other=
-      message.sender_id===
-      currentUser.id
-        ?message.receiver_id
-        :message.sender_id;
+      const other =
+        message.sender_id ===
+        currentUser.id
+          ? message.receiver_id
+          : message.sender_id;
 
 
-    if(!chats.has(other)){
+      if(
+        !chats.has(other)
+      ){
 
-      chats.set(
-        other,
-        message
-      );
+        chats.set(
+          other,
+          message
+        );
+
+      }
 
     }
+  );
 
-  });
 
-
-  container.innerHTML="";
+  container.innerHTML = "";
 
 
   chats.forEach(
     (message,otherId)=>{
 
-      const item=
-        document.createElement("div");
+      const item =
+        document.createElement(
+          "div"
+        );
 
-      item.className=
+      item.className =
         "chat-item";
 
-      item.innerHTML=`
+      item.innerHTML = `
 
         <strong>
           💬 Чат
@@ -2564,7 +2997,7 @@ async function loadChats(){
 
       `;
 
-      item.onclick=()=>{
+      item.onclick = ()=>{
 
         openChat(
           message.listing_id,
@@ -2574,7 +3007,9 @@ async function loadChats(){
 
       };
 
-      container.appendChild(item);
+      container.appendChild(
+        item
+      );
 
     }
   );
@@ -2582,9 +3017,9 @@ async function loadChats(){
 }
 
 
-/* =========================
-OPEN CHAT
-========================= */
+/* ========================================
+   OPEN CHAT
+======================================== */
 
 async function openChat(
   listingId,
@@ -2592,35 +3027,42 @@ async function openChat(
   title
 ){
 
-  currentChat=listingId;
-  currentReceiver=receiverId;
-  currentListing=listingId;
+  currentChat =
+    listingId;
+
+  currentReceiver =
+    receiverId;
+
+  currentListing =
+    listingId;
 
   document.getElementById(
     "chatTitle"
-  ).textContent=
-    title||"Чат";
+  ).textContent =
+    title || "Чат";
 
-  showSection("chatWindow");
+  showSection(
+    "chatWindow"
+  );
 
   await loadMessages();
 
 }
 
 
-/* =========================
-LOAD MESSAGES
-========================= */
+/* ========================================
+   LOAD MESSAGES
+======================================== */
 
 async function loadMessages(){
 
-  const container=
+  const container =
     document.getElementById(
       "chatMessages"
     );
 
 
-  container.innerHTML=`
+  container.innerHTML = `
     <div class="empty">
       Загрузка...
     </div>
@@ -2630,7 +3072,7 @@ async function loadMessages(){
   const {
     data,
     error
-  }=
+  } =
     await sb
       .from("messages")
       .select("*")
@@ -2653,7 +3095,7 @@ async function loadMessages(){
 
     console.error(error);
 
-    container.innerHTML=`
+    container.innerHTML = `
       <div class="empty">
         Ошибка загрузки сообщений.
       </div>
@@ -2664,12 +3106,12 @@ async function loadMessages(){
   }
 
 
-  container.innerHTML="";
+  container.innerHTML = "";
 
 
   if(!data?.length){
 
-    container.innerHTML=`
+    container.innerHTML = `
       <div class="empty">
         Начни общение.
       </div>
@@ -2680,62 +3122,76 @@ async function loadMessages(){
   }
 
 
-  data.forEach(message=>{
+  data.forEach(
+    message=>{
 
-    const div=
-      document.createElement("div");
+      const div =
+        document.createElement(
+          "div"
+        );
 
-    div.className=
-      "message "+
-      (
-        message.sender_id===
-        currentUser.id
-          ?"mine"
-          :"theirs"
+      div.className =
+        "message " +
+        (
+          message.sender_id ===
+          currentUser.id
+            ? "mine"
+            : "theirs"
+        );
+
+      div.textContent =
+        message.message;
+
+      container.appendChild(
+        div
       );
 
-    div.textContent=
-      message.message;
-
-    container.appendChild(div);
-
-  });
+    }
+  );
 
 
-  container.scrollTop=
+  container.scrollTop =
     container.scrollHeight;
 
 }
 
 
-/* =========================
-SEND MESSAGE
-========================= */
+/* ========================================
+   SEND MESSAGE
+======================================== */
 
 async function sendMessage(){
 
   if(
-    !currentUser||
+    !currentUser ||
     !currentReceiver
-  )return;
+  ){
+
+    return;
+
+  }
 
 
-  const input=
+  const input =
     document.getElementById(
       "chatInput"
     );
 
 
-  const message=
+  const message =
     input.value.trim();
 
 
-  if(!message)return;
+  if(!message){
+
+    return;
+
+  }
 
 
   const {
     error
-  }=
+  } =
     await sb
       .from("messages")
       .insert({
@@ -2769,40 +3225,64 @@ async function sendMessage(){
   }
 
 
-  input.value="";
+  input.value = "";
 
   await loadMessages();
 
 }
 
 
-/* =========================
-LOGOUT
-========================= */
+/* ========================================
+   LOGOUT
+======================================== */
 
 async function logout(){
 
   await sb.auth.signOut();
 
-  currentUser=null;
+  currentUser =
+    null;
+
+  listings =
+    [];
+
+  appInitialized =
+    false;
+
+  listingsRenderToken++;
 
   showAuthGate();
 
 }
 
 
-/* =========================
-HELPERS
-========================= */
+/* ========================================
+   HELPERS
+======================================== */
 
 function escapeHtml(value){
 
   return String(value)
-    .replaceAll("&","&amp;")
-    .replaceAll("<","&lt;")
-    .replaceAll(">","&gt;")
-    .replaceAll('"',"&quot;")
-    .replaceAll("'","&#039;");
+    .replaceAll(
+      "&",
+      "&amp;"
+    )
+    .replaceAll(
+      "<",
+      "&lt;"
+    )
+    .replaceAll(
+      ">",
+      "&gt;"
+    )
+    .replaceAll(
+      '"',
+      "&quot;"
+    )
+    .replaceAll(
+      "'",
+      "&#039;"
+    );
 
 }
 
@@ -2810,16 +3290,29 @@ function escapeHtml(value){
 function escapeJs(value){
 
   return String(value)
-    .replaceAll("\\","\\\\")
-    .replaceAll("'","\\'")
-    .replaceAll("\n"," ");
+    .replaceAll(
+      "\\",
+      "\\\\"
+    )
+    .replaceAll(
+      "'",
+      "\\'"
+    )
+    .replaceAll(
+      "\n",
+      " "
+    )
+    .replaceAll(
+      "\r",
+      " "
+    );
 
 }
 
 
-/* =========================
-START
-========================= */
+/* ========================================
+   START
+======================================== */
 
 initialize();
 
