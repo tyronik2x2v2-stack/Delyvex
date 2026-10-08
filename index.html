@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Nexora</title>
+<title>Delyvex</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#0b1020;color:#fff}
@@ -22,7 +22,7 @@ main{max-width:1100px;margin:auto;padding:28px 18px}.hero{background:linear-grad
 .categories{display:flex;gap:9px;flex-wrap:wrap;margin-bottom:18px}.cat.active{background:#6d8cff}
 .search{width:100%;padding:12px;border-radius:10px;border:1px solid #35446e;background:#0b1020;color:#fff;margin-bottom:18px}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px}.card{background:#151f40;border:1px solid #2b3860;border-radius:13px;padding:15px}.card h3{margin:0 0 7px}.price{font-weight:800;color:#8ea8ff;font-size:18px}.muted{color:#9fa9c9;font-size:13px}.empty{color:#9fa9c9;padding:15px 0}
-.profile-row{display:flex;justify-content:space-between;align-items:center;gap:15px;flex-wrap:wrap}
+.profile-row{display:flex;justify-content:space-between;align-items:center;gap:15px;flex-wrap:wrap}.avatar{width:64px;height:64px;border-radius:50%;object-fit:cover;background:#26345e;border:2px solid #5368a8}.profile-main{display:flex;align-items:center;gap:14px}.actions{display:flex;gap:8px;flex-wrap:wrap}.seller{display:flex;align-items:center;gap:7px;margin-top:12px}.seller img{width:28px;height:28px;border-radius:50%;object-fit:cover;background:#26345e}.small{font-size:12px}
 .modal{position:fixed;inset:0;background:#0009;display:flex;align-items:center;justify-content:center;padding:18px;z-index:20}.modal-box{width:min(460px,100%);background:#111936;border:1px solid #35446e;border-radius:16px;padding:22px}.modal-box h2{margin-top:0}
 .link{background:none;color:#91a9ff;padding:0}.code{font-size:26px;text-align:center;letter-spacing:7px}
 footer{text-align:center;color:#737e9f;padding:25px}
@@ -30,7 +30,7 @@ footer{text-align:center;color:#737e9f;padding:25px}
 </head>
 <body>
 <header>
-  <div class="logo">Nexora</div>
+  <div class="logo">Delyvex</div>
   <div class="nav">
     <button id="homeBtn">Главная</button>
     <button id="marketBtn">Каталог</button>
@@ -42,21 +42,21 @@ footer{text-align:center;color:#737e9f;padding:25px}
   </div>
   <div id="userActions" class="hidden">
     <span id="userName"></span>
-    <button class="secondary" id="profileBtn">Профиль</button>
+    <button class="primary" id="sellBtn">Продать</button><button class="secondary" id="profileBtn">Профиль</button>
     <button class="danger" id="logoutBtn">Выйти</button>
   </div>
 </header>
 
 <main>
   <section id="hero" class="hero">
-    <h1>Добро пожаловать в Nexora</h1>
+    <h1>Добро пожаловать в Delyvex</h1>
     <p>Онлайн-площадка с аккаунтами, категориями и объявлениями.</p>
   </section>
 
   <section id="authSection" class="auth-card hidden">
     <h2 id="authTitle">Вход</h2>
     <div class="field"><label>Email</label><input id="email" type="email" autocomplete="email"></div>
-    <div class="field"><label>Пароль</label><input id="password" type="password" autocomplete="current-password"></div>
+    <div class="field"><label>Пароль</label><input id="password" type="password" autocomplete="current-password"></div><div class="field hidden" id="signupNameField"><label>Никнейм</label><input id="signupUsername" maxlength="30"></div>
     <button class="primary" id="authSubmit">Войти</button>
     <button class="link" id="switchAuth">Нет аккаунта? Зарегистрироваться</button>
     <div id="authMessage" class="message"></div>
@@ -73,10 +73,38 @@ footer{text-align:center;color:#737e9f;padding:25px}
 
   <section id="profileSection" class="profile hidden">
     <div class="profile-row">
-      <div><div class="muted">Вы вошли как</div><strong id="profileEmail"></strong></div>
-      <button class="secondary" id="withdrawBtn">Вывод средств</button>
+      <div class="profile-main">
+        <img id="profileAvatar" class="avatar" src="" alt="">
+        <div><div class="muted">Профиль</div><strong id="profileEmail"></strong><div class="muted" id="profileBio"></div></div>
+      </div>
+      <div class="actions">
+        <button class="primary" id="editProfileBtn">Редактировать профиль</button>
+        <button class="secondary" id="withdrawBtn">Вывод средств</button>
+      </div>
     </div>
     <p class="muted">Вывод средств пока отключён. Это демонстрационная кнопка.</p>
+  </section>
+
+  <section id="sellSection" class="auth-card hidden">
+    <h2>Продать</h2>
+    <p class="muted">Создай объявление — оно будет видно другим пользователям.</p>
+    <div class="field"><label>Название</label><input id="sellTitle" maxlength="80"></div>
+    <div class="field"><label>Описание</label><textarea id="sellDescription" rows="4" maxlength="1000"></textarea></div>
+    <div class="field"><label>Категория</label><select id="sellCategory"><option>Roblox</option><option>Minecraft</option><option>GTA</option><option>CS2</option><option>Другое</option></select></div>
+    <div class="field"><label>Цена (₽)</label><input id="sellPrice" type="number" min="0" step="1"></div>
+    <button class="primary" id="publishBtn">Опубликовать</button>
+    <button class="secondary" id="cancelSellBtn">Отмена</button>
+    <div id="sellMessage" class="message"></div>
+  </section>
+
+  <section id="editProfileSection" class="auth-card hidden">
+    <h2>Редактировать профиль</h2>
+    <div class="field"><label>Никнейм</label><input id="profileUsername" maxlength="30"></div>
+    <div class="field"><label>Описание</label><textarea id="profileBioInput" rows="3" maxlength="300"></textarea></div>
+    <div class="field"><label>Аватарка</label><input id="avatarFile" type="file" accept="image/png,image/jpeg,image/webp"></div>
+    <button class="primary" id="saveProfileBtn">Сохранить</button>
+    <button class="secondary" id="cancelProfileBtn">Отмена</button>
+    <div id="profileMessage" class="message"></div>
   </section>
 
   <section id="marketSection" class="listings">
@@ -92,7 +120,7 @@ footer{text-align:center;color:#737e9f;padding:25px}
     <div id="listingsGrid" class="grid"></div>
   </section>
 </main>
-<footer>Nexora</footer>
+<footer>Delyvex</footer>
 
 <div id="modal" class="modal hidden">
   <div class="modal-box">
@@ -110,7 +138,7 @@ const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 let mode = "login";
 let currentUser = null;
-let pendingEmail = "";
+let pendingEmail = ""; let pendingUsername = "";
 let activeCategory = "all";
 let allListings = [];
 
@@ -136,7 +164,13 @@ function renderAuth(){
 }
 
 async function loadListings(){
-  const {data,error}=await sb.from("listings").select("id,title,description,category,price,created_at").eq("is_active",true).order("created_at",{ascending:false});
+  const {data,error}=await sb.from("listings").select("id,title,description,category,price,created_at,seller_id").eq("is_active",true).order("created_at",{ascending:false});
+  if(!error && data?.length){
+    const ids=[...new Set(data.map(x=>x.seller_id).filter(Boolean))];
+    const {data:profiles}=await sb.from("profiles").select("id,username,avatar_url").in("id",ids);
+    const map=Object.fromEntries((profiles||[]).map(p=>[p.id,p]));
+    data.forEach(x=>x.seller=map[x.seller_id]||null);
+  }
   if(error){ $("listingsGrid").innerHTML='<div class="empty">Не удалось загрузить объявления.</div>'; return; }
   allListings=data||[];
   renderListings();
@@ -156,11 +190,55 @@ function renderListings(){
       <h3>${escapeHtml(x.title||"Без названия")}</h3>
       <p class="muted">${escapeHtml(x.description||"")}</p>
       <div class="price">${escapeHtml(String(x.price??"0"))} ₽</div>
+      <div class="seller">${x.seller?.avatar_url?`<img src="${escapeHtml(x.seller.avatar_url)}" alt="">`:`<img src="" alt="">`}<span>${escapeHtml(x.seller?.username||"Продавец")}</span></div>
+      <button class="primary" style="margin-top:10px;width:100%" onclick="contactSeller('${escapeHtml(x.seller?.username||"Продавец")}')">Купить</button>
     </article>`).join("");
+}
+
+function contactSeller(name){
+  alert("Кнопка «Купить» работает как заявка на связь с продавцом. Реальные платежи и вывод денег пока отключены. Продавец: "+name);
 }
 
 function escapeHtml(v){
   return v.replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));
+}
+
+async function ensureProfile(username){
+  if(!currentUser)return;
+  const {error}=await sb.from("profiles").upsert({id:currentUser.id,username:username||currentUser.user_metadata?.username||"user"} ,{onConflict:"id"});
+  if(error) console.log(error);
+}
+
+async function openProfileEditor(){
+  if(!currentUser)return;
+  const {data}=await sb.from("profiles").select("username,bio,avatar_url").eq("id",currentUser.id).maybeSingle();
+  $("profileUsername").value=data?.username||currentUser.user_metadata?.username||"";
+  $("profileBioInput").value=data?.bio||"";
+  show($("editProfileSection"));
+}
+
+async function saveProfile(){
+  if(!currentUser)return;
+  const username=$("profileUsername").value.trim();
+  const bio=$("profileBioInput").value.trim();
+  if(!username){setMessage("profileMessage","Никнейм обязателен.","error");return;}
+  let avatar_url=null;
+  const file=$("avatarFile").files[0];
+  if(file){
+    const ext=(file.name.split(".").pop()||"jpg").toLowerCase();
+    const path=currentUser.id+"."+ext;
+    const up=await sb.storage.from("avatars").upload(path,file,{upsert:true,contentType:file.type});
+    if(up.error){setMessage("profileMessage","Не удалось загрузить аватарку. Проверь bucket avatars в Supabase.","error");return;}
+    avatar_url=sb.storage.from("avatars").getPublicUrl(path).data.publicUrl;
+  }
+  const patch={id:currentUser.id,username,bio};
+  if(avatar_url)patch.avatar_url=avatar_url;
+  const {error}=await sb.from("profiles").upsert(patch,{onConflict:"id"});
+  if(error){setMessage("profileMessage",error.message,"error");return;}
+  setMessage("profileMessage","Профиль сохранён.","ok");
+  hide($("editProfileSection"));
+  await refreshSession();
+  await loadListings();
 }
 
 async function refreshSession(){
@@ -168,8 +246,12 @@ async function refreshSession(){
   currentUser=data.session?.user||null;
   renderAuth();
   if(currentUser){
-    const {data:p}=await sb.from("profiles").select("username").eq("id",currentUser.id).maybeSingle();
+    const {data:p}=await sb.from("profiles").select("username,bio,avatar_url").eq("id",currentUser.id).maybeSingle();
     $("modalUsername").textContent=p?.username || "не указано";
+    $("profileEmail").textContent=p?.username ? "@"+p.username+" · "+(currentUser.email||"") : (currentUser.email||"");
+    $("profileBio").textContent=p?.bio||"";
+    $("profileAvatar").src=p?.avatar_url||"";
+    $("modalEmail").textContent=currentUser.email||"";
   }
 }
 
@@ -180,7 +262,7 @@ $("switchAuth").onclick=()=>openAuth(mode==="login"?"signup":"login");
 function openAuth(newMode){
   mode=newMode;
   show($("authSection")); hide($("otpSection"));
-  $("authTitle").textContent=mode==="login"?"Вход":"Регистрация";
+  $("authTitle").textContent=mode==="login"?"Вход":"Регистрация"; show($("signupNameField")); if(mode==="login") hide($("signupNameField"));
   $("authSubmit").textContent=mode==="login"?"Войти":"Зарегистрироваться";
   $("switchAuth").textContent=mode==="login"?"Нет аккаунта? Зарегистрироваться":"Уже есть аккаунт? Войти";
   setMessage("authMessage","");
@@ -189,19 +271,20 @@ function openAuth(newMode){
 $("authSubmit").onclick=async()=>{
   const email=$("email").value.trim();
   const password=$("password").value;
-  if(!email || !password){setMessage("authMessage","Заполни email и пароль.","error");return;}
+  const username=$("signupUsername").value.trim();
+  if(!email || !password || (mode==="signup" && !username)){setMessage("authMessage",mode==="signup"?"Заполни email, пароль и никнейм.":"Заполни email и пароль.","error");return;}
   $("authSubmit").disabled=true;
   if(mode==="login"){
     const {data,error}=await sb.auth.signInWithPassword({email,password});
     if(error){setMessage("authMessage",error.message,"error");}
     else {currentUser=data.user; renderAuth(); await refreshSession();}
   }else{
-    const {data,error}=await sb.auth.signUp({email,password});
+    const {data,error}=await sb.auth.signUp({email,password,options:{data:{username}}});
     if(error){setMessage("authMessage",error.message,"error");}
     else if(data.session){
-      currentUser=data.user; renderAuth(); await refreshSession();
+      currentUser=data.user; await ensureProfile(username); renderAuth(); await refreshSession();
     }else{
-      pendingEmail=email;
+      pendingEmail=email; pendingUsername=username;
       hide($("authSection")); show($("otpSection"));
       setMessage("otpMessage","Код отправлен на вашу почту.","ok");
     }
@@ -215,6 +298,7 @@ $("verifyOtpBtn").onclick=async()=>{
   const {data,error}=await sb.auth.verifyOtp({email:pendingEmail,token,type:"email"});
   if(error){setMessage("otpMessage",error.message,"error");return;}
   currentUser=data.user;
+  await ensureProfile(pendingUsername);
   hide($("otpSection"));
   await refreshSession();
   setMessage("authMessage","Email подтверждён.","ok");
@@ -229,7 +313,7 @@ $("resendBtn").onclick=async()=>{
 $("logoutBtn").onclick=async()=>{
   await sb.auth.signOut();
   currentUser=null;
-  hide($("profileSection"));
+  hide($("profileSection")); hide($("sellSection")); hide($("editProfileSection"));
   renderAuth();
 };
 
@@ -254,6 +338,26 @@ document.querySelectorAll(".cat").forEach(btn=>{
 $("search").oninput=renderListings;
 $("homeBtn").onclick=()=>window.scrollTo({top:0,behavior:"smooth"});
 $("marketBtn").onclick=()=>$("marketSection").scrollIntoView({behavior:"smooth"});
+
+$("sellBtn").onclick=()=>{
+  if(!currentUser){openAuth("login");return;}
+  show($("sellSection")); hide($("editProfileSection")); $("sellTitle").focus();
+};
+$("cancelSellBtn").onclick=()=>hide($("sellSection"));
+$("publishBtn").onclick=async()=>{
+  if(!currentUser){setMessage("sellMessage","Сначала войдите.","error");return;}
+  const title=$("sellTitle").value.trim(), description=$("sellDescription").value.trim();
+  const category=$("sellCategory").value, price=Number($("sellPrice").value);
+  if(!title||!description||!Number.isFinite(price)||price<0){setMessage("sellMessage","Заполни все поля корректно.","error");return;}
+  $("publishBtn").disabled=true;
+  const {error}=await sb.from("listings").insert({seller_id:currentUser.id,title,description,category,price,is_active:true});
+  if(error)setMessage("sellMessage",error.message,"error");
+  else{setMessage("sellMessage","Объявление опубликовано и видно другим пользователям.","ok"); $("sellTitle").value=""; $("sellDescription").value=""; $("sellPrice").value=""; await loadListings();}
+  $("publishBtn").disabled=false;
+};
+$("editProfileBtn").onclick=openProfileEditor;
+$("cancelProfileBtn").onclick=()=>hide($("editProfileSection"));
+$("saveProfileBtn").onclick=saveProfile;
 
 sb.auth.onAuthStateChange((_event,session)=>{
   currentUser=session?.user||null;
