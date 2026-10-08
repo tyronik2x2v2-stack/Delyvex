@@ -376,7 +376,7 @@ async function ensureProfileFromGoogle(user){
   try{
     const { data: existing, error } = await sb
       .from("profiles")
-      .select("id,username,bio,avatar_url")
+      .select("id,username,avatar_url")
       .eq("id", user.id)
       .maybeSingle();
 
@@ -412,7 +412,7 @@ async function ensureProfileFromGoogle(user){
         .from("profiles")
         .update({ username: nickname })
         .eq("id", user.id)
-        .select("id,username,bio,avatar_url")
+        .select("id,username,avatar_url")
         .single();
 
       if(!updateError){
@@ -438,7 +438,7 @@ async function loadCurrentProfile(){
 
   const { data, error } = await sb
     .from("profiles")
-    .select("id,username,bio,avatar_url")
+    .select("id,username,avatar_url")
     .eq("id", currentUser.id)
     .maybeSingle();
 
@@ -852,10 +852,15 @@ async function loadListings(){
   }catch(error){
     console.error("loadListings:", error);
 
+    let msg = error?.message || "Ошибка Supabase";
+    if(/row-level security|RLS|policy/i.test(msg)){
+      msg = "Supabase не разрешает чтение таблицы listings: нужна SELECT-политика.";
+    }
+
     grid.innerHTML =
       '<div class="empty">' +
       '<strong>Не удалось загрузить объявления.</strong><br>' +
-      escapeHtml(error?.message || "Ошибка Supabase") +
+      escapeHtml(msg) +
       '</div>';
   }
 }
@@ -888,7 +893,7 @@ function renderListings(){
 
   if(!listings.length){
     grid.innerHTML =
-      '<div class="empty">Объявлений пока нет.</div>';
+      '<div class="empty">Нет объявлений.</div>';
     return;
   }
 
@@ -1019,11 +1024,15 @@ async function publishListing(){
   }catch(error){
     console.error("publishListing:", error);
 
-    setMessage(
-      "sellMessage",
-      error?.message || "Не удалось опубликовать объявление.",
-      "error"
-    );
+    let msg = error?.message || "Не удалось опубликовать объявление.";
+
+    if(/row-level security|RLS|policy/i.test(msg)){
+      msg = "Supabase не разрешает публикацию: для таблицы listings нужна INSERT-политика для авторизованных пользователей.";
+    }else if(/column .* does not exist|schema cache/i.test(msg)){
+      msg = "Структура таблицы listings не совпадает с кодом. Нужны колонки: seller_id, title, description, category, price, is_active.";
+    }
+
+    setMessage("sellMessage", msg, "error");
   }finally{
     btn.disabled = false;
   }
