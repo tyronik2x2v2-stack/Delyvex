@@ -23,7 +23,7 @@ main{max-width:1100px;margin:auto;padding:28px 18px}.hero{background:linear-grad
 .search{width:100%;padding:12px;border-radius:10px;border:1px solid #35446e;background:#0b1020;color:#fff;margin-bottom:18px}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px}.card{background:#151f40;border:1px solid #2b3860;border-radius:13px;padding:15px}.card h3{margin:0 0 7px}.price{font-weight:800;color:#8ea8ff;font-size:18px}.muted{color:#9fa9c9;font-size:13px}.empty{color:#9fa9c9;padding:15px 0}
 .profile-row{display:flex;justify-content:space-between;align-items:center;gap:15px;flex-wrap:wrap}.avatar{width:64px;height:64px;border-radius:50%;object-fit:cover;background:#26345e;border:2px solid #5368a8}.profile-main{display:flex;align-items:center;gap:14px}.actions{display:flex;gap:8px;flex-wrap:wrap}.seller{display:flex;align-items:center;gap:7px;margin-top:12px}.seller img{width:28px;height:28px;border-radius:50%;object-fit:cover;background:#26345e}.small{font-size:12px}
-.modal{position:fixed;inset:0;background:#0009;display:flex;align-items:center;justify-content:center;padding:18px;z-index:20}.modal-box{width:min(460px,100%);background:#111936;border:1px solid #35446e;border-radius:16px;padding:22px}.modal-box h2{margin-top:0}
+.modal{position:fixed;inset:0;background:#0009;display:flex;align-items:center;justify-content:center;padding:18px;z-index:20}.modal-head{display:flex;align-items:center;justify-content:space-between;gap:10px}.modal-close{background:none;color:#fff;font-size:22px;padding:4px 8px}.modal-box{width:min(460px,100%);background:#111936;border:1px solid #35446e;border-radius:16px;padding:22px}.modal-box h2{margin-top:0}
 .link{background:none;color:#91a9ff;padding:0}.code{font-size:26px;text-align:center;letter-spacing:7px}
 footer{text-align:center;color:#737e9f;padding:25px}
 </style>
@@ -42,7 +42,7 @@ footer{text-align:center;color:#737e9f;padding:25px}
   </div>
   <div id="userActions" class="hidden">
     <span id="userName"></span>
-    <button class="primary" id="sellBtn">Продать</button><button class="secondary" id="profileBtn">Профиль</button>
+    <button class="primary" id="sellBtn">Продать</button><button class="secondary" id="profileBtn">👤 Профиль</button>
     <button class="danger" id="logoutBtn">Выйти</button>
   </div>
 </header>
@@ -86,7 +86,7 @@ footer{text-align:center;color:#737e9f;padding:25px}
   </section>
 
   <section id="sellSection" class="auth-card hidden">
-    <h2>Продать</h2>
+    <div class="modal-head"><h2>Продать</h2><button type="button" class="modal-close" id="closeSell">✕</button></div>
     <p class="muted">Создай объявление — оно будет видно другим пользователям.</p>
     <div class="field"><label>Название</label><input id="sellTitle" maxlength="80"></div>
     <div class="field"><label>Описание</label><textarea id="sellDescription" rows="4" maxlength="1000"></textarea></div>
@@ -139,7 +139,16 @@ footer{text-align:center;color:#737e9f;padding:25px}
     <h2>Профиль</h2>
     <p>Email: <span id="modalEmail"></span></p>
     <p>Имя пользователя: <span id="modalUsername"></span></p>
-    <button class="secondary" id="closeModal">Закрыть</button>
+    
+<div id="profileEditFields" class="hidden">
+  <div class="field"><label>Никнейм</label><input id="editUsername" maxlength="30"></div>
+  <div class="field"><label>Описание</label><textarea id="editBio" maxlength="300" rows="4"></textarea></div>
+  <div class="field"><label>Ссылка на аватарку</label><input id="editAvatar" placeholder="https://..."></div>
+  <button class="primary" id="saveProfile">Сохранить профиль</button>
+  <div id="profileMessage" class="message"></div>
+</div>
+<button class="secondary" id="editProfile">Редактировать профиль</button>
+<button class="secondary" id="closeModal">Закрыть</button>
   </div>
 </div>
 
@@ -386,6 +395,73 @@ $("saveProfileBtn").onclick=saveProfile;
 sb.auth.onAuthStateChange((_event,session)=>{
   currentUser=session?.user||null;
   renderAuth();
+});
+
+
+$("closeSell")?.addEventListener("click",()=>hide($("sellModal")));
+$("sellCancel")?.addEventListener("click",()=>hide($("sellModal")));
+
+function openProfileEditor(){
+  if(!currentUser) return;
+  show($("modal"));
+  show($("profileEditFields"));
+  $("editProfile").classList.add("hidden");
+  $("editUsername").value = $("modalUsername").textContent==="не указано" ? "" : $("modalUsername").textContent;
+  $("editBio").value = currentUser.user_metadata?.bio || "";
+  $("editAvatar").value = currentUser.user_metadata?.avatar_url || "";
+}
+
+$("editProfile")?.addEventListener("click", openProfileEditor);
+
+$("saveProfile")?.addEventListener("click", async()=>{
+  const username=$("editUsername").value.trim();
+  const bio=$("editBio").value.trim();
+  const avatar=$("editAvatar").value.trim();
+
+  if(!username){
+    setMessage("profileMessage","Никнейм не может быть пустым.","error");
+    return;
+  }
+
+  const {error: authError}=await sb.auth.updateUser({
+    data:{username,bio,avatar_url:avatar}
+  });
+
+  const {error: profileError}=await sb.from("profiles").upsert({
+    id:currentUser.id,
+    username
+  });
+
+  if(authError || profileError){
+    setMessage("profileMessage",(authError||profileError).message,"error");
+    return;
+  }
+
+  $("modalUsername").textContent=username;
+  currentUser.user_metadata={...(currentUser.user_metadata||{}),username,bio,avatar_url:avatar};
+  setMessage("profileMessage","Профиль сохранён.","ok");
+});
+
+$("modal")?.addEventListener("click",(e)=>{
+  if(e.target === $("modal")){
+    hide($("modal"));
+    if($("profileEditFields")) hide($("profileEditFields"));
+    if($("editProfile")) $("editProfile").classList.remove("hidden");
+  }
+});
+
+$("closeModal")?.addEventListener("click",()=>{
+  hide($("modal"));
+  if($("profileEditFields")) hide($("profileEditFields"));
+  if($("editProfile")) $("editProfile").classList.remove("hidden");
+});
+
+// After successful publication, close selling UI and return to the main marketplace.
+document.addEventListener("delyvex:listing-created",()=>{
+  if($("sellModal")) hide($("sellModal"));
+  window.scrollTo({top:0,behavior:"smooth"});
+  $("marketSection")?.scrollIntoView({behavior:"smooth"});
+  loadListings();
 });
 
 (async()=>{
