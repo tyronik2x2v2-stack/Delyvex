@@ -1,845 +1,123 @@
 <!doctype html>
 <html lang="ru">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Delyvex</title>
-
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-  <style>
-    *{box-sizing:border-box}
-    body{margin:0;font-family:Arial,sans-serif;background:#0b1020;color:#fff}
-    button,input,select,textarea{font:inherit}
-    button{cursor:pointer;border:0}
-    header{height:64px;background:#111936;border-bottom:1px solid #263050;display:flex;align-items:center;padding:0 22px;gap:20px;position:sticky;top:0;z-index:10}
-    .logo{font-size:23px;font-weight:800;color:#7c9cff}
-    .nav{display:flex;gap:10px}
-    .nav button,.account button,.cat{background:#182242;color:#dfe6ff;padding:10px 14px;border-radius:9px}
-    .nav button:hover,.cat:hover,.account button:hover{background:#25335e}
-    .spacer{flex:1}
-    .account{display:flex;align-items:center;gap:9px}
-    #guestActions,#userActions{display:flex;gap:8px;align-items:center}
-    .hidden{display:none!important}
-
-    main{max-width:1100px;margin:auto;padding:28px 18px}
-    .hero{background:linear-gradient(135deg,#18234a,#111936);border:1px solid #2a3862;border-radius:18px;padding:28px;margin-bottom:20px}
-    .hero h1{margin:0 0 10px;font-size:34px}
-    .hero p{color:#b9c3e5;margin:0}
-
-    .auth-card,.profile,.listings{background:#111936;border:1px solid #263050;border-radius:16px;padding:20px;margin-bottom:20px}
-    .auth-card{max-width:460px;margin:20px auto}
-    .auth-card h2{margin-top:0}
-
-    .field{margin:10px 0}
-    .field label{display:block;color:#aeb8da;font-size:13px;margin-bottom:6px}
-    .field input,.field textarea,.field select{
-      width:100%;padding:11px;border-radius:9px;border:1px solid #35446e;
-      background:#0b1020;color:#fff
-    }
-
-    .primary{background:#6d8cff;color:#fff;padding:11px 15px;border-radius:9px;font-weight:700}
-    .primary:hover{background:#809cff}
-    .secondary{background:#26345e;color:#fff;padding:11px 15px;border-radius:9px}
-    .secondary:hover{background:#334575}
-    .danger{background:#7a3040;color:#fff;padding:10px 14px;border-radius:9px}
-    .danger:hover{background:#914052}
-    button:disabled{opacity:.6;cursor:not-allowed}
-
-    .message{margin-top:10px;color:#aeb8da;min-height:20px}
-    .message.error{color:#ff8e9d}
-    .message.ok{color:#8dffb0}
-
-    .categories{display:flex;gap:9px;flex-wrap:wrap;margin-bottom:18px}
-    .cat.active{background:#6d8cff}
-    .search{width:100%;padding:12px;border-radius:10px;border:1px solid #35446e;background:#0b1020;color:#fff;margin-bottom:18px}
-
-    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px}
-    .card{background:#151f40;border:1px solid #2b3860;border-radius:13px;padding:15px}
-    .card h3{margin:0 0 7px}
-    .price{font-weight:800;color:#8ea8ff;font-size:18px}
-    .muted{color:#9fa9c9;font-size:13px}
-    .empty{color:#9fa9c9;padding:15px 0}
-
-    .profile-row{display:flex;justify-content:space-between;align-items:center;gap:15px;flex-wrap:wrap}
-    .avatar{width:64px;height:64px;border-radius:50%;object-fit:cover;background:#26345e;border:2px solid #5368a8}
-    .profile-main{display:flex;align-items:center;gap:14px}
-    .actions{display:flex;gap:8px;flex-wrap:wrap}
-    .seller{display:flex;align-items:center;gap:7px;margin-top:12px}
-    .seller img{width:28px;height:28px;border-radius:50%;object-fit:cover;background:#26345e}
-    .small{font-size:12px}
-
-    .modal{position:fixed;inset:0;background:#0009;display:flex;align-items:center;justify-content:center;padding:18px;z-index:20}
-    .modal-head{display:flex;align-items:center;justify-content:space-between;gap:10px}
-    .modal-close{background:none;color:#fff;font-size:22px;padding:4px 8px}
-    .modal-box{width:min(460px,100%);max-height:90vh;overflow:auto;background:#111936;border:1px solid #35446e;border-radius:16px;padding:22px}
-    .modal-box h2{margin-top:0}
-
-    .link{background:none;color:#91a9ff;padding:0}
-    .code{font-size:26px;text-align:center;letter-spacing:7px}
-    footer{text-align:center;color:#737e9f;padding:25px}
-
-    @media(max-width:700px){
-      header{padding:0 12px;gap:10px}
-      .nav{display:none}
-      .logo{font-size:20px}
-      #userActions span{display:none}
-      .hero h1{font-size:28px}
-    }
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Delyvex</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#0b1020;color:#fff;font-family:Arial,sans-serif}button,input,textarea,select{font:inherit}button{border:0;cursor:pointer}.hidden{display:none!important}
+header{position:sticky;top:0;z-index:20;height:64px;background:#111936;border-bottom:1px solid #263050;display:flex;align-items:center;gap:10px;padding:0 18px}.logo{font-size:23px;font-weight:800;color:#7c9cff}.spacer{flex:1}.nav{display:flex;gap:7px}.nav button,.secondary{background:#26345e;color:#fff;padding:10px 14px;border-radius:9px}.primary{background:#6d8cff;color:#fff;padding:10px 14px;border-radius:9px;font-weight:700}.danger{background:#7a3040;color:#fff;padding:10px 14px;border-radius:9px}.primary:hover{background:#809cff}.secondary:hover{background:#334575}.danger:hover{background:#914052}button:disabled{opacity:.6;cursor:not-allowed}
+#guestActions,#userActions{display:flex;align-items:center;gap:8px}.user-name{max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#cdd6f4}
+main{max-width:1100px;margin:auto;padding:25px 16px}.hero{padding:30px;border:1px solid #2a3862;border-radius:18px;background:linear-gradient(135deg,#18234a,#111936);margin-bottom:20px}.hero h1{margin:0 0 10px}.hero p,.muted{color:#9fa9c9}.auth-card,.listings{background:#111936;border:1px solid #263050;border-radius:16px;padding:20px;margin-bottom:20px}.auth-card{max-width:520px;margin:20px auto}.field{margin:12px 0}.field label{display:block;color:#b9c3e5;font-size:13px;margin-bottom:6px}.field input,.field textarea,.field select,.search{width:100%;padding:11px;border-radius:9px;border:1px solid #35446e;background:#0b1020;color:#fff}.message{min-height:20px;margin-top:10px;color:#aeb8da}.message.error{color:#ff8e9d}.message.ok{color:#8dffb0}
+.categories{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:15px}.cat{background:#182242;color:#dfe6ff;padding:9px 13px;border-radius:9px}.cat.active{background:#6d8cff}.search{margin-bottom:16px}.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(245px,1fr));gap:14px}.card{background:#151f40;border:1px solid #2b3860;border-radius:13px;padding:15px}.card h3{margin:0 0 7px}.price{font-size:19px;font-weight:800;color:#8ea8ff;margin-top:8px}.seller{display:flex;align-items:center;gap:8px;margin-top:12px}.seller img{width:34px;height:34px;border-radius:50%;object-fit:cover;background:#26345e;border:1px solid #5368a8}.buy-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.review-summary{margin-top:10px;color:#c1cae6;font-size:13px}.stars{color:#ffd76a;letter-spacing:1px}.empty{color:#9fa9c9;padding:20px 0}
+.modal{position:fixed;inset:0;background:#0009;display:flex;align-items:center;justify-content:center;padding:16px;z-index:50}.modal-box{width:min(500px,100%);max-height:90vh;overflow:auto;background:#111936;border:1px solid #35446e;border-radius:16px;padding:20px}.modal-head{display:flex;align-items:center;justify-content:space-between}.modal-close{background:none;color:#fff;font-size:22px;padding:4px 8px}.profile-row{display:flex;justify-content:space-between;gap:15px;align-items:center;flex-wrap:wrap}.profile-main{display:flex;align-items:center;gap:13px}.avatar{width:68px;height:68px;border-radius:50%;object-fit:cover;background:#26345e;border:2px solid #5368a8}.actions{display:flex;gap:8px;flex-wrap:wrap}.small{font-size:12px}.review-item{padding:9px 0;border-bottom:1px solid #263050}.review-item:last-child{border-bottom:0}footer{text-align:center;color:#737e9f;padding:25px}
+@media(max-width:700px){.nav{display:none}.user-name{display:none}header{padding:0 10px}.logo{font-size:20px}.hero h1{font-size:28px}}
+</style>
 </head>
-
 <body>
 <header>
-  <div class="logo">Delyvex</div>
-
-  <div class="nav">
-    <button id="homeBtn">Главная</button>
-    <button id="marketBtn">Каталог</button>
-  </div>
-
-  <div class="spacer"></div>
-
-  <div id="guestActions">
-    <button class="primary" id="googleLoginBtn">🔵 Войти через Google</button>
-  </div>
-
-  <div id="userActions" class="hidden">
-    <span id="userName"></span>
-    <button class="primary" id="sellBtn">Продать</button>
-    <button class="secondary" id="profileBtn">👤 Профиль</button>
-    <button class="danger" id="logoutBtn">Выйти</button>
-  </div>
+<div class="logo">Delyvex</div>
+<div class="nav"><button id="homeBtn">Главная</button><button id="marketBtn">Каталог</button></div>
+<div class="spacer"></div>
+<div id="guestActions"><button class="primary" id="googleLoginBtn">🔵 Войти через Google</button></div>
+<div id="userActions" class="hidden"><span class="user-name" id="userName"></span><button class="primary" id="sellBtn">Продать</button><button class="secondary" id="profileBtn">👤 Профиль</button><button class="danger" id="logoutBtn">Выйти</button></div>
 </header>
-
 <main>
-  <section id="hero" class="hero">
-    <h1>Добро пожаловать в Delyvex</h1>
-    <p>Онлайн-площадка с аккаунтами, категориями и объявлениями.</p>
-  </section>
-
-  <section id="authSection" class="auth-card hidden">
-    <h2>Вход в Delyvex</h2>
-    <p class="muted">Используй свой Google-аккаунт. Отдельный пароль Delyvex не нужен.</p>
-    <button class="primary" id="authSubmit" style="width:100%;margin-top:10px;">
-      🔵 Войти через Google
-    </button>
-    <div id="authMessage" class="message"></div>
-  </section>
-
-  <section id="profileSection" class="profile hidden">
-    <div class="profile-row">
-      <div class="profile-main">
-        <img id="profileAvatar" class="avatar" src="" alt="">
-        <div>
-          <div class="muted">Профиль</div>
-          <strong id="profileEmail"></strong>
-          <div id="profileUsernameView" class="small"></div>
-          <div class="muted" id="profileBio"></div>
-        </div>
-      </div>
-
-      <div class="actions">
-        <button class="primary" id="editProfileBtn">Редактировать профиль</button>
-        <button class="secondary" id="withdrawBtn">Вывод средств</button>
-      </div>
-    </div>
-
-    <p class="muted">Вывод средств пока отключён. Это демонстрационная кнопка.</p>
-  </section>
-
-  <section id="sellSection" class="auth-card hidden">
-    <div class="modal-head">
-      <h2>Продать</h2>
-      <button type="button" class="modal-close" id="closeSell">✕</button>
-    </div>
-
-    <p class="muted">Создай объявление — оно будет видно другим пользователям.</p>
-
-    <div class="field">
-      <label>Название</label>
-      <input id="sellTitle" maxlength="80">
-    </div>
-
-    <div class="field">
-      <label>Описание</label>
-      <textarea id="sellDescription" rows="4" maxlength="1000"></textarea>
-    </div>
-
-    <div class="field">
-      <label>Игра</label>
-      <select id="sellCategory">
-        <option value="Roblox">Roblox</option>
-        <option value="Minecraft">Minecraft</option>
-        <option value="GTA">GTA</option>
-        <option value="CS2">CS2</option>
-        <option value="Другое">Другое</option>
-      </select>
-    </div>
-
-    <div class="field">
-      <label>Цена (₽)</label>
-      <input id="sellPrice" type="number" min="0" step="1">
-    </div>
-
-    <label style="display:flex;gap:8px;align-items:flex-start;margin:12px 0;color:#b9c3e5;font-size:13px">
-      <input id="sellPolicy" type="checkbox" style="margin-top:3px">
-      <span>Я согласен с правилами публикации объявления и подтверждаю, что информация в объявлении не нарушает правила Delyvex.</span>
-    </label>
-
-    <button class="primary" id="publishBtn">Опубликовать</button>
-    <button class="secondary" id="cancelSellBtn">Отмена</button>
-    <div id="sellMessage" class="message"></div>
-  </section>
-
-  <section id="editProfileSection" class="auth-card hidden">
-    <h2>Редактировать профиль</h2>
-
-    <div class="field">
-      <label>Никнейм</label>
-      <input id="profileUsername" maxlength="30">
-    </div>
-
-    <div class="field">
-      <label>Описание</label>
-      <textarea id="profileBioInput" rows="3" maxlength="300"></textarea>
-    </div>
-
-    <div class="field">
-      <label>Аватарка</label>
-      <input id="avatarFile" type="file" accept="image/png,image/jpeg,image/webp">
-    </div>
-
-    <button class="primary" id="saveProfileBtn">Сохранить</button>
-    <button class="secondary" id="cancelProfileBtn">Отмена</button>
-    <div id="profileMessage" class="message"></div>
-  </section>
-
-  <section id="marketSection" class="listings">
-    <div class="categories">
-      <button class="cat active" data-cat="all">Все</button>
-      <button class="cat" data-cat="Roblox">Roblox</button>
-      <button class="cat" data-cat="Minecraft">Minecraft</button>
-      <button class="cat" data-cat="GTA">GTA</button>
-      <button class="cat" data-cat="CS2">CS2</button>
-      <button class="cat" data-cat="Другое">Другое</button>
-    </div>
-
-    <input id="search" class="search" placeholder="Поиск по объявлениям...">
-    <div id="listingsGrid" class="grid"></div>
-  </section>
+<section class="hero" id="hero"><h1>Добро пожаловать в Delyvex</h1><p>Покупай и продавай игровые товары.</p></section>
+<section id="authSection" class="auth-card hidden"><h2>Вход в Delyvex</h2><p class="muted">Вход выполняется через Google.</p><button class="primary" id="authSubmit" style="width:100%">🔵 Войти через Google</button><div id="authMessage" class="message"></div></section>
+<section id="sellSection" class="auth-card hidden"><div class="modal-head"><h2>Продать</h2><button class="modal-close" id="closeSell">✕</button></div><div class="field"><label>Название</label><input id="sellTitle" maxlength="80"></div><div class="field"><label>Описание</label><textarea id="sellDescription" rows="4" maxlength="1000"></textarea></div><div class="field"><label>Категория</label><select id="sellCategory"><option>Roblox</option><option>Minecraft</option><option>GTA</option><option>CS2</option><option>Другое</option></select></div><div class="field"><label>Цена (₽)</label><input id="sellPrice" type="number" min="0" step="1"></div><label class="muted"><input id="sellPolicy" type="checkbox"> Я согласен с правилами публикации.</label><br><br><button class="primary" id="publishBtn">Опубликовать</button> <button class="secondary" id="cancelSellBtn">Отмена</button><div id="sellMessage" class="message"></div></section>
+<section id="editProfileSection" class="auth-card hidden"><h2>Редактировать профиль</h2><div class="field"><label>Никнейм</label><input id="profileUsername" maxlength="30"></div><div class="field"><label>Описание</label><textarea id="profileBioInput" rows="3" maxlength="300"></textarea></div><div class="field"><label>Аватарка</label><input id="avatarFile" type="file" accept="image/png,image/jpeg,image/webp"></div><button class="primary" id="saveProfileBtn">Сохранить</button> <button class="secondary" id="cancelProfileBtn">Отмена</button><div id="profileMessage" class="message"></div></section>
+<section id="marketSection" class="listings"><div class="categories"><button class="cat active" data-cat="all">Все</button><button class="cat" data-cat="Roblox">Roblox</button><button class="cat" data-cat="Minecraft">Minecraft</button><button class="cat" data-cat="GTA">GTA</button><button class="cat" data-cat="CS2">CS2</button><button class="cat" data-cat="Другое">Другое</button></div><input id="search" class="search" placeholder="Поиск по объявлениям..."><div id="listingsGrid" class="grid"></div></section>
 </main>
-
 <footer>Delyvex</footer>
 
-<div id="modal" class="modal hidden">
-  <div class="modal-box">
-    <div class="modal-head">
-      <h2>Профиль</h2>
-      <button class="modal-close" id="closeModal">✕</button>
-    </div>
-
-    <p>Email: <span id="modalEmail"></span></p>
-    <div class="profile-main" style="margin:12px 0 16px">
-      <img id="modalAvatar" class="avatar" src="" alt="">
-      <div>
-        <div class="muted">Никнейм</div>
-        <strong id="modalUsername">не указано</strong>
-      </div>
-    </div>
-
-    <button class="secondary" id="closeModalBottom">Закрыть</button>
-  </div>
-</div>
+<div id="profileModal" class="modal hidden"><div class="modal-box"><div class="modal-head"><h2>Профиль</h2><button class="modal-close" id="closeProfileModal">✕</button></div><div class="profile-main"><img id="modalAvatar" class="avatar" src="" alt=""><div><strong id="modalUsername"></strong><div class="muted" id="modalEmail"></div><div class="muted" id="modalBio"></div></div></div><br><button class="primary" id="modalEditProfileBtn">Редактировать профиль</button></div></div>
+<div id="reviewModal" class="modal hidden"><div class="modal-box"><div class="modal-head"><h2>Оставить отзыв</h2><button class="modal-close" id="closeReviewModal">✕</button></div><p class="muted" id="reviewListingTitle"></p><div class="field"><label>Оценка</label><select id="reviewRating"><option value="5">★★★★★ 5</option><option value="4">★★★★☆ 4</option><option value="3">★★★☆☆ 3</option><option value="2">★★☆☆☆ 2</option><option value="1">★☆☆☆☆ 1</option></select></div><div class="field"><label>Отзыв</label><textarea id="reviewText" rows="5" maxlength="1000" placeholder="Напишите отзыв после покупки..."></textarea></div><button class="primary" id="submitReviewBtn">Опубликовать отзыв</button> <button class="secondary" id="cancelReviewBtn">Отмена</button><div id="reviewMessage" class="message"></div></div></div>
 
 <script>
-"use strict";
+const SUPABASE_URL="https://gisdufgixjfudblxydvm.supabase.co";
+const SUPABASE_KEY="sb_publishable_irNKt_PStZrQ2NCEdaD5sg_quCmigAn";
+const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false,flowType:"pkce"}});
+let currentUser=null,currentProfile=null,allListings=[],activeCategory="all",reviewListingId=null;
+const $=id=>document.getElementById(id);const show=e=>e&&e.classList.remove("hidden");const hide=e=>e&&e.classList.add("hidden");
+function msg(id,t,type=""){const e=$(id);if(!e)return;e.textContent=t||"";e.className="message"+(type?" "+type:"")}
+function esc(v){return String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[m]))}
+function price(v){return new Intl.NumberFormat("ru-RU").format(Number(v)||0)+" ₽"}
+function nickname(u){const m=u?.user_metadata||{};return String(m.user_name||m.preferred_username||m.name||m.full_name||(u?.email||"Пользователь").split("@")[0]).slice(0,30)}
+function avatar(u,p){return p?.avatar_url||u?.user_metadata?.avatar_url||u?.user_metadata?.picture||"https://ui-avatars.com/api/?name="+encodeURIComponent(p?.username||nickname(u))+"&background=26345e&color=ffffff"}
+function stars(n){n=Math.round(Number(n)||0);return "★★★★★".slice(0,n)+"☆☆☆☆☆".slice(0,5-n)}
 
-/* =========================
-   SUPABASE
-========================= */
-
-const SUPABASE_URL = "https://gisdufgixjfudblxydvm.supabase.co";
-const SUPABASE_KEY = "sb_publishable_irNKt_PStZrQ2NCEdaD5sg_quCmigAn";
-
-const sb = window.supabase.createClient(
-  SUPABASE_URL,
-  SUPABASE_KEY,
-  {
-    auth: {
-      persistSession: true,
-      autoRefreshToken: true,
-      detectSessionInUrl: false,
-      flowType: "pkce"
-    }
-  }
-);
-
-/* =========================
-   STATE
-========================= */
-
-let currentUser = null;
-let currentProfile = null;
-let activeCategory = "all";
-let allListings = [];
-
-/* =========================
-   HELPERS
-========================= */
-
-const $ = id => document.getElementById(id);
-
-function show(el){
-  if(el) el.classList.remove("hidden");
+async function ensureProfile(u){
+ if(!u)return null;
+ const {data:old,error}=await sb.from("profiles").select("id,username,avatar_url").eq("id",u.id).maybeSingle();
+ if(error)throw error;
+ const ga=u.user_metadata?.avatar_url||u.user_metadata?.picture||"";
+ if(!old){const {data,error:e}=await sb.from("profiles").insert({id:u.id,username:nickname(u),avatar_url:ga}).select("id,username,avatar_url").single();if(e)throw e;return currentProfile=data;}
+ if((!old.username||!old.avatar_url)&&ga){const patch={};if(!old.username)patch.username=nickname(u);if(!old.avatar_url)patch.avatar_url=ga;const {data,error:e}=await sb.from("profiles").update(patch).eq("id",u.id).select("id,username,avatar_url").single();if(!e)return currentProfile=data;}
+ return currentProfile=old;
 }
-
-function hide(el){
-  if(el) el.classList.add("hidden");
+async function syncAuth(){
+ const {data,error}=await sb.auth.getSession();if(error)throw error;currentUser=data.session?.user||null;
+ if(currentUser)await ensureProfile(currentUser);else currentProfile=null;renderAuth();
 }
-
-function setMessage(id, text, type = ""){
-  const el = $(id);
-  if(!el) return;
-
-  el.textContent = text || "";
-  el.className = "message";
-
-  if(type) el.classList.add(type);
-}
-
-function escapeHtml(value){
-  return String(value ?? "")
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
-}
-
-function formatPrice(value){
-  const number = Number(value);
-  if(!Number.isFinite(number)) return "0 ₽";
-
-  return new Intl.NumberFormat("ru-RU").format(number) + " ₽";
-}
-
-function getAvatar(user, profile){
-  return (
-    profile?.avatar_url ||
-    user?.user_metadata?.avatar_url ||
-    user?.user_metadata?.picture ||
-    "https://ui-avatars.com/api/?name=" +
-      encodeURIComponent(profile?.username || user?.email || "User") +
-      "&background=26345e&color=ffffff"
-  );
-}
-
-function googleNickname(user){
-  const metadata = user?.user_metadata || {};
-
-  return (
-    metadata.user_name ||
-    metadata.preferred_username ||
-    metadata.name ||
-    metadata.full_name ||
-    (user?.email ? user.email.split("@")[0] : "Пользователь")
-  ).trim().slice(0, 30);
-}
-
-/*
-  Описание профиля хранится в Supabase Auth user_metadata.bio.
-  Это сделано специально, потому что в текущей таблице profiles
-  нет колонки bio.
-*/
-/* =========================
-   PROFILE
-========================= */
-
-async function ensureProfileFromGoogle(user){
-  if(!user) return null;
-
-  try{
-    const { data: existing, error } = await sb
-      .from("profiles")
-      .select("id,username,avatar_url")
-      .eq("id", user.id)
-      .maybeSingle();
-
-    if(error){
-      console.error("Ошибка загрузки профиля:", error);
-      return null;
-    }
-
-    const nickname = googleNickname(user);
-    const googleAvatar =
-      user?.user_metadata?.avatar_url ||
-      user?.user_metadata?.picture ||
-      "";
-
-    if(!existing){
-      const { data: created, error: insertError } = await sb
-        .from("profiles")
-        .insert({
-          id: user.id,
-          username: nickname,
-          avatar_url: googleAvatar
-        })
-        .select("id,username,avatar_url")
-        .single();
-
-      if(insertError){
-        console.error("Ошибка создания профиля:", insertError);
-        return null;
-      }
-
-      currentProfile = created;
-      return created;
-    }
-
-    if(!existing.username || (!existing.avatar_url && googleAvatar)){
-      const patch = {};
-      if(!existing.username) patch.username = nickname;
-      if(!existing.avatar_url && googleAvatar) patch.avatar_url = googleAvatar;
-
-      const { data: updated, error: updateError } = await sb
-        .from("profiles")
-        .update(patch)
-        .eq("id", user.id)
-        .select("id,username,avatar_url")
-        .single();
-
-      if(!updateError){
-        currentProfile = updated;
-        return updated;
-      }
-    }
-
-    currentProfile = existing;
-    return existing;
-
-  }catch(error){
-    console.error("ensureProfileFromGoogle:", error);
-    return null;
-  }
-}
-
-async function loadCurrentProfile(){
-  if(!currentUser){
-    currentProfile = null;
-    return;
-  }
-
-  const { data, error } = await sb
-    .from("profiles")
-    .select("id,username,avatar_url")
-    .eq("id", currentUser.id)
-    .maybeSingle();
-
-  if(error){
-    console.error("Ошибка профиля:", error);
-    currentProfile = null;
-    return;
-  }
-
-  currentProfile = data;
-}
-
-function renderProfile(){
-  if(!currentUser){
-    hide($("profileSection"));
-    return;
-  }
-
-  show($("profileSection"));
-
-  const username =
-    currentProfile?.username ||
-    currentUser.user_metadata?.username ||
-    googleNickname(currentUser);
-
-  const bio =
-    currentUser.user_metadata?.bio ||
-    "";
-
-  const avatar = getAvatar(currentUser, currentProfile);
-
-  $("profileEmail").textContent = currentUser.email || "";
-  $("profileUsernameView").textContent = username ? "@" + username : "";
-  $("profileBio").textContent = bio;
-  $("profileAvatar").src = avatar;
-
-  $("modalEmail").textContent = currentUser.email || "";
-  $("modalUsername").textContent = username || "не указано";
-  $("modalAvatar").src = avatar;
-
-  $("editUsername").value = username || "";
-  $("editBio").value = bio || "";
-  $("editAvatar").value =
-    currentProfile?.avatar_url ||
-    currentUser.user_metadata?.avatar_url ||
-    "";
-}
-
-async function saveProfile(){
-  if(!currentUser){
-    setMessage("profileMessage", "Сначала войдите.", "error");
-    return;
-  }
-
-  const username = $("profileUsername").value.trim();
-  const bio = $("profileBioInput").value.trim();
-  const avatarFile = $("avatarFile")?.files?.[0] || null;
-
-  if(!username){
-    setMessage("profileMessage", "Никнейм не может быть пустым.", "error");
-    return;
-  }
-
-  const btn = $("saveProfileBtn");
-  btn.disabled = true;
-
-  try{
-    let avatarUrl = currentProfile?.avatar_url ||
-      currentUser.user_metadata?.avatar_url ||
-      currentUser.user_metadata?.picture ||
-      "";
-
-    if(avatarFile){
-      if(avatarFile.size > 2 * 1024 * 1024){
-        throw new Error("Аватарка должна быть меньше 2 МБ.");
-      }
-      avatarUrl = await new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(String(reader.result));
-        reader.onerror = () => reject(new Error("Не удалось прочитать аватарку."));
-        reader.readAsDataURL(avatarFile);
-      });
-    }
-
-    const { error } = await sb
-      .from("profiles")
-      .upsert({
-        id: currentUser.id,
-        username,
-        avatar_url: avatarUrl
-      }, {
-        onConflict: "id"
-      });
-
-    if(error) throw error;
-
-    const { error: authError } = await sb.auth.updateUser({
-      data: {
-        username,
-        bio,
-        avatar_url: avatarUrl
-      }
-    });
-
-    if(authError) throw authError;
-
-    await loadCurrentProfile();
-    renderProfile();
-
-    setMessage("profileMessage", "Профиль сохранён.", "ok");
-
-  }catch(error){
-    console.error(error);
-    setMessage(
-      "profileMessage",
-      error?.message || "Не удалось сохранить профиль.",
-      "error"
-    );
-  }finally{
-    btn.disabled = false;
-  }
-}
-
-/* =========================
-   AUTH UI
-========================= */
-
 function renderAuth(){
-  if(currentUser){
-    hide($("guestActions"));
-    show($("userActions"));
-    hide($("authSection"));
-
-    const username =
-      currentProfile?.username ||
-      currentUser.user_metadata?.username ||
-      googleNickname(currentUser);
-
-    $("userName").textContent = username;
-
-    renderProfile();
-  }else{
-    show($("guestActions"));
-    hide($("userActions"));
-    hide($("profileSection"));
-    hide($("sellSection"));
-    hide($("editProfileSection"));
-
-    $("userName").textContent = "";
-  }
+ if(currentUser){hide($("guestActions"));show($("userActions"));hide($("authSection"));$("userName").textContent=currentProfile?.username||nickname(currentUser)}
+ else{show($("guestActions"));hide($("userActions"));hide($("authSection"));hide($("sellSection"));hide($("editProfileSection"));}
 }
-
-/* =========================
-   GOOGLE LOGIN
-========================= */
-
 async function loginWithGoogle(){
-  const btn1 = $("googleLoginBtn");
-  const btn2 = $("authSubmit");
-
-  if(btn1) btn1.disabled = true;
-  if(btn2) btn2.disabled = true;
-
-  setMessage("authMessage", "Открываем Google…");
-
-  try{
-    if(!["http:", "https:"].includes(window.location.protocol)){
-      throw new Error("Открой сайт через HTTPS/HTTP, а не через file://");
-    }
-
-    // В callback возвращаемся на ту же страницу сайта.
-    const redirectTo = window.location.origin + window.location.pathname;
-
-    const { data, error } = await sb.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo,
-        queryParams: {
-          prompt: "select_account"
-        }
-      }
-    });
-
-    if(error) throw error;
-    if(!data?.url) throw new Error("Supabase не вернул ссылку Google для входа.");
-
-    // Явно перенаправляем браузер на Google.
-    window.location.replace(data.url);
-
-  }catch(error){
-    console.error("Google OAuth error:", error);
-    setMessage(
-      "authMessage",
-      "Ошибка входа через Google: " + (error?.message || "неизвестная ошибка"),
-      "error"
-    );
-    if(btn1) btn1.disabled = false;
-    if(btn2) btn2.disabled = false;
-  }
+ const a=$("googleLoginBtn"),b=$("authSubmit");a.disabled=true;b.disabled=true;msg("authMessage","Открываем Google…");
+ try{if(location.protocol!=="http:"&&location.protocol!=="https:")throw new Error("GitHub Pages должен быть открыт через https.");const redirectTo=location.origin+location.pathname;const {data,error}=await sb.auth.signInWithOAuth({provider:"google",options:{redirectTo,queryParams:{prompt:"select_account"}}});if(error)throw error;if(data?.url)location.href=data.url;else throw new Error("Не получен адрес Google.")}catch(e){console.error(e);msg("authMessage","Ошибка Google: "+(e.message||"неизвестная ошибка"),"error");a.disabled=false;b.disabled=false}
 }
-
-/* =========================
-   SESSION
-========================= */
-
-async function refreshSession(){
-  try{
-    // PKCE callback: Supabase возвращает code в query string.
-    const params = new URLSearchParams(window.location.search);
-    const code = params.get("code");
-
-    if(code){
-      setMessage("authMessage", "Завершаем вход через Google…");
-
-      const { error } = await sb.auth.exchangeCodeForSession(code);
-      if(error) throw error;
-
-      // Убираем code из адресной строки после успешного обмена.
-      window.history.replaceState({}, document.title, window.location.pathname);
-    }
-
-    const { data, error } = await sb.auth.getSession();
-    if(error) throw error;
-
-    currentUser = data?.session?.user || null;
-
-    if(currentUser){
-      await ensureProfileFromGoogle(currentUser);
-      await loadCurrentProfile();
-    }
-
-    renderAuth();
-
-  }catch(error){
-    console.error("refreshSession:", error);
-    currentUser = null;
-    currentProfile = null;
-    renderAuth();
-    setMessage(
-      "authMessage",
-      "Не удалось завершить вход через Google: " + (error?.message || "неизвестная ошибка"),
-      "error"
-    );
-  }
+async function handleOAuthCallback(){
+ const params=new URLSearchParams(location.search),code=params.get("code");
+ if(!code)return;
+ msg("authMessage","Завершаем вход…");
+ try{const {error}=await sb.auth.exchangeCodeForSession(code);if(error)throw error;history.replaceState({},document.title,location.pathname)}catch(e){console.error(e);msg("authMessage","Ошибка завершения входа: "+e.message,"error")}
 }
+sb.auth.onAuthStateChange((event,session)=>{currentUser=session?.user||null;if(event==="SIGNED_OUT")currentProfile=null;renderAuth();setTimeout(()=>{if(currentUser)ensureProfile(currentUser).then(renderAuth).catch(console.error)},0)});
 
-sb.auth.onAuthStateChange((event, session) => {
-  console.log("Auth event:", event);
-  currentUser = session?.user || null;
+function openProfile(){if(!currentUser)return loginWithGoogle();$("modalUsername").textContent=currentProfile?.username||nickname(currentUser);$("modalEmail").textContent=currentUser.email||"";$("modalBio").textContent=currentUser.user_metadata?.bio||"";$("modalAvatar").src=avatar(currentUser,currentProfile);show($("profileModal"))}
+function closeProfile(){hide($("profileModal"))}
+function openEditor(){closeProfile();$("profileUsername").value=currentProfile?.username||nickname(currentUser);$("profileBioInput").value=currentUser.user_metadata?.bio||"";$("avatarFile").value="";show($("editProfileSection"));$("editProfileSection").scrollIntoView({behavior:"smooth",block:"center"})}
+async function saveProfile(){
+ if(!currentUser)return;const username=$("profileUsername").value.trim(),bio=$("profileBioInput").value.trim(),file=$("avatarFile").files[0];if(!username)return msg("profileMessage","Введите никнейм.","error");const btn=$("saveProfileBtn");btn.disabled=true;
+ try{let av=currentProfile?.avatar_url||currentUser.user_metadata?.avatar_url||currentUser.user_metadata?.picture||"";if(file){if(file.size>2*1024*1024)throw new Error("Аватарка должна быть меньше 2 МБ.");av=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=()=>rej(new Error("Не удалось прочитать аватарку."));r.readAsDataURL(file)})}const {error}=await sb.from("profiles").upsert({id:currentUser.id,username,avatar_url:av},{onConflict:"id"});if(error)throw error;const {error:ae}=await sb.auth.updateUser({data:{username,bio,avatar_url:av}});if(ae)throw ae;await ensureProfile(currentUser);hide($("editProfileSection"));renderAuth();window.scrollTo({top:0,behavior:"smooth"})}catch(e){console.error(e);msg("profileMessage",e.message||"Не удалось сохранить профиль.","error")}finally{btn.disabled=false}
+}
+async function loadListings(){
+ const grid=$("listingsGrid");
+ try{const {data,error}=await sb.from("listings").select("id,seller_id,title,description,category,price,is_active,created_at").eq("is_active",true).order("created_at",{ascending:false});if(error)throw error;allListings=data||[];const ids=[...new Set(allListings.map(x=>x.seller_id).filter(Boolean))];if(ids.length){const {data:p}=await sb.from("profiles").select("id,username,avatar_url").in("id",ids);const map=Object.fromEntries((p||[]).map(x=>[x.id,x]));allListings=allListings.map(x=>({...x,profile:map[x.seller_id]||null}))}await loadReviewStats();renderListings()}catch(e){console.error(e);grid.innerHTML="<div class='empty'>Не удалось загрузить объявления.</div>"}
+}
+async function loadReviewStats(){
+ try{const {data,error}=await sb.from("reviews").select("listing_id,rating");if(error)throw error;const map={};(data||[]).forEach(r=>{map[r.listing_id]??=[];map[r.listing_id].push(Number(r.rating)||0)});allListings=allListings.map(x=>{const a=map[x.id]||[];return {...x,reviewCount:a.length,reviewAverage:a.length?a.reduce((s,n)=>s+n,0)/a.length:0}})}catch(e){console.warn("Отзывы недоступны:",e.message);allListings=allListings.map(x=>({...x,reviewCount:0,reviewAverage:0}))}
+}
+function renderListings(){
+ const q=$("search").value.trim().toLowerCase();const list=allListings.filter(x=>(activeCategory==="all"||x.category===activeCategory)&&(!q||[x.title,x.description,x.category,x.profile?.username].join(" ").toLowerCase().includes(q)));if(!list.length){$("listingsGrid").innerHTML="<div class='empty'>Нет объявлений.</div>";return}
+ $("listingsGrid").innerHTML=list.map(x=>{const name=x.profile?.username||"Пользователь";const av=x.profile?.avatar_url||"https://ui-avatars.com/api/?name="+encodeURIComponent(name)+"&background=26345e&color=ffffff";const own=currentUser?.id===x.seller_id;const rating=x.reviewCount?`<span class="stars">${stars(x.reviewAverage)}</span> ${x.reviewAverage.toFixed(1)} (${x.reviewCount})`:"Отзывов пока нет";return `<article class="card"><h3>${esc(x.title)}</h3><div class="muted">${esc(x.category||"Другое")}</div><p>${esc(x.description||"")}</p><div class="price">${price(x.price)}</div><div class="seller"><img src="${esc(av)}" alt=""><strong>${esc(name)}</strong></div><div class="review-summary">${rating}</div><div class="buy-row">${own?'<span class="muted">Это ваше объявление</span>':`<button class="primary" data-buy="${esc(x.id)}">Купить</button>`}</div></article>`}).join("");
+ document.querySelectorAll("[data-buy]").forEach(b=>b.onclick=()=>buyListing(b.dataset.buy));
+}
+async function buyListing(id){
+ if(!currentUser)return openAuth();const item=allListings.find(x=>x.id===id);if(!item)return;if(item.seller_id===currentUser.id)return alert("Нельзя купить своё объявление.");if(!confirm(`Купить «${item.title}» за ${price(item.price)}?\n\nЭто демонстрационная покупка без реальной оплаты.`))return;
+ const {error}=await sb.from("purchases").insert({buyer_id:currentUser.id,listing_id:item.id,seller_id:item.seller_id});if(error){if(error.code==="23505")return openReview(item.id);console.error(error);return alert("Не удалось сохранить покупку. Проверь SQL для purchases.")}alert("Покупка оформлена!");openReview(item.id)
+}
+function openReview(id){if(!currentUser)return openAuth();const item=allListings.find(x=>x.id===id);if(!item)return;reviewListingId=id;$("reviewListingTitle").textContent=item.title;$("reviewRating").value="5";$("reviewText").value="";msg("reviewMessage","");show($("reviewModal"))}
+function closeReview(){hide($("reviewModal"));reviewListingId=null}
+async function submitReview(){
+ if(!currentUser||!reviewListingId)return;const item=allListings.find(x=>x.id===reviewListingId);const text=$("reviewText").value.trim(),rating=Number($("reviewRating").value);if(!text)return msg("reviewMessage","Напишите отзыв.","error");const btn=$("submitReviewBtn");btn.disabled=true;
+ try{const {data:p,error:pe}=await sb.from("purchases").select("id").eq("buyer_id",currentUser.id).eq("listing_id",item.id).maybeSingle();if(pe)throw pe;if(!p)throw new Error("Сначала нужно купить товар.");const {error}=await sb.from("reviews").insert({buyer_id:currentUser.id,listing_id:item.id,seller_id:item.seller_id,rating,text});if(error){if(error.code==="23505")throw new Error("Вы уже оставляли отзыв на этот товар.");throw error}msg("reviewMessage","Отзыв опубликован!","ok");await loadListings();setTimeout(closeReview,500)}catch(e){console.error(e);msg("reviewMessage",e.message||"Ошибка отзыва","error")}finally{btn.disabled=false}
+}
+function openAuth(){show($("authSection"));$("authSection").scrollIntoView({behavior:"smooth",block:"center"})}
+async function publishListing(){
+ if(!currentUser)return openAuth();const title=$("sellTitle").value.trim(),description=$("sellDescription").value.trim(),category=$("sellCategory").value,priceValue=Number($("sellPrice").value);if(!title||!description||!Number.isFinite(priceValue)||priceValue<0)return msg("sellMessage","Заполни все поля корректно.","error");if(!$("sellPolicy").checked)return msg("sellMessage","Подтверди правила публикации.","error");const btn=$("publishBtn");btn.disabled=true;
+ try{const {error}=await sb.from("listings").insert({seller_id:currentUser.id,title,description,category,price:priceValue,is_active:true});if(error)throw error;msg("sellMessage","Объявление опубликовано!","ok");$("sellTitle").value="";$("sellDescription").value="";$("sellPrice").value="";$("sellPolicy").checked=false;await loadListings();setTimeout(()=>hide($("sellSection")),500)}catch(e){console.error(e);msg("sellMessage",e.message||"Не удалось опубликовать объявление.","error")}finally{btn.disabled=false}
+}
+async function logout(){await sb.auth.signOut();currentUser=null;currentProfile=null;renderAuth();window.scrollTo({top:0,behavior:"smooth"})}
 
-  if(!currentUser){
-    currentProfile = null;
-    renderAuth();
-    return;
-  }
-
-  // Только обновляем интерфейс здесь. Запросы профиля выполняются после
-  // завершения auth-цикла в refreshSession(), чтобы не блокировать auth lock.
-  renderAuth();
-});
-
-/* =========================
-   EVENTS
-========================= */
-
-$("googleLoginBtn").addEventListener("click", loginWithGoogle);
-$("authSubmit").addEventListener("click", loginWithGoogle);
-
-$("logoutBtn").addEventListener("click", logout);
-
-$("profileBtn").addEventListener("click", () => {
-  if(!currentUser){
-    openAuth();
-    return;
-  }
-  renderProfile();
-  show($("modal"));
-});
-
-$("closeModal").addEventListener("click", closeProfileModal);
-$("closeModalBottom").addEventListener("click", closeProfileModal);
-
-$("modal").addEventListener("click", event => {
-  if(event.target === $("modal")){
-    closeProfileModal();
-  }
-});
-
-$("withdrawBtn").addEventListener("click", () => {
-  alert("Вывод средств пока отключён.");
-});
-
-$("sellBtn").addEventListener("click", () => {
-  if(!currentUser){
-    openAuth();
-    return;
-  }
-
-  hide($("editProfileSection"));
-  show($("sellSection"));
-
-  $("sellSection").scrollIntoView({
-    behavior: "smooth",
-    block: "center"
-  });
-
-  $("sellTitle").focus();
-});
-
-$("closeSell").addEventListener("click", () => {
-  hide($("sellSection"));
-});
-
-$("cancelSellBtn").addEventListener("click", () => {
-  hide($("sellSection"));
-  $("sellPolicy").checked = false;
-  setMessage("sellMessage", "");
-});
-
-$("publishBtn").addEventListener("click", publishListing);
-
-$("editProfileBtn").addEventListener("click", () => {
-  if(!currentUser) return;
-
-  show($("editProfileSection"));
-  hide($("sellSection"));
-
-  $("profileUsername").value =
-    currentProfile?.username ||
-    currentUser.user_metadata?.username ||
-    googleNickname(currentUser);
-
-  $("profileBioInput").value =
-    currentUser.user_metadata?.bio ||
-    "";
-  if($("avatarFile")) $("avatarFile").value = "";
-
-  $("editProfileSection").scrollIntoView({
-    behavior: "smooth",
-    block: "center"
-  });
-});
-
-$("saveProfileBtn").addEventListener("click", saveProfile);
-
-$("cancelProfileBtn").addEventListener("click", () => {
-  hide($("editProfileSection"));
-  setMessage("profileMessage", "");
-});
-
-$("search").addEventListener("input", renderListings);
-
-document.querySelectorAll(".cat").forEach(button => {
-  button.addEventListener("click", () => {
-    document.querySelectorAll(".cat").forEach(
-      x => x.classList.remove("active")
-    );
-
-    button.classList.add("active");
-
-    activeCategory = button.dataset.cat;
-
-    renderListings();
-  });
-});
-
-$("homeBtn").addEventListener("click", () => {
-  window.scrollTo({
-    top: 0,
-    behavior: "smooth"
-  });
-});
-
-$("marketBtn").addEventListener("click", () => {
-  $("marketSection").scrollIntoView({
-    behavior: "smooth"
-  });
-});
-
-/* =========================
-   START
-========================= */
-
-(async function init(){
-  /*
-    Supabase v2 сам обработает OAuth callback из URL.
-    getSession() после возврата с Google получает сохранённую сессию.
-  */
-
-  await refreshSession();
-  await loadListings();
-
-  /*
-    Если пользователь вернулся после OAuth,
-    убираем OAuth-параметры из адресной строки.
-  */
-  if(
-    window.location.hash.includes("access_token") ||
-    window.location.search.includes("code=")
-  ){
-    window.history.replaceState(
-      {},
-      document.title,
-      window.location.pathname
-    );
-  }
-})();
+$("googleLoginBtn").onclick=loginWithGoogle;$("authSubmit").onclick=loginWithGoogle;$("logoutBtn").onclick=logout;$("profileBtn").onclick=openProfile;$("closeProfileModal").onclick=closeProfile;$("modalEditProfileBtn").onclick=openEditor;$("closeReviewModal").onclick=closeReview;$("cancelReviewBtn").onclick=closeReview;$("submitReviewBtn").onclick=submitReview;
+$("sellBtn").onclick=()=>{hide($("editProfileSection"));show($("sellSection"));$("sellSection").scrollIntoView({behavior:"smooth",block:"center"})};$("closeSell").onclick=()=>hide($("sellSection"));$("cancelSellBtn").onclick=()=>hide($("sellSection"));$("publishBtn").onclick=publishListing;$("saveProfileBtn").onclick=saveProfile;$("cancelProfileBtn").onclick=()=>hide($("editProfileSection"));$("search").oninput=renderListings;
+$("homeBtn").onclick=()=>window.scrollTo({top:0,behavior:"smooth"});$("marketBtn").onclick=()=>$("marketSection").scrollIntoView({behavior:"smooth"});
+document.querySelectorAll(".cat").forEach(b=>b.onclick=()=>{document.querySelectorAll(".cat").forEach(x=>x.classList.remove("active"));b.classList.add("active");activeCategory=b.dataset.cat;renderListings()});
+(async function init(){try{await handleOAuthCallback();await syncAuth()}catch(e){console.error(e);msg("authMessage",e.message||"Ошибка запуска","error")}await loadListings()})();
 </script>
 </body>
 </html>
