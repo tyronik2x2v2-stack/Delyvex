@@ -10,13 +10,15 @@
   <style>
     * {
       box-sizing: border-box;
+      margin: 0;
+      padding: 0;
     }
 
     body {
-      margin: 0;
       font-family: Arial, sans-serif;
-      background: #0b1020;
+      background: #0b0f19;
       color: #fff;
+      min-height: 100vh;
     }
 
     button,
@@ -30,551 +32,460 @@
       cursor: pointer;
     }
 
-    .hidden {
-      display: none !important;
-    }
-
-    .container {
-      width: min(1150px, calc(100% - 30px));
-      margin: auto;
-    }
-
     header {
-      position: sticky;
-      top: 0;
-      z-index: 20;
-      background: rgba(11, 16, 32, .95);
-      backdrop-filter: blur(12px);
-      border-bottom: 1px solid #222c49;
-    }
-
-    .nav {
-      min-height: 70px;
+      height: 70px;
+      background: #111827;
+      border-bottom: 1px solid #273244;
       display: flex;
       align-items: center;
-      gap: 8px;
+      justify-content: space-between;
+      padding: 0 30px;
+      position: sticky;
+      top: 0;
+      z-index: 50;
     }
 
     .logo {
-      font-size: 25px;
+      font-size: 26px;
       font-weight: 800;
-      color: #fff;
-      margin-right: auto;
+      color: #7c5cff;
+      cursor: pointer;
     }
 
-    .logo span {
-      color: #6d8cff;
+    nav {
+      display: flex;
+      gap: 8px;
+      align-items: center;
     }
 
-    .nav button {
-      border: 0;
+    nav button,
+    .header-btn {
       background: transparent;
-      color: #c7d0ec;
-      padding: 9px 12px;
-      border-radius: 8px;
-    }
-
-    .nav button:hover {
-      background: #151f3d;
-      color: #fff;
-    }
-
-    .primary {
       border: 0;
-      background: #6d8cff;
-      color: #fff;
-      padding: 10px 15px;
-      border-radius: 8px;
-      font-weight: 700;
+      color: #cbd5e1;
+      padding: 10px 14px;
+      border-radius: 10px;
     }
 
-    .primary:hover {
-      background: #5878ef;
+    nav button:hover,
+    .header-btn:hover {
+      background: #1e293b;
+      color: white;
     }
 
-    .secondary {
-      border: 1px solid #394873;
-      background: #151f3d;
-      color: #fff;
-      padding: 10px 15px;
-      border-radius: 8px;
-      font-weight: 700;
+    .user-area {
+      display: flex;
+      gap: 10px;
+      align-items: center;
     }
 
-    .secondary:hover {
-      background: #1d2a50;
+    .avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      object-fit: cover;
+      background: #273244;
     }
 
-    .danger {
-      border: 0;
-      background: #d94d5c;
-      color: #fff;
-      padding: 10px 15px;
-      border-radius: 8px;
-      font-weight: 700;
-    }
-
-    main {
-      padding: 35px 0 70px;
-      min-height: calc(100vh - 140px);
+    .container {
+      max-width: 1200px;
+      margin: auto;
+      padding: 30px 20px;
     }
 
     .hero {
-      padding: 35px 0;
+      padding: 50px 0 30px;
+      text-align: center;
     }
 
     .hero h1 {
-      font-size: clamp(32px, 6vw, 58px);
-      margin: 0 0 12px;
+      font-size: clamp(35px, 6vw, 65px);
+      margin-bottom: 15px;
+    }
+
+    .hero h1 span {
+      color: #7c5cff;
     }
 
     .hero p {
-      color: #9aa7c7;
-      max-width: 650px;
-      line-height: 1.6;
+      color: #94a3b8;
+      font-size: 18px;
     }
 
     .search-box {
       display: flex;
       gap: 10px;
-      margin-top: 25px;
+      margin: 30px auto;
+      max-width: 800px;
     }
 
     input,
     textarea,
     select {
       width: 100%;
-      background: #11182d;
-      border: 1px solid #2c385c;
-      color: #fff;
-      border-radius: 9px;
-      padding: 11px 12px;
+      background: #111827;
+      border: 1px solid #334155;
+      color: white;
+      border-radius: 10px;
+      padding: 13px 14px;
       outline: none;
     }
 
     input:focus,
     textarea:focus,
     select:focus {
-      border-color: #6d8cff;
+      border-color: #7c5cff;
+    }
+
+    textarea {
+      min-height: 110px;
+      resize: vertical;
+    }
+
+    .search-box input {
+      flex: 1;
+    }
+
+    .btn {
+      border: 0;
+      border-radius: 10px;
+      padding: 12px 17px;
+      color: white;
+      background: #7c5cff;
+      font-weight: 700;
+    }
+
+    .btn:hover {
+      background: #6d4ff0;
+    }
+
+    .btn.secondary {
+      background: #1e293b;
+    }
+
+    .btn.danger {
+      background: #dc2626;
+    }
+
+    .btn.green {
+      background: #16a34a;
     }
 
     .categories {
       display: flex;
-      gap: 8px;
       flex-wrap: wrap;
-      margin: 25px 0;
+      gap: 8px;
+      margin-bottom: 25px;
     }
 
     .category {
-      border: 1px solid #303c61;
-      background: #121a31;
-      color: #b9c4e2;
+      border: 1px solid #334155;
+      background: #111827;
+      color: #cbd5e1;
       padding: 9px 14px;
       border-radius: 999px;
+      cursor: pointer;
     }
 
     .category.active,
     .category:hover {
-      background: #6d8cff;
-      border-color: #6d8cff;
-      color: #fff;
-    }
-
-    .section-title {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 15px;
-      margin: 30px 0 18px;
-    }
-
-    .section-title h2 {
-      margin: 0;
+      background: #7c5cff;
+      border-color: #7c5cff;
+      color: white;
     }
 
     .listings {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
       gap: 18px;
     }
 
     .card {
-      background: #121a31;
-      border: 1px solid #293556;
-      border-radius: 14px;
+      background: #111827;
+      border: 1px solid #273244;
+      border-radius: 16px;
       overflow: hidden;
       transition: .2s;
     }
 
     .card:hover {
       transform: translateY(-3px);
-      border-color: #445685;
+      border-color: #4b5563;
     }
 
     .card-image {
       width: 100%;
-      height: 175px;
+      height: 170px;
       object-fit: cover;
-      background: #1a2440;
+      background: #1e293b;
     }
 
     .card-body {
-      padding: 15px;
+      padding: 17px;
     }
 
-    .card-title {
-      font-size: 18px;
-      font-weight: 700;
-      margin-bottom: 7px;
+    .card h3 {
+      margin-bottom: 8px;
     }
 
-    .card-description {
-      color: #9ba8c8;
-      font-size: 14px;
-      line-height: 1.5;
+    .description {
+      color: #94a3b8;
       min-height: 42px;
-    }
-
-    .card-meta {
-      display: flex;
-      justify-content: space-between;
-      margin-top: 13px;
-      color: #8997b9;
-      font-size: 13px;
+      margin-bottom: 12px;
+      word-break: break-word;
     }
 
     .price {
-      color: #fff;
-      font-size: 20px;
+      color: #a78bfa;
+      font-size: 22px;
       font-weight: 800;
-      margin-top: 12px;
+      margin-bottom: 13px;
     }
 
-    .seller {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-top: 13px;
-      color: #b7c2df;
+    .meta {
+      color: #64748b;
       font-size: 13px;
+      margin-bottom: 13px;
     }
 
-    .seller-avatar {
-      width: 30px;
-      height: 30px;
-      border-radius: 50%;
-      object-fit: cover;
-      background: #26345e;
-    }
-
-    .buy-row {
+    .actions {
       display: flex;
-      gap: 8px;
-      margin-top: 14px;
+      gap: 7px;
+      flex-wrap: wrap;
     }
 
-    .buy-row button {
+    .actions .btn {
       flex: 1;
+      min-width: 100px;
     }
 
-    .empty {
-      padding: 50px 20px;
-      text-align: center;
-      color: #8f9abb;
-      border: 1px dashed #35436b;
-      border-radius: 12px;
-      grid-column: 1 / -1;
+    .section {
+      display: none;
     }
 
-    .message {
-      margin-top: 10px;
-      color: #9ca9ca;
-      font-size: 14px;
+    .section.active {
+      display: block;
     }
 
-    .message.error {
-      color: #ff7585;
+    .form-card {
+      max-width: 650px;
+      margin: 30px auto;
+      background: #111827;
+      border: 1px solid #273244;
+      padding: 25px;
+      border-radius: 16px;
     }
 
-    .message.success {
-      color: #72df9d;
-    }
-
-    .profile-box {
-      background: #121a31;
-      border: 1px solid #293556;
-      border-radius: 14px;
-      padding: 22px;
-      max-width: 900px;
-    }
-
-    .profile-avatar {
-      width: 80px;
-      height: 80px;
-      border-radius: 50%;
-      object-fit: cover;
-      background: #26345e;
-    }
-
-    .form-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 14px;
-    }
-
-    .form-full {
-      grid-column: 1 / -1;
+    .form-card h2 {
+      margin-bottom: 20px;
     }
 
     .form-group {
-      margin-bottom: 14px;
+      margin-bottom: 15px;
     }
 
     .form-group label {
       display: block;
       margin-bottom: 7px;
-      color: #aeb9d5;
-      font-size: 14px;
+      color: #cbd5e1;
+    }
+
+    .profile-box {
+      background: #111827;
+      border: 1px solid #273244;
+      border-radius: 16px;
+      padding: 25px;
+      max-width: 700px;
+      margin: auto;
+    }
+
+    .profile-head {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 25px;
+    }
+
+    .big-avatar {
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      object-fit: cover;
+      background: #273244;
+    }
+
+    .empty {
+      text-align: center;
+      padding: 50px 10px;
+      color: #64748b;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 50px;
+      color: #94a3b8;
     }
 
     .modal {
       position: fixed;
       inset: 0;
-      z-index: 100;
-      background: rgba(0, 0, 0, .72);
-      display: flex;
+      background: rgba(0,0,0,.75);
+      display: none;
       align-items: center;
       justify-content: center;
       padding: 15px;
+      z-index: 100;
     }
 
-    .modal-box {
+    .modal.show {
+      display: flex;
+    }
+
+    .modal-content {
       width: min(600px, 100%);
       max-height: 90vh;
-      overflow: auto;
-      background: #10182d;
-      border: 1px solid #303d62;
-      border-radius: 15px;
-      padding: 22px;
-      box-shadow: 0 20px 70px rgba(0, 0, 0, .4);
+      overflow-y: auto;
+      background: #111827;
+      border: 1px solid #334155;
+      border-radius: 16px;
+      padding: 25px;
     }
 
-    .modal-head {
+    .modal-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 15px;
+      margin-bottom: 18px;
     }
 
-    .modal-head h2 {
-      margin: 0;
-    }
-
-    .modal-close {
-      width: 35px;
-      height: 35px;
+    .close {
       border: 0;
-      border-radius: 8px;
-      background: #202b4b;
-      color: #fff;
+      background: transparent;
+      color: #94a3b8;
+      font-size: 28px;
+      cursor: pointer;
     }
 
-    .modal-close:hover {
-      background: #2b395f;
+    .close:hover {
+      color: white;
     }
 
-    .chat-box {
-      width: min(700px, 100%);
-      height: min(720px, 90vh);
-      display: flex;
-      flex-direction: column;
-    }
-
-    .chat-top {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding-bottom: 12px;
-      border-bottom: 1px solid #263050;
-    }
-
-    .chat-avatar {
-      width: 42px;
-      height: 42px;
-      border-radius: 50%;
-      object-fit: cover;
-      background: #26345e;
-    }
-
-    .chat-title {
-      font-weight: 700;
-    }
-
-    .chat-subtitle {
-      font-size: 12px;
-      color: #8f9abb;
-      margin-top: 3px;
-    }
-
-    .chat-messages {
-      flex: 1;
+    .chat-window {
+      height: 400px;
       overflow-y: auto;
-      padding: 15px 4px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
+      background: #0b0f19;
+      border-radius: 12px;
+      padding: 15px;
+      margin-bottom: 12px;
     }
 
-    .chat-empty {
-      color: #8f9abb;
-      text-align: center;
-      margin: auto;
-    }
-
-    .chat-message {
-      max-width: 78%;
-      padding: 9px 12px;
+    .message {
+      max-width: 75%;
+      margin-bottom: 10px;
+      padding: 10px 13px;
       border-radius: 12px;
       word-break: break-word;
     }
 
-    .chat-message.mine {
-      align-self: flex-end;
-      background: #6d8cff;
-      border-bottom-right-radius: 4px;
+    .message.mine {
+      margin-left: auto;
+      background: #7c5cff;
     }
 
-    .chat-message.theirs {
-      align-self: flex-start;
-      background: #26345e;
-      border-bottom-left-radius: 4px;
+    .message.theirs {
+      margin-right: auto;
+      background: #1e293b;
     }
 
-    .chat-time {
+    .message-time {
+      display: block;
       font-size: 10px;
       opacity: .65;
-      margin-top: 4px;
-    }
-
-    .chat-input-row {
-      display: flex;
-      gap: 8px;
-      border-top: 1px solid #263050;
-      padding-top: 12px;
+      margin-top: 5px;
     }
 
     .chat-input {
-      flex: 1;
-      resize: none;
-      min-height: 45px;
-      max-height: 120px;
-      padding: 11px;
-      border-radius: 9px;
-      border: 1px solid #35446e;
-      background: #0b1020;
-      color: #fff;
-    }
-
-    .chat-send {
-      width: 110px;
-    }
-
-    .conversations {
       display: flex;
-      flex-direction: column;
       gap: 8px;
-      margin-top: 15px;
+    }
+
+    .chat-input input {
+      flex: 1;
     }
 
     .conversation {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 12px;
-      border: 1px solid #2b3860;
-      border-radius: 11px;
-      background: #151f40;
+      padding: 14px;
+      border: 1px solid #273244;
+      border-radius: 12px;
+      margin-bottom: 8px;
       cursor: pointer;
+      background: #0f172a;
     }
 
     .conversation:hover {
-      background: #1b2850;
+      border-color: #7c5cff;
     }
 
-    .conversation-avatar {
-      width: 44px;
-      height: 44px;
-      border-radius: 50%;
-      object-fit: cover;
-      background: #26345e;
+    .conversation strong {
+      display: block;
+      margin-bottom: 5px;
     }
 
-    .conversation-info {
-      min-width: 0;
-      flex: 1;
+    .conversation small {
+      color: #64748b;
     }
 
-    .conversation-name {
-      font-weight: 700;
+    .toast {
+      position: fixed;
+      right: 20px;
+      bottom: 20px;
+      background: #111827;
+      border: 1px solid #334155;
+      border-radius: 12px;
+      padding: 14px 18px;
+      display: none;
+      z-index: 300;
+      box-shadow: 0 10px 40px rgba(0,0,0,.4);
     }
 
-    .conversation-listing {
-      font-size: 12px;
-      color: #8f9abb;
-      margin-top: 3px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+    .toast.show {
+      display: block;
     }
 
-    .conversation-last {
-      font-size: 13px;
-      color: #c1cae6;
-      margin-top: 5px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    footer {
-      border-top: 1px solid #222c49;
-      padding: 25px 0;
-      color: #7582a3;
+    .login-box {
       text-align: center;
+      padding: 80px 20px;
     }
 
-    @media (max-width: 700px) {
-      .nav {
-        flex-wrap: wrap;
-        padding: 10px 0;
+    .login-box h2 {
+      font-size: 35px;
+      margin-bottom: 12px;
+    }
+
+    .login-box p {
+      color: #94a3b8;
+      margin-bottom: 25px;
+    }
+
+    @media(max-width:700px) {
+      header {
+        padding: 0 12px;
       }
 
-      .logo {
-        width: 100%;
+      nav {
+        display: none;
       }
 
       .search-box {
         flex-direction: column;
       }
 
-      .form-grid {
+      .listings {
         grid-template-columns: 1fr;
       }
 
-      .form-full {
-        grid-column: auto;
-      }
-
-      .buy-row {
+      .chat-input {
         flex-direction: column;
-      }
-
-      .chat-input-row {
-        flex-direction: column;
-      }
-
-      .chat-send {
-        width: 100%;
       }
     }
   </style>
@@ -583,567 +494,217 @@
 <body>
 
 <header>
-  <div class="container nav">
+  <div class="logo" onclick="showSection('home')">Delyvex</div>
 
-    <div class="logo">
-      Dely<span>vex</span>
-    </div>
+  <nav>
+    <button onclick="showSection('home')">Главная</button>
+    <button onclick="showSection('sell')">Продать</button>
+    <button onclick="showSection('messages')">Сообщения</button>
+    <button onclick="showSection('profile')">Профиль</button>
+  </nav>
 
-    <button id="homeBtn">Главная</button>
-    <button id="sellBtn">Продать</button>
-    <button id="messagesBtn">💬 Сообщения</button>
-    <button id="profileBtn">Профиль</button>
-    <button id="authBtn" class="primary">Войти</button>
-
+  <div class="user-area">
+    <span id="userName"></span>
+    <img id="headerAvatar" class="avatar" src="" style="display:none">
+    <button id="loginBtn" class="btn" onclick="loginWithGoogle()">Войти</button>
+    <button id="logoutBtn" class="header-btn" onclick="logout()" style="display:none">
+      Выйти
+    </button>
   </div>
 </header>
 
+<main class="container">
 
-<main>
-  <div class="container">
+  <!-- HOME -->
+  <section id="home" class="section active">
 
-    <!-- HOME -->
+    <div class="hero">
+      <h1>Добро пожаловать в <span>Delyvex</span></h1>
+      <p>Маркетплейс игровых товаров и цифровых предметов</p>
 
-    <section id="homePage">
+      <div class="search-box">
+        <input
+          id="searchInput"
+          type="text"
+          placeholder="Поиск товаров..."
+          oninput="renderListings()"
+        >
+        <button class="btn" onclick="renderListings()">Найти</button>
+      </div>
+    </div>
 
-      <div class="hero">
+    <div class="categories">
+      <button class="category active" onclick="setCategory('Все', this)">Все</button>
+      <button class="category" onclick="setCategory('Roblox', this)">Roblox</button>
+      <button class="category" onclick="setCategory('Minecraft', this)">Minecraft</button>
+      <button class="category" onclick="setCategory('GTA', this)">GTA</button>
+      <button class="category" onclick="setCategory('CS2', this)">CS2</button>
+      <button class="category" onclick="setCategory('Другое', this)">Другое</button>
+    </div>
 
-        <h1>
-          Покупай. Продавай. Общайся.
-        </h1>
+    <div id="listings" class="listings">
+      <div class="loading">Загрузка товаров...</div>
+    </div>
 
-        <p>
-          Delyvex — площадка для покупки и продажи
-          игровых товаров. Найди нужный товар
-          и напиши продавцу прямо через сайт.
-        </p>
+  </section>
 
-        <div class="search-box">
+  <!-- SELL -->
+  <section id="sell" class="section">
 
-          <input
-            id="searchInput"
-            type="text"
-            placeholder="Поиск товаров..."
-          >
+    <div class="form-card">
+      <h2>Продать товар</h2>
 
-          <button
-            class="primary"
-            id="searchBtn"
-          >
-            Поиск
-          </button>
+      <div id="sellLoginWarning" class="empty" style="display:none">
+        Сначала войдите через Google.
+      </div>
 
+      <div id="sellForm">
+
+        <div class="form-group">
+          <label>Название</label>
+          <input id="sellTitle" placeholder="Например: Robux 1000">
         </div>
 
-      </div>
-
-
-      <div class="categories">
-
-        <button
-          class="category active"
-          data-category="Все"
-        >
-          Все
-        </button>
-
-        <button
-          class="category"
-          data-category="Roblox"
-        >
-          Roblox
-        </button>
-
-        <button
-          class="category"
-          data-category="Minecraft"
-        >
-          Minecraft
-        </button>
-
-        <button
-          class="category"
-          data-category="GTA"
-        >
-          GTA
-        </button>
-
-        <button
-          class="category"
-          data-category="CS2"
-        >
-          CS2
-        </button>
-
-        <button
-          class="category"
-          data-category="Другое"
-        >
-          Другое
-        </button>
-
-      </div>
-
-
-      <div class="section-title">
-        <h2>Последние объявления</h2>
-      </div>
-
-
-      <div
-        id="listings"
-        class="listings"
-      ></div>
-
-    </section>
-
-
-    <!-- SELL -->
-
-    <section
-      id="sellPage"
-      class="hidden"
-    >
-
-      <div class="section-title">
-        <h2>Продать товар</h2>
-      </div>
-
-
-      <div class="profile-box">
-
-        <div class="form-grid">
-
-          <div class="form-group">
-
-            <label>
-              Название
-            </label>
-
-            <input
-              id="sellTitle"
-              placeholder="Например: Roblox аккаунт"
-            >
-
-          </div>
-
-
-          <div class="form-group">
-
-            <label>
-              Категория
-            </label>
-
-            <select id="sellCategory">
-
-              <option value="Roblox">
-                Roblox
-              </option>
-
-              <option value="Minecraft">
-                Minecraft
-              </option>
-
-              <option value="GTA">
-                GTA
-              </option>
-
-              <option value="CS2">
-                CS2
-              </option>
-
-              <option value="Другое">
-                Другое
-              </option>
-
-            </select>
-
-          </div>
-
-
-          <div class="form-group">
-
-            <label>
-              Цена
-            </label>
-
-            <input
-              id="sellPrice"
-              type="number"
-              min="0"
-              step="0.01"
-              placeholder="10"
-            >
-
-          </div>
-
-
-          <div class="form-group">
-
-            <label>
-              Изображение URL
-            </label>
-
-            <input
-              id="sellImage"
-              placeholder="https://..."
-            >
-
-          </div>
-
-
-          <div class="form-group form-full">
-
-            <label>
-              Описание
-            </label>
-
-            <textarea
-              id="sellDescription"
-              rows="5"
-              placeholder="Описание товара"
-            ></textarea>
-
-          </div>
-
+        <div class="form-group">
+          <label>Описание</label>
+          <textarea id="sellDescription" placeholder="Опишите товар"></textarea>
         </div>
 
+        <div class="form-group">
+          <label>Категория</label>
+          <select id="sellCategory">
+            <option value="Roblox">Roblox</option>
+            <option value="Minecraft">Minecraft</option>
+            <option value="GTA">GTA</option>
+            <option value="CS2">CS2</option>
+            <option value="Другое">Другое</option>
+          </select>
+        </div>
 
-        <button
-          class="primary"
-          id="createListingBtn"
-        >
+        <div class="form-group">
+          <label>Цена</label>
+          <input id="sellPrice" type="number" min="0" step="0.01" placeholder="10">
+        </div>
+
+        <div class="form-group">
+          <label>URL изображения</label>
+          <input id="sellImage" placeholder="https://...">
+        </div>
+
+        <button class="btn" onclick="createListing()">
           Опубликовать
         </button>
 
+      </div>
+    </div>
 
-        <div
-          id="sellMessage"
-          class="message"
-        ></div>
+  </section>
 
+  <!-- MESSAGES -->
+  <section id="messages" class="section">
+
+    <div class="form-card">
+      <h2>Сообщения</h2>
+
+      <div id="messagesLoginWarning" class="empty">
+        Войдите, чтобы посмотреть сообщения.
       </div>
 
-    </section>
+      <div id="conversations"></div>
+    </div>
 
+  </section>
 
-    <!-- PROFILE -->
+  <!-- PROFILE -->
+  <section id="profile" class="section">
 
-    <section
-      id="profilePage"
-      class="hidden"
-    >
+    <div class="profile-box">
 
-      <div class="section-title">
+      <div id="profileLoginWarning" class="login-box">
         <h2>Профиль</h2>
+        <p>Войдите через Google, чтобы открыть профиль.</p>
+        <button class="btn" onclick="loginWithGoogle()">
+          Войти через Google
+        </button>
       </div>
 
+      <div id="profileContent" style="display:none">
 
-      <div class="profile-box">
-
-        <div
-          style="
-            display:flex;
-            gap:15px;
-            align-items:center;
-            margin-bottom:25px;
-          "
-        >
-
-          <img
-            id="profileAvatar"
-            class="profile-avatar"
-            src=""
-            alt=""
-          >
-
+        <div class="profile-head">
+          <img id="profileAvatar" class="big-avatar" src="">
           <div>
-
-            <h3
-              id="profileEmail"
-              style="margin:0 0 6px;"
-            ></h3>
-
-            <div
-              id="profileId"
-              class="message"
-            ></div>
-
+            <h2 id="profileName">Пользователь</h2>
+            <p id="profileEmail" style="color:#64748b"></p>
           </div>
-
         </div>
-
 
         <div class="form-group">
-
-          <label>
-            Имя пользователя
-          </label>
-
-          <input
-            id="profileUsername"
-            placeholder="Введите имя"
-          >
-
+          <label>Имя</label>
+          <input id="profileNameInput">
         </div>
-
 
         <div class="form-group">
-
-          <label>
-            URL аватара
-          </label>
-
-          <input
-            id="profileAvatarInput"
-            placeholder="https://..."
-          >
-
+          <label>Аватар URL</label>
+          <input id="profileAvatarInput">
         </div>
 
-
-        <button
-          class="primary"
-          id="saveProfileBtn"
-        >
-          Сохранить
+        <button class="btn" onclick="saveProfile()">
+          Сохранить профиль
         </button>
 
+        <hr style="border-color:#273244;margin:25px 0">
 
-        <div
-          id="profileMessage"
-          class="message"
-        ></div>
-
-
-        <hr
-          style="
-            border:0;
-            border-top:1px solid #293556;
-            margin:25px 0;
-          "
-        >
-
-
-        <h3>
-          Мои объявления
-        </h3>
-
-
-        <div
-          id="myListings"
-          class="listings"
-        ></div>
+        <h3 style="margin-bottom:15px">Мои объявления</h3>
+        <div id="myListings"></div>
 
       </div>
 
-    </section>
+    </div>
 
-  </div>
+  </section>
+
 </main>
 
-
-<footer>
-  <div class="container">
-    Delyvex © 2026
-  </div>
-</footer>
-
-
-<!-- AUTH MODAL -->
-
-<div
-  id="authModal"
-  class="modal hidden"
->
-
-  <div class="modal-box">
-
-    <div class="modal-head">
-
-      <h2>
-        Вход
-      </h2>
-
-      <button
-        class="modal-close"
-        id="closeAuthModal"
-      >
-        ✕
-      </button>
-
-    </div>
-
-
-    <p class="message">
-      Войди через Google, чтобы покупать,
-      продавать и писать продавцам.
-    </p>
-
-
-    <button
-      class="primary"
-      id="googleLoginBtn"
-      style="
-        width:100%;
-        margin-top:20px;
-      "
-    >
-      Войти через Google
-    </button>
-
-
-    <div
-      id="authMessage"
-      class="message"
-    ></div>
-
-  </div>
-
-</div>
-
-
 <!-- CHAT MODAL -->
+<div id="chatModal" class="modal">
 
-<div
-  id="chatModal"
-  class="modal hidden"
->
+  <div class="modal-content">
 
-  <div class="modal-box chat-box">
-
-    <div class="chat-top">
-
-      <img
-        id="chatAvatar"
-        class="chat-avatar"
-        src=""
-        alt=""
-      >
-
-      <div style="flex:1">
-
-        <div
-          id="chatName"
-          class="chat-title"
-        >
-          Пользователь
-        </div>
-
-        <div
-          id="chatListing"
-          class="chat-subtitle"
-        >
-          Объявление
-        </div>
-
+    <div class="modal-header">
+      <div>
+        <h2 id="chatTitle">Чат</h2>
+        <small id="chatSubtitle" style="color:#64748b"></small>
       </div>
 
-
-      <button
-        class="modal-close"
-        id="closeChatModal"
-      >
-        ✕
-      </button>
-
+      <button class="close" onclick="closeChat()">×</button>
     </div>
 
-
-    <div
-      id="chatMessages"
-      class="chat-messages"
-    >
-
-      <div class="chat-empty">
-        Сообщений пока нет.
-      </div>
-
+    <div id="chatMessages" class="chat-window">
+      <div class="loading">Загрузка...</div>
     </div>
 
-
-    <div
-      id="chatMessageError"
-      class="message"
-    ></div>
-
-
-    <div class="chat-input-row">
-
-      <textarea
+    <div class="chat-input">
+      <input
         id="chatInput"
-        class="chat-input"
-        rows="1"
-        maxlength="2000"
         placeholder="Напишите сообщение..."
-      ></textarea>
-
-
-      <button
-        class="primary chat-send"
-        id="sendChatBtn"
+        onkeydown="if(event.key==='Enter') sendMessage()"
       >
+
+      <button class="btn" onclick="sendMessage()">
         Отправить
       </button>
-
     </div>
 
   </div>
 
 </div>
 
-
-<!-- MESSAGES MODAL -->
-
-<div
-  id="messagesModal"
-  class="modal hidden"
->
-
-  <div class="modal-box">
-
-    <div class="modal-head">
-
-      <h2>
-        💬 Сообщения
-      </h2>
-
-      <button
-        class="modal-close"
-        id="closeMessagesModal"
-      >
-        ✕
-      </button>
-
-    </div>
-
-
-    <p class="message">
-      Твои диалоги с покупателями и продавцами.
-    </p>
-
-
-    <div
-      id="conversationsList"
-      class="conversations"
-    ></div>
-
-
-    <div
-      id="conversationsMessage"
-      class="message"
-    ></div>
-
-  </div>
-
-</div>
-
+<div id="toast" class="toast"></div>
 
 <script>
-
-/* =====================================
+/* =========================================================
    SUPABASE
-===================================== */
+========================================================= */
 
 const SUPABASE_URL =
   "https://gisdufgixjfudblxydvm.supabase.co";
@@ -1151,2275 +712,1232 @@ const SUPABASE_URL =
 const SUPABASE_KEY =
   "sb_publishable_irNKt_PStZrQ2NCEdaD5sg_quCmigAn";
 
-const sb =
-  window.supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_KEY
-  );
+const sb = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+);
 
 
-/* =====================================
+/* =========================================================
+   GOOGLE OAUTH
+========================================================= */
+
+const GITHUB_PAGES_URL =
+  "https://tyronik2x2v2-stack.github.io/Delyvex/";
+
+async function loginWithGoogle() {
+
+  const { error } = await sb.auth.signInWithOAuth({
+    provider: "google",
+
+    options: {
+      redirectTo: GITHUB_PAGES_URL,
+
+      queryParams: {
+        access_type: "offline",
+        prompt: "select_account"
+      }
+    }
+  });
+
+  if (error) {
+    console.error(error);
+    showToast("Ошибка входа: " + error.message);
+  }
+}
+
+
+/* =========================================================
    STATE
-===================================== */
+========================================================= */
 
 let currentUser = null;
 let currentProfile = null;
-
 let allListings = [];
 
 let selectedCategory = "Все";
-let searchText = "";
 
-let chatListingId = null;
-let chatOtherUserId = null;
-
-let chatRefreshTimer = null;
-
-
-/* =====================================
-   HELPERS
-===================================== */
-
-function $(id) {
-  return document.getElementById(id);
-}
-
-
-function show(element) {
-  element.classList.remove("hidden");
-}
-
-
-function hide(element) {
-  element.classList.add("hidden");
-}
-
-
-function esc(value) {
-
-  return String(value ?? "")
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
-
-}
-
-
-function msg(
-  id,
-  text,
-  type = ""
-) {
-
-  const element = $(id);
-
-  if (!element) return;
-
-  element.textContent = text;
-
-  element.className =
-    "message " + type;
-
-}
-
-
-function avatarUrl(profile) {
-
-  if (profile?.avatar_url) {
-    return profile.avatar_url;
-  }
-
-  const name =
-    profile?.username || "User";
-
-  return (
-    "https://ui-avatars.com/api/?name=" +
-    encodeURIComponent(name) +
-    "&background=26345e&color=ffffff"
-  );
-
-}
-
-
-/* =====================================
-   NAVIGATION
-===================================== */
-
-function showPage(page) {
-
-  hide($("homePage"));
-  hide($("sellPage"));
-  hide($("profilePage"));
-
-  show($(page));
-
-  window.scrollTo({
-    top: 0,
-    behavior: "smooth"
-  });
-
-}
-
-
-$("homeBtn").onclick = () => {
-
-  showPage("homePage");
-
+let currentChat = {
+  listingId: null,
+  receiverId: null,
+  listingTitle: null
 };
 
+let chatSubscription = null;
 
-$("sellBtn").onclick = () => {
 
-  if (!currentUser) {
+/* =========================================================
+   INIT
+========================================================= */
 
-    openAuth();
+document.addEventListener("DOMContentLoaded", async () => {
 
-    return;
+  await loadUser();
 
-  }
+  await loadListings();
 
-  showPage("sellPage");
+  setupAuthListener();
+});
 
-};
-
-
-$("profileBtn").onclick = async () => {
-
-  if (!currentUser) {
-
-    openAuth();
-
-    return;
-
-  }
-
-  showPage("profilePage");
-
-  await loadProfilePage();
-
-};
-
-
-/* =====================================
-   AUTH
-===================================== */
-
-function openAuth() {
-  show($("authModal"));
-}
-
-
-function closeAuth() {
-  hide($("authModal"));
-}
-
-
-$("closeAuthModal").onclick =
-  closeAuth;
-
-
-$("authBtn").onclick = async () => {
-
-  if (!currentUser) {
-
-    openAuth();
-
-    return;
-
-  }
-
-
-  const ok =
-    confirm("Выйти из аккаунта?");
-
-
-  if (ok) {
-
-    await sb.auth.signOut();
-
-    currentUser = null;
-    currentProfile = null;
-
-    updateAuthUI();
-
-    renderListings();
-
-  }
-
-};
-
-
-/*
-  GOOGLE LOGIN
-
-  ВАЖНО:
-  Используем полный текущий URL,
-  включая путь GitHub Pages.
-
-  Например:
-
-  https://username.github.io/Delyvex/
-
-  а не только:
-
-  https://username.github.io/
-*/
-
-$("googleLoginBtn").onclick =
-  async () => {
-
-    msg(
-      "authMessage",
-      "Открываем Google..."
-    );
-
-
-    const redirectUrl =
-      window.location.origin +
-      window.location.pathname;
-
-
-    console.log(
-      "OAuth redirect:",
-      redirectUrl
-    );
-
-
-    const {
-      error
-    } =
-      await sb.auth.signInWithOAuth({
-
-        provider: "google",
-
-        options: {
-
-          redirectTo:
-            redirectUrl
-
-        }
-
-      });
-
-
-    if (error) {
-
-      console.error(
-        "GOOGLE LOGIN ERROR:",
-        error
-      );
-
-
-      msg(
-        "authMessage",
-        "Ошибка входа: " +
-        error.message,
-        "error"
-      );
-
-    }
-
-  };
-
-
-/* =====================================
-   USER
-===================================== */
 
 async function loadUser() {
 
   const {
-    data: {
-      session
-    }
-  } =
-    await sb.auth.getSession();
+    data: { session }
+  } = await sb.auth.getSession();
 
-
-  currentUser =
-    session?.user || null;
-
-
-  if (currentUser) {
-
+  if (session) {
+    currentUser = session.user;
     await loadProfile();
-
+  } else {
+    currentUser = null;
+    currentProfile = null;
   }
 
-
-  updateAuthUI();
-
+  updateUI();
 }
 
+
+function setupAuthListener() {
+
+  sb.auth.onAuthStateChange(async (event, session) => {
+
+    currentUser = session?.user || null;
+
+    if (currentUser) {
+      await loadProfile();
+    } else {
+      currentProfile = null;
+    }
+
+    updateUI();
+
+    await loadListings();
+  });
+}
+
+
+/* =========================================================
+   PROFILE
+========================================================= */
 
 async function loadProfile() {
 
   if (!currentUser) return;
 
-
-  const {
-    data,
-    error
-  } =
-    await sb
-      .from("profiles")
-      .select(
-        "id,username,avatar_url"
-      )
-      .eq(
-        "id",
-        currentUser.id
-      )
-      .maybeSingle();
-
+  const { data, error } = await sb
+    .from("profiles")
+    .select("*")
+    .eq("id", currentUser.id)
+    .maybeSingle();
 
   if (error) {
-
-    console.error(
-      "PROFILE ERROR:",
-      error
-    );
-
+    console.error(error);
     return;
-
   }
-
 
   currentProfile = data;
 
-
   if (!data) {
 
-    const username =
-      currentUser.user_metadata?.full_name ||
-      currentUser.email?.split("@")[0] ||
-      "User";
+    const metadata = currentUser.user_metadata || {};
+
+    const profile = {
+      id: currentUser.id,
+      username:
+        metadata.full_name ||
+        metadata.name ||
+        currentUser.email?.split("@")[0] ||
+        "Пользователь",
+
+      avatar_url:
+        metadata.avatar_url ||
+        metadata.picture ||
+        ""
+    };
+
+    const { data: created } = await sb
+      .from("profiles")
+      .insert(profile)
+      .select()
+      .single();
+
+    currentProfile = created || profile;
+  }
+}
 
 
-    const avatar =
+function updateUI() {
+
+  const loginBtn = document.getElementById("loginBtn");
+  const logoutBtn = document.getElementById("logoutBtn");
+  const userName = document.getElementById("userName");
+  const avatar = document.getElementById("headerAvatar");
+
+  if (currentUser) {
+
+    loginBtn.style.display = "none";
+    logoutBtn.style.display = "block";
+
+    userName.textContent =
+      currentProfile?.username ||
+      currentUser.email ||
+      "Пользователь";
+
+    const avatarUrl =
+      currentProfile?.avatar_url ||
       currentUser.user_metadata?.avatar_url ||
+      currentUser.user_metadata?.picture ||
       "";
 
-
-    const result =
-      await sb
-        .from("profiles")
-        .insert({
-
-          id:
-            currentUser.id,
-
-          username,
-
-          avatar_url:
-            avatar
-
-        })
-        .select()
-        .single();
-
-
-    if (!result.error) {
-
-      currentProfile =
-        result.data;
-
+    if (avatarUrl) {
+      avatar.src = avatarUrl;
+      avatar.style.display = "block";
     }
 
+  } else {
+
+    loginBtn.style.display = "block";
+    logoutBtn.style.display = "none";
+    userName.textContent = "";
+    avatar.style.display = "none";
   }
 
+  updateSellPage();
+  updateProfilePage();
+  updateMessagesPage();
 }
 
 
-function updateAuthUI() {
+async function logout() {
 
-  $("authBtn").textContent =
-    currentUser
-      ? "Выйти"
-      : "Войти";
+  await sb.auth.signOut();
 
+  currentUser = null;
+  currentProfile = null;
+
+  showToast("Вы вышли из аккаунта");
+
+  showSection("home");
 }
 
 
-/* =====================================
+/* =========================================================
+   NAVIGATION
+========================================================= */
+
+function showSection(id) {
+
+  document
+    .querySelectorAll(".section")
+    .forEach(section => {
+      section.classList.remove("active");
+    });
+
+  const section = document.getElementById(id);
+
+  if (section) {
+    section.classList.add("active");
+  }
+
+  if (id === "profile") {
+    renderMyListings();
+  }
+
+  if (id === "messages") {
+    loadConversations();
+  }
+}
+
+
+/* =========================================================
    LISTINGS
-===================================== */
+========================================================= */
 
 async function loadListings() {
 
-  const {
-    data,
-    error
-  } =
-    await sb
-      .from("listings")
-      .select(`
-        id,
-        title,
-        description,
-        price,
-        category,
-        image_url,
-        seller_id,
-        created_at,
-        profile:profiles!listings_seller_id_fkey(
-          id,
-          username,
-          avatar_url
-        )
-      `)
-      .order(
-        "created_at",
-        {
-          ascending: false
-        }
-      );
-
+  const { data, error } = await sb
+    .from("listings")
+    .select("*")
+    .order("created_at", {
+      ascending: false
+    });
 
   if (error) {
 
-    console.error(
-      "LISTINGS ERROR:",
-      error
-    );
+    console.error(error);
 
-
-    $("listings").innerHTML =
-      `
-        <div class="empty">
-          Не удалось загрузить объявления.
-        </div>
-      `;
+    document.getElementById("listings").innerHTML = `
+      <div class="empty">
+        Не удалось загрузить товары.
+      </div>
+    `;
 
     return;
-
   }
 
-
-  allListings =
-    data || [];
-
+  allListings = data || [];
 
   renderListings();
-
 }
 
 
-function getFilteredListings() {
+function setCategory(category, element) {
 
-  return allListings.filter(
-    item => {
+  selectedCategory = category;
 
-      const categoryOk =
-        selectedCategory === "Все" ||
-        item.category ===
-          selectedCategory;
+  document
+    .querySelectorAll(".category")
+    .forEach(button => {
+      button.classList.remove("active");
+    });
 
+  element.classList.add("active");
 
-      const search =
-        searchText.toLowerCase();
-
-
-      const searchOk =
-        !search ||
-
-        String(
-          item.title || ""
-        )
-          .toLowerCase()
-          .includes(search) ||
-
-        String(
-          item.description || ""
-        )
-          .toLowerCase()
-          .includes(search);
-
-
-      return (
-        categoryOk &&
-        searchOk
-      );
-
-    }
-  );
-
+  renderListings();
 }
 
 
 function renderListings() {
 
-  const box =
-    $("listings");
+  const container =
+    document.getElementById("listings");
 
+  const search =
+    document.getElementById("searchInput")?.value
+      .toLowerCase()
+      .trim() || "";
 
-  const items =
-    getFilteredListings();
+  let listings = [...allListings];
 
+  if (selectedCategory !== "Все") {
 
-  if (!items.length) {
-
-    box.innerHTML =
-      `
-        <div class="empty">
-          Объявлений не найдено.
-        </div>
-      `;
-
-    return;
-
+    listings = listings.filter(item =>
+      item.category === selectedCategory
+    );
   }
 
+  if (search) {
 
-  box.innerHTML =
-    items
-      .map(item => {
+    listings = listings.filter(item => {
 
-        const own =
-          !!currentUser &&
-          String(
-            currentUser.id
-          ) ===
-          String(
-            item.seller_id
-          );
+      return (
+        String(item.title || "")
+          .toLowerCase()
+          .includes(search) ||
 
+        String(item.description || "")
+          .toLowerCase()
+          .includes(search) ||
 
-        const sellerName =
-          item.profile?.username ||
-          "Продавец";
-
-
-        const image =
-          item.image_url ||
-          "https://placehold.co/700x450/151f40/ffffff?text=Delyvex";
-
-
-        return `
-
-          <article class="card">
-
-            <img
-              class="card-image"
-              src="${esc(image)}"
-              alt="${esc(item.title)}"
-              onerror="
-                this.src='https://placehold.co/700x450/151f40/ffffff?text=Delyvex'
-              "
-            >
-
-
-            <div class="card-body">
-
-              <div class="card-title">
-                ${esc(item.title)}
-              </div>
-
-
-              <div class="card-description">
-                ${esc(
-                  item.description ||
-                  "Без описания"
-                )}
-              </div>
-
-
-              <div class="card-meta">
-
-                <span>
-                  ${esc(
-                    item.category ||
-                    "Другое"
-                  )}
-                </span>
-
-              </div>
-
-
-              <div class="price">
-                ${esc(item.price)} €
-              </div>
-
-
-              <div class="seller">
-
-                <img
-                  class="seller-avatar"
-                  src="${esc(
-                    avatarUrl(
-                      item.profile
-                    )
-                  )}"
-                  alt=""
-                >
-
-                <span>
-                  ${esc(
-                    sellerName
-                  )}
-                </span>
-
-              </div>
-
-
-              <div class="buy-row">
-
-                ${
-                  own
-
-                  ?
-
-                  `
-                    <button
-                      class="danger"
-                      data-delete="${esc(
-                        String(item.id)
-                      )}"
-                    >
-                      Удалить
-                    </button>
-                  `
-
-                  :
-
-                  `
-                    <button
-                      class="primary"
-                      data-buy="${esc(
-                        String(item.id)
-                      )}"
-                    >
-                      Купить
-                    </button>
-
-                    <button
-                      class="secondary"
-                      data-chat="${esc(
-                        String(item.id)
-                      )}"
-                    >
-                      💬 Чат
-                    </button>
-                  `
-                }
-
-              </div>
-
-            </div>
-
-          </article>
-
-        `;
-
-      })
-      .join("");
-
-
-  document
-    .querySelectorAll(
-      "[data-buy]"
-    )
-    .forEach(button => {
-
-      button.onclick = () => {
-
-        buyListing(
-          button.dataset.buy
-        );
-
-      };
-
+        String(item.category || "")
+          .toLowerCase()
+          .includes(search)
+      );
     });
+  }
 
+  if (!listings.length) {
 
-  document
-    .querySelectorAll(
-      "[data-chat]"
-    )
-    .forEach(button => {
+    container.innerHTML = `
+      <div class="empty">
+        Товаров пока нет.
+      </div>
+    `;
 
-      button.onclick = () => {
+    return;
+  }
 
-        openChatForListing(
-          button.dataset.chat
-        );
-
-      };
-
-    });
-
-
-  document
-    .querySelectorAll(
-      "[data-delete]"
-    )
-    .forEach(button => {
-
-      button.onclick = () => {
-
-        deleteListing(
-          button.dataset.delete
-        );
-
-      };
-
-    });
-
+  container.innerHTML =
+    listings.map(item => createListingCard(item)).join("");
 }
 
 
-/* =====================================
-   SEARCH
-===================================== */
+function createListingCard(item) {
 
-$("searchBtn").onclick = () => {
+  const image =
+    item.image_url ||
+    "https://placehold.co/600x400/111827/ffffff?text=Delyvex";
 
-  searchText =
-    $("searchInput")
-      .value
-      .trim();
+  const isOwner =
+    currentUser &&
+    String(item.seller_id) === String(currentUser.id);
 
-  renderListings();
+  const seller =
+    item.seller_name ||
+    item.username ||
+    "Продавец";
 
-};
+  return `
+    <div class="card">
+
+      <img
+        class="card-image"
+        src="${escapeHtml(image)}"
+        onerror="this.src='https://placehold.co/600x400/111827/ffffff?text=Delyvex'"
+      >
+
+      <div class="card-body">
+
+        <h3>${escapeHtml(item.title || "Без названия")}</h3>
+
+        <div class="meta">
+          ${escapeHtml(item.category || "Другое")}
+          · продавец: ${escapeHtml(seller)}
+        </div>
+
+        <div class="description">
+          ${escapeHtml(item.description || "Без описания")}
+        </div>
+
+        <div class="price">
+          ${Number(item.price || 0).toFixed(2)} €
+        </div>
+
+        <div class="actions">
+
+          ${
+            isOwner
+            ? `
+              <button
+                class="btn danger"
+                onclick="deleteListing('${item.id}')"
+              >
+                Удалить
+              </button>
+            `
+            : `
+              <button
+                class="btn green"
+                onclick="buyListing('${item.id}')"
+              >
+                Купить
+              </button>
+
+              <button
+                class="btn secondary"
+                onclick="openChat('${item.id}')"
+              >
+                💬 Чат
+              </button>
+            `
+          }
+
+        </div>
+
+      </div>
+
+    </div>
+  `;
+}
 
 
-$("searchInput")
-  .addEventListener(
-    "input",
-    () => {
+/* =========================================================
+   CREATE LISTING
+========================================================= */
 
-      searchText =
-        $("searchInput")
-          .value
-          .trim();
+function updateSellPage() {
 
-      renderListings();
+  const warning =
+    document.getElementById("sellLoginWarning");
 
-    }
-  );
+  const form =
+    document.getElementById("sellForm");
 
-
-document
-  .querySelectorAll(
-    ".category"
-  )
-  .forEach(button => {
-
-    button.onclick = () => {
-
-      document
-        .querySelectorAll(
-          ".category"
-        )
-        .forEach(x =>
-          x.classList.remove(
-            "active"
-          )
-        );
-
-
-      button.classList.add(
-        "active"
-      );
-
-
-      selectedCategory =
-        button.dataset.category;
-
-
-      renderListings();
-
-    };
-
-  });
-
-
-/* =====================================
-   SELL
-===================================== */
-
-$("createListingBtn").onclick =
-  createListing;
+  if (!currentUser) {
+    warning.style.display = "block";
+    form.style.display = "none";
+  } else {
+    warning.style.display = "none";
+    form.style.display = "block";
+  }
+}
 
 
 async function createListing() {
 
   if (!currentUser) {
-
-    openAuth();
-
+    showToast("Сначала войдите");
     return;
-
   }
-
 
   const title =
-    $("sellTitle")
-      .value
-      .trim();
-
-
-  const category =
-    $("sellCategory")
-      .value;
-
-
-  const price =
-    Number(
-      $("sellPrice")
-        .value
-    );
-
-
-  const image =
-    $("sellImage")
-      .value
-      .trim();
-
+    document.getElementById("sellTitle").value.trim();
 
   const description =
-    $("sellDescription")
-      .value
-      .trim();
+    document.getElementById("sellDescription").value.trim();
 
+  const category =
+    document.getElementById("sellCategory").value;
+
+  const price =
+    Number(document.getElementById("sellPrice").value);
+
+  const image_url =
+    document.getElementById("sellImage").value.trim();
 
   if (!title) {
-
-    msg(
-      "sellMessage",
-      "Введите название.",
-      "error"
-    );
-
+    showToast("Введите название");
     return;
-
   }
 
-
-  if (
-    !Number.isFinite(price) ||
-    price < 0
-  ) {
-
-    msg(
-      "sellMessage",
-      "Введите правильную цену.",
-      "error"
-    );
-
+  if (!price || price < 0) {
+    showToast("Введите правильную цену");
     return;
-
   }
 
-
-  const button =
-    $("createListingBtn");
-
-
-  button.disabled = true;
-
-
-  msg(
-    "sellMessage",
-    "Публикуем..."
-  );
-
-
-  const {
-    error
-  } =
-    await sb
-      .from("listings")
-      .insert({
-
-        title,
-
-        description,
-
-        price,
-
-        category,
-
-        image_url:
-          image || null,
-
-        seller_id:
-          currentUser.id
-
-      });
-
-
-  button.disabled = false;
-
+  const { error } = await sb
+    .from("listings")
+    .insert({
+      title,
+      description,
+      category,
+      price,
+      image_url,
+      seller_id: currentUser.id
+    });
 
   if (error) {
 
     console.error(error);
 
-
-    msg(
-      "sellMessage",
-      "Ошибка: " +
-      error.message,
-      "error"
-    );
+    showToast("Ошибка: " + error.message);
 
     return;
-
   }
 
+  document.getElementById("sellTitle").value = "";
+  document.getElementById("sellDescription").value = "";
+  document.getElementById("sellPrice").value = "";
+  document.getElementById("sellImage").value = "";
 
-  $("sellTitle").value = "";
-  $("sellPrice").value = "";
-  $("sellImage").value = "";
-  $("sellDescription").value = "";
-
-
-  msg(
-    "sellMessage",
-    "Товар опубликован!",
-    "success"
-  );
-
+  showToast("Товар опубликован!");
 
   await loadListings();
 
+  showSection("home");
 }
 
 
-/* =====================================
-   BUY
-===================================== */
-
-async function buyListing(id) {
-
-  if (!currentUser) {
-
-    openAuth();
-
-    return;
-
-  }
-
-
-  const item =
-    allListings.find(
-      x =>
-        String(x.id) ===
-        String(id)
-    );
-
-
-  if (!item) return;
-
-
-  if (
-    String(item.seller_id) ===
-    String(currentUser.id)
-  ) {
-
-    alert(
-      "Нельзя купить собственный товар."
-    );
-
-    return;
-
-  }
-
-
-  const ok =
-    confirm(
-      `Купить "${item.title}" за ${item.price} €?`
-    );
-
-
-  if (!ok) return;
-
-
-  const {
-    error
-  } =
-    await sb
-      .from("purchases")
-      .insert({
-
-        listing_id:
-          item.id,
-
-        buyer_id:
-          currentUser.id,
-
-        seller_id:
-          item.seller_id,
-
-        price:
-          item.price
-
-      });
-
-
-  if (error) {
-
-    console.error(error);
-
-
-    alert(
-      "Не удалось оформить покупку: " +
-      error.message
-    );
-
-    return;
-
-  }
-
-
-  alert(
-    "Покупка оформлена!"
-  );
-
-}
-
-
-/* =====================================
-   DELETE
-===================================== */
+/* =========================================================
+   DELETE LISTING
+========================================================= */
 
 async function deleteListing(id) {
 
   if (!currentUser) return;
 
+  const confirmed =
+    confirm("Удалить это объявление?");
 
-  const item =
-    allListings.find(
-      x =>
-        String(x.id) ===
-        String(id)
-    );
+  if (!confirmed) return;
 
-
-  if (!item) return;
-
-
-  if (
-    String(item.seller_id) !==
-    String(currentUser.id)
-  ) {
-
-    alert(
-      "Можно удалять только свои товары."
-    );
-
-    return;
-
-  }
-
-
-  const ok =
-    confirm(
-      `Удалить "${item.title}"?`
-    );
-
-
-  if (!ok) return;
-
-
-  const {
-    data,
-    error
-  } =
-    await sb
-      .from("listings")
-      .delete()
-      .eq(
-        "id",
-        item.id
-      )
-      .eq(
-        "seller_id",
-        currentUser.id
-      )
-      .select("id");
-
+  const { data, error } = await sb
+    .from("listings")
+    .delete()
+    .eq("id", id)
+    .eq("seller_id", currentUser.id)
+    .select("id");
 
   if (error) {
 
-    console.error(
-      "DELETE ERROR:",
-      error
+    console.error(error);
+
+    showToast("Ошибка удаления: " + error.message);
+
+    return;
+  }
+
+  if (!data || data.length === 0) {
+
+    showToast(
+      "Не удалось удалить. Проверьте RLS для listings."
     );
 
+    return;
+  }
 
-    alert(
-      "Ошибка удаления: " +
+  showToast("Объявление удалено");
+
+  await loadListings();
+  await renderMyListings();
+}
+
+
+/* =========================================================
+   BUY
+========================================================= */
+
+async function buyListing(id) {
+
+  if (!currentUser) {
+    showToast("Сначала войдите через Google");
+    return;
+  }
+
+  const listing =
+    allListings.find(item =>
+      String(item.id) === String(id)
+    );
+
+  if (!listing) {
+    showToast("Товар не найден");
+    return;
+  }
+
+  if (
+    String(listing.seller_id) ===
+    String(currentUser.id)
+  ) {
+    showToast("Нельзя купить собственный товар");
+    return;
+  }
+
+  const confirmed = confirm(
+    `Купить "${listing.title}" за ${Number(listing.price).toFixed(2)} €?`
+  );
+
+  if (!confirmed) return;
+
+  const { error } = await sb
+    .from("purchases")
+    .insert({
+      listing_id: listing.id,
+      buyer_id: currentUser.id,
+      seller_id: listing.seller_id,
+      price: listing.price
+    });
+
+  if (error) {
+
+    console.error(error);
+
+    showToast(
+      "Покупка не выполнена: " +
       error.message
     );
 
     return;
-
   }
 
-
-  if (
-    !data ||
-    data.length === 0
-  ) {
-
-    alert(
-      "Товар не удалён. Проверь RLS для listings."
-    );
-
-    return;
-
-  }
-
-
-  await loadListings();
-
-  if (
-    !$("profilePage")
-      .classList
-      .contains("hidden")
-  ) {
-
-    await loadProfilePage();
-
-  }
-
+  showToast("Покупка оформлена!");
 }
 
 
-/* =====================================
+/* =========================================================
    PROFILE
-===================================== */
+========================================================= */
 
-async function loadProfilePage() {
+function updateProfilePage() {
 
-  if (!currentUser) return;
+  const warning =
+    document.getElementById("profileLoginWarning");
 
+  const content =
+    document.getElementById("profileContent");
 
-  await loadProfile();
+  if (!currentUser) {
 
-
-  $("profileEmail")
-    .textContent =
-      currentUser.email || "";
-
-
-  $("profileId")
-    .textContent =
-      "ID: " +
-      currentUser.id;
-
-
-  $("profileUsername")
-    .value =
-      currentProfile?.username || "";
-
-
-  $("profileAvatarInput")
-    .value =
-      currentProfile?.avatar_url || "";
-
-
-  $("profileAvatar")
-    .src =
-      avatarUrl(
-        currentProfile
-      );
-
-
-  const mine =
-    allListings.filter(
-      x =>
-        String(
-          x.seller_id
-        ) ===
-        String(
-          currentUser.id
-        )
-    );
-
-
-  if (!mine.length) {
-
-    $("myListings")
-      .innerHTML =
-        `
-          <div class="empty">
-            У тебя пока нет объявлений.
-          </div>
-        `;
+    warning.style.display = "block";
+    content.style.display = "none";
 
     return;
-
   }
 
+  warning.style.display = "none";
+  content.style.display = "block";
 
-  $("myListings")
-    .innerHTML =
-      mine
-        .map(item => `
+  const username =
+    currentProfile?.username ||
+    currentUser.user_metadata?.full_name ||
+    currentUser.email?.split("@")[0] ||
+    "Пользователь";
 
-          <div class="card">
+  const avatar =
+    currentProfile?.avatar_url ||
+    currentUser.user_metadata?.avatar_url ||
+    currentUser.user_metadata?.picture ||
+    "";
 
-            <div class="card-body">
+  document.getElementById("profileName").textContent =
+    username;
 
-              <div class="card-title">
-                ${esc(item.title)}
-              </div>
+  document.getElementById("profileEmail").textContent =
+    currentUser.email || "";
 
-              <div class="price">
-                ${esc(item.price)} €
-              </div>
+  document.getElementById("profileNameInput").value =
+    username;
 
-              <button
-                class="danger"
-                style="
-                  margin-top:12px;
-                  width:100%;
-                "
-                onclick="
-                  deleteListing(
-                    '${esc(String(item.id))}'
-                  )
-                "
-              >
-                Удалить
-              </button>
+  document.getElementById("profileAvatarInput").value =
+    avatar;
 
-            </div>
-
-          </div>
-
-        `)
-        .join("");
-
+  document.getElementById("profileAvatar").src =
+    avatar ||
+    "https://placehold.co/100x100/111827/ffffff?text=User";
 }
-
-
-$("saveProfileBtn")
-  .onclick =
-    saveProfile;
 
 
 async function saveProfile() {
 
   if (!currentUser) return;
 
-
   const username =
-    $("profileUsername")
-      .value
-      .trim();
-
+    document.getElementById("profileNameInput")
+      .value.trim();
 
   const avatar_url =
-    $("profileAvatarInput")
-      .value
-      .trim();
-
+    document.getElementById("profileAvatarInput")
+      .value.trim();
 
   if (!username) {
-
-    msg(
-      "profileMessage",
-      "Введите имя.",
-      "error"
-    );
-
+    showToast("Введите имя");
     return;
-
   }
 
-
-  const {
-    data,
-    error
-  } =
-    await sb
-      .from("profiles")
-      .upsert({
-
-        id:
-          currentUser.id,
-
-        username,
-
-        avatar_url
-
-      })
-      .select()
-      .single();
-
+  const { error } = await sb
+    .from("profiles")
+    .upsert({
+      id: currentUser.id,
+      username,
+      avatar_url
+    });
 
   if (error) {
 
     console.error(error);
 
-
-    msg(
-      "profileMessage",
-      "Ошибка: " +
-      error.message,
-      "error"
+    showToast(
+      "Ошибка сохранения: " +
+      error.message
     );
 
     return;
-
   }
 
+  await loadProfile();
 
-  currentProfile =
-    data;
+  updateUI();
 
-
-  $("profileAvatar")
-    .src =
-      avatarUrl(
-        currentProfile
-      );
-
-
-  msg(
-    "profileMessage",
-    "Профиль сохранён.",
-    "success"
-  );
-
-
-  await loadListings();
-
+  showToast("Профиль сохранён");
 }
 
 
-/* =====================================
-   CHAT
-===================================== */
+async function renderMyListings() {
 
-async function openChatForListing(id) {
+  if (!currentUser) return;
 
-  if (!currentUser) {
+  const container =
+    document.getElementById("myListings");
 
-    openAuth();
-
-    return;
-
-  }
-
-
-  const item =
-    allListings.find(
-      x =>
-        String(x.id) ===
-        String(id)
-    );
-
-
-  if (!item) {
-
-    alert(
-      "Объявление не найдено."
-    );
-
-    return;
-
-  }
-
-
-  if (
+  const mine = allListings.filter(item =>
     String(item.seller_id) ===
     String(currentUser.id)
-  ) {
+  );
 
-    alert(
-      "Нельзя написать самому себе."
-    );
+  if (!mine.length) {
+
+    container.innerHTML = `
+      <div class="empty">
+        У вас пока нет объявлений.
+      </div>
+    `;
 
     return;
-
   }
 
+  container.innerHTML =
+    mine.map(item => `
+      <div class="conversation">
 
-  chatListingId =
-    item.id;
+        <strong>
+          ${escapeHtml(item.title)}
+        </strong>
 
+        <small>
+          ${Number(item.price || 0).toFixed(2)} €
+          · ${escapeHtml(item.category || "")}
+        </small>
 
-  chatOtherUserId =
-    item.seller_id;
-
-
-  $("chatName")
-    .textContent =
-      item.profile?.username ||
-      "Продавец";
-
-
-  $("chatListing")
-    .textContent =
-      "Объявление: " +
-      item.title;
+      </div>
+    `).join("");
+}
 
 
-  $("chatAvatar")
-    .src =
-      avatarUrl(
-        item.profile
-      );
+/* =========================================================
+   CHAT
+========================================================= */
 
+async function openChat(listingId) {
 
-  $("chatInput").value = "";
+  if (!currentUser) {
+    showToast("Сначала войдите");
+    return;
+  }
 
+  const listing =
+    allListings.find(item =>
+      String(item.id) === String(listingId)
+    );
 
-  msg(
-    "chatMessageError",
-    ""
-  );
+  if (!listing) {
+    showToast("Товар не найден");
+    return;
+  }
 
+  if (
+    String(listing.seller_id) ===
+    String(currentUser.id)
+  ) {
+    showToast("Нельзя написать самому себе");
+    return;
+  }
 
-  show(
-    $("chatModal")
-  );
+  currentChat = {
+    listingId: listing.id,
+    receiverId: listing.seller_id,
+    listingTitle: listing.title
+  };
 
+  document.getElementById("chatTitle").textContent =
+    "💬 " + listing.title;
+
+  document.getElementById("chatSubtitle").textContent =
+    "Чат с продавцом";
+
+  document.getElementById("chatModal")
+    .classList.add("show");
 
   await loadChatMessages();
 
-
-  startChatRefresh();
-
-
-  setTimeout(
-    () =>
-      $("chatInput")
-        .focus(),
-    100
-  );
-
-}
-
-
-async function loadChatMessages() {
-
-  if (
-    !currentUser ||
-    !chatListingId ||
-    !chatOtherUserId
-  ) {
-    return;
-  }
-
-
-  const box =
-    $("chatMessages");
-
-
-  const {
-    data,
-    error
-  } =
-    await sb
-      .from("messages")
-      .select(`
-        id,
-        listing_id,
-        sender_id,
-        receiver_id,
-        message,
-        created_at
-      `)
-      .eq(
-        "listing_id",
-        chatListingId
-      )
-      .or(
-        `and(sender_id.eq.${currentUser.id},receiver_id.eq.${chatOtherUserId}),and(sender_id.eq.${chatOtherUserId},receiver_id.eq.${currentUser.id})`
-      )
-      .order(
-        "created_at",
-        {
-          ascending: true
-        }
-      );
-
-
-  if (error) {
-
-    console.error(
-      "CHAT LOAD ERROR:",
-      error
-    );
-
-
-    box.innerHTML =
-      `
-        <div class="chat-empty">
-          Не удалось загрузить сообщения.
-        </div>
-      `;
-
-    return;
-
-  }
-
-
-  if (
-    !data ||
-    !data.length
-  ) {
-
-    box.innerHTML =
-      `
-        <div class="chat-empty">
-          Сообщений пока нет. Напиши первым!
-        </div>
-      `;
-
-    return;
-
-  }
-
-
-  box.innerHTML =
-    data
-      .map(message => {
-
-        const mine =
-          String(
-            message.sender_id
-          ) ===
-          String(
-            currentUser.id
-          );
-
-
-        const date =
-          new Date(
-            message.created_at
-          )
-            .toLocaleTimeString(
-              "ru-RU",
-              {
-                hour: "2-digit",
-                minute: "2-digit"
-              }
-            );
-
-
-        return `
-
-          <div
-            class="
-              chat-message
-              ${mine ? "mine" : "theirs"}
-            "
-          >
-
-            <div>
-              ${esc(
-                message.message
-              )}
-            </div>
-
-            <div class="chat-time">
-              ${date}
-            </div>
-
-          </div>
-
-        `;
-
-      })
-      .join("");
-
-
-  box.scrollTop =
-    box.scrollHeight;
-
-}
-
-
-async function sendChatMessage() {
-
-  if (
-    !currentUser ||
-    !chatListingId ||
-    !chatOtherUserId
-  ) {
-    return;
-  }
-
-
-  const input =
-    $("chatInput");
-
-
-  const text =
-    input.value.trim();
-
-
-  if (!text) return;
-
-
-  const button =
-    $("sendChatBtn");
-
-
-  button.disabled = true;
-
-
-  try {
-
-    const {
-      error
-    } =
-      await sb
-        .from("messages")
-        .insert({
-
-          listing_id:
-            chatListingId,
-
-          sender_id:
-            currentUser.id,
-
-          receiver_id:
-            chatOtherUserId,
-
-          message:
-            text
-
-        });
-
-
-    if (error) {
-      throw error;
-    }
-
-
-    input.value = "";
-
-
-    await loadChatMessages();
-
-
-  } catch (error) {
-
-    console.error(
-      "CHAT SEND ERROR:",
-      error
-    );
-
-
-    msg(
-      "chatMessageError",
-      "Не удалось отправить сообщение: " +
-      (error.message || "ошибка"),
-      "error"
-    );
-
-  } finally {
-
-    button.disabled = false;
-
-  }
-
-}
-
-
-function startChatRefresh() {
-
-  stopChatRefresh();
-
-
-  chatRefreshTimer =
-    setInterval(
-      () => {
-
-        if (
-          !$("chatModal")
-            .classList
-            .contains("hidden")
-        ) {
-
-          loadChatMessages();
-
-        }
-
-      },
-      3000
-    );
-
-}
-
-
-function stopChatRefresh() {
-
-  if (chatRefreshTimer) {
-
-    clearInterval(
-      chatRefreshTimer
-    );
-
-    chatRefreshTimer = null;
-
-  }
-
+  subscribeToChat();
 }
 
 
 function closeChat() {
 
-  stopChatRefresh();
+  document.getElementById("chatModal")
+    .classList.remove("show");
 
-  hide(
-    $("chatModal")
-  );
+  if (chatSubscription) {
 
-  chatListingId = null;
+    sb.removeChannel(chatSubscription);
 
-  chatOtherUserId = null;
-
-}
-
-
-$("closeChatModal")
-  .onclick =
-    closeChat;
-
-
-$("sendChatBtn")
-  .onclick =
-    sendChatMessage;
-
-
-$("chatInput")
-  .addEventListener(
-    "keydown",
-    event => {
-
-      if (
-        event.key === "Enter" &&
-        !event.shiftKey
-      ) {
-
-        event.preventDefault();
-
-        sendChatMessage();
-
-      }
-
-    }
-  );
-
-
-/* =====================================
-   MESSAGES
-===================================== */
-
-async function openMessages() {
-
-  if (!currentUser) {
-
-    openAuth();
-
-    return;
-
+    chatSubscription = null;
   }
 
-
-  show(
-    $("messagesModal")
-  );
-
-
-  await loadConversations();
-
+  currentChat = {
+    listingId: null,
+    receiverId: null,
+    listingTitle: null
+  };
 }
 
 
-async function loadConversations() {
+async function loadChatMessages() {
+
+  if (!currentUser || !currentChat.listingId) {
+    return;
+  }
 
   const box =
-    $("conversationsList");
-
+    document.getElementById("chatMessages");
 
   box.innerHTML =
-    `
-      <div class="chat-empty">
-        Загрузка...
-      </div>
-    `;
+    `<div class="loading">Загрузка сообщений...</div>`;
 
-
-  const {
-    data,
-    error
-  } =
-    await sb
-      .from("messages")
-      .select(`
-        id,
-        listing_id,
-        sender_id,
-        receiver_id,
-        message,
-        created_at,
-        listing:listings(
-          id,
-          title
-        )
-      `)
-      .or(
-        `sender_id.eq.${currentUser.id},receiver_id.eq.${currentUser.id}`
-      )
-      .order(
-        "created_at",
-        {
-          ascending: false
-        }
-      );
-
+  const { data, error } = await sb
+    .from("messages")
+    .select("*")
+    .eq("listing_id", currentChat.listingId)
+    .or(
+      `and(sender_id.eq.${currentUser.id},receiver_id.eq.${currentChat.receiverId}),and(sender_id.eq.${currentChat.receiverId},receiver_id.eq.${currentUser.id})`
+    )
+    .order("created_at", {
+      ascending: true
+    });
 
   if (error) {
 
-    console.error(
-      "CONVERSATIONS ERROR:",
-      error
-    );
+    console.error(error);
 
-
-    box.innerHTML =
-      `
-        <div class="empty">
-          Не удалось загрузить сообщения.
-        </div>
-      `;
+    box.innerHTML = `
+      <div class="empty">
+        Ошибка загрузки сообщений.
+      </div>
+    `;
 
     return;
-
   }
 
+  if (!data || !data.length) {
 
-  if (
-    !data ||
-    !data.length
-  ) {
-
-    box.innerHTML =
-      `
-        <div class="empty">
-          У тебя пока нет сообщений.
-        </div>
-      `;
+    box.innerHTML = `
+      <div class="empty">
+        Сообщений пока нет. Напишите первым!
+      </div>
+    `;
 
     return;
-
   }
-
-
-  const conversations =
-    new Map();
-
-
-  for (const message of data) {
-
-    const otherId =
-      String(
-        message.sender_id
-      ) ===
-      String(
-        currentUser.id
-      )
-        ? message.receiver_id
-        : message.sender_id;
-
-
-    const key =
-      String(
-        message.listing_id
-      ) +
-      "_" +
-      String(
-        otherId
-      );
-
-
-    if (
-      !conversations.has(key)
-    ) {
-
-      conversations.set(
-        key,
-        {
-          ...message,
-          otherId
-        }
-      );
-
-    }
-
-  }
-
-
-  const otherIds =
-    [
-      ...new Set(
-        [
-          ...conversations.values()
-        ]
-          .map(
-            x => x.otherId
-          )
-      )
-    ];
-
-
-  let profiles = [];
-
-
-  if (otherIds.length) {
-
-    const result =
-      await sb
-        .from("profiles")
-        .select(
-          "id,username,avatar_url"
-        )
-        .in(
-          "id",
-          otherIds
-        );
-
-
-    profiles =
-      result.data || [];
-
-  }
-
-
-  const profileMap =
-    new Map(
-      profiles.map(
-        profile => [
-          String(
-            profile.id
-          ),
-          profile
-        ]
-      )
-    );
-
 
   box.innerHTML =
-    [
-      ...conversations.values()
-    ]
-      .map(
-        conversation => {
+    data.map(message =>
+      createMessageHTML(message)
+    ).join("");
 
-          const profile =
-            profileMap.get(
-              String(
-                conversation.otherId
-              )
-            );
-
-
-          return `
-
-            <div
-              class="conversation"
-              data-conversation-listing="${esc(
-                String(
-                  conversation.listing_id
-                )
-              )}"
-              data-conversation-user="${esc(
-                String(
-                  conversation.otherId
-                )
-              )}"
-            >
-
-              <img
-                class="conversation-avatar"
-                src="${esc(
-                  avatarUrl(profile)
-                )}"
-                alt=""
-              >
-
-              <div
-                class="conversation-info"
-              >
-
-                <div
-                  class="conversation-name"
-                >
-                  ${esc(
-                    profile?.username ||
-                    "Пользователь"
-                  )}
-                </div>
-
-
-                <div
-                  class="conversation-listing"
-                >
-                  ${esc(
-                    conversation.listing?.title ||
-                    "Объявление"
-                  )}
-                </div>
-
-
-                <div
-                  class="conversation-last"
-                >
-                  ${esc(
-                    conversation.message
-                  )}
-                </div>
-
-              </div>
-
-            </div>
-
-          `;
-
-        }
-      )
-      .join("");
-
-
-  document
-    .querySelectorAll(
-      "[data-conversation-listing]"
-    )
-    .forEach(element => {
-
-      element.onclick =
-        async () => {
-
-          const listingId =
-            element.dataset
-              .conversationListing;
-
-
-          const userId =
-            element.dataset
-              .conversationUser;
-
-
-          const item =
-            allListings.find(
-              x =>
-                String(x.id) ===
-                String(listingId)
-            );
-
-
-          chatListingId =
-            item
-              ? item.id
-              : Number(listingId);
-
-
-          chatOtherUserId =
-            userId;
-
-
-          const profile =
-            profileMap.get(
-              String(userId)
-            );
-
-
-          $("chatName")
-            .textContent =
-              profile?.username ||
-              "Пользователь";
-
-
-          $("chatListing")
-            .textContent =
-              item
-                ? "Объявление: " +
-                  item.title
-                : "Объявление";
-
-
-          $("chatAvatar")
-            .src =
-              avatarUrl(profile);
-
-
-          $("chatInput")
-            .value = "";
-
-
-          hide(
-            $("messagesModal")
-          );
-
-
-          show(
-            $("chatModal")
-          );
-
-
-          await loadChatMessages();
-
-
-          startChatRefresh();
-
-        };
-
-    });
-
+  box.scrollTop = box.scrollHeight;
 }
 
 
-$("messagesBtn")
-  .onclick =
-    openMessages;
+function createMessageHTML(message) {
+
+  const mine =
+    String(message.sender_id) ===
+    String(currentUser.id);
+
+  const time =
+    new Date(message.created_at)
+      .toLocaleTimeString("ru-RU", {
+        hour: "2-digit",
+        minute: "2-digit"
+      });
+
+  return `
+    <div class="message ${mine ? "mine" : "theirs"}">
+
+      ${escapeHtml(message.message)}
+
+      <span class="message-time">
+        ${time}
+      </span>
+
+    </div>
+  `;
+}
 
 
-$("closeMessagesModal")
-  .onclick =
-    () => {
+async function sendMessage() {
 
-      hide(
-        $("messagesModal")
-      );
+  if (!currentUser) {
+    showToast("Сначала войдите");
+    return;
+  }
 
-    };
+  const input =
+    document.getElementById("chatInput");
+
+  const text =
+    input.value.trim();
+
+  if (!text) return;
+
+  if (!currentChat.listingId ||
+      !currentChat.receiverId) {
+
+    showToast("Чат не выбран");
+    return;
+  }
+
+  const { error } = await sb
+    .from("messages")
+    .insert({
+      listing_id: currentChat.listingId,
+      sender_id: currentUser.id,
+      receiver_id: currentChat.receiverId,
+      message: text
+    });
+
+  if (error) {
+
+    console.error(error);
+
+    showToast(
+      "Не удалось отправить: " +
+      error.message
+    );
+
+    return;
+  }
+
+  input.value = "";
+
+  await loadChatMessages();
+}
 
 
-/* =====================================
-   REALTIME
-===================================== */
+function subscribeToChat() {
 
-function setupRealtime() {
+  if (chatSubscription) {
 
-  sb
-    .channel(
-      "messages-realtime"
+    sb.removeChannel(chatSubscription);
+
+    chatSubscription = null;
+  }
+
+  chatSubscription =
+    sb.channel(
+      "chat-" +
+      currentChat.listingId +
+      "-" +
+      currentUser.id
     )
     .on(
       "postgres_changes",
       {
         event: "INSERT",
         schema: "public",
-        table: "messages"
+        table: "messages",
+        filter:
+          `listing_id=eq.${currentChat.listingId}`
       },
-      payload => {
+      async payload => {
 
-        const message =
-          payload.new;
+        const message = payload.new;
 
+        const relevant =
+          (
+            String(message.sender_id) ===
+              String(currentUser.id) &&
+            String(message.receiver_id) ===
+              String(currentChat.receiverId)
+          ) ||
+          (
+            String(message.sender_id) ===
+              String(currentChat.receiverId) &&
+            String(message.receiver_id) ===
+              String(currentUser.id)
+          );
 
-        if (!currentUser) {
-          return;
+        if (relevant) {
+          await loadChatMessages();
         }
-
-
-        const involved =
-          String(
-            message.sender_id
-          ) ===
-            String(
-              currentUser.id
-            ) ||
-
-          String(
-            message.receiver_id
-          ) ===
-            String(
-              currentUser.id
-            );
-
-
-        if (!involved) {
-          return;
-        }
-
-
-        if (
-          chatListingId &&
-          String(
-            message.listing_id
-          ) ===
-          String(
-            chatListingId
-          )
-        ) {
-
-          loadChatMessages();
-
-        }
-
       }
     )
     .subscribe();
-
 }
 
 
-/* =====================================
-   AUTH STATE
-===================================== */
+/* =========================================================
+   CONVERSATIONS
+========================================================= */
 
-sb.auth.onAuthStateChange(
-  async (
-    event,
-    session
-  ) => {
+function updateMessagesPage() {
 
-    currentUser =
-      session?.user || null;
+  const warning =
+    document.getElementById("messagesLoginWarning");
 
+  if (!currentUser) {
 
-    if (currentUser) {
+    warning.style.display = "block";
 
-      await loadProfile();
+  } else {
 
-      closeAuth();
-
-    } else {
-
-      currentProfile = null;
-
-    }
-
-
-    updateAuthUI();
-
-    renderListings();
-
+    warning.style.display = "none";
+    loadConversations();
   }
-);
-
-
-/* =====================================
-   START
-===================================== */
-
-async function init() {
-
-  await loadUser();
-
-  await loadListings();
-
-  setupRealtime();
-
 }
 
 
-init();
+async function loadConversations() {
 
+  const container =
+    document.getElementById("conversations");
+
+  if (!currentUser) {
+
+    container.innerHTML = "";
+
+    return;
+  }
+
+  const { data, error } = await sb
+    .from("messages")
+    .select("*")
+    .or(
+      `sender_id.eq.${currentUser.id},receiver_id.eq.${currentUser.id}`
+    )
+    .order("created_at", {
+      ascending: false
+    });
+
+  if (error) {
+
+    console.error(error);
+
+    container.innerHTML = `
+      <div class="empty">
+        Ошибка загрузки сообщений.
+      </div>
+    `;
+
+    return;
+  }
+
+  if (!data || !data.length) {
+
+    container.innerHTML = `
+      <div class="empty">
+        У вас пока нет сообщений.
+      </div>
+    `;
+
+    return;
+  }
+
+  /*
+    Оставляем последнее сообщение
+    для каждой пары пользователь + объявление.
+  */
+
+  const unique = new Map();
+
+  for (const message of data) {
+
+    const otherUser =
+      String(message.sender_id) ===
+      String(currentUser.id)
+        ? message.receiver_id
+        : message.sender_id;
+
+    const key =
+      `${message.listing_id}-${otherUser}`;
+
+    if (!unique.has(key)) {
+      unique.set(key, message);
+    }
+  }
+
+  container.innerHTML =
+    Array.from(unique.values())
+      .map(message => {
+
+        const mine =
+          String(message.sender_id) ===
+          String(currentUser.id);
+
+        const listing =
+          allListings.find(item =>
+            String(item.id) ===
+            String(message.listing_id)
+          );
+
+        const title =
+          listing?.title ||
+          "Объявление";
+
+        return `
+          <div
+            class="conversation"
+            onclick="openConversation(
+              '${message.listing_id}',
+              '${mine ? message.receiver_id : message.sender_id}',
+              '${escapeAttribute(title)}'
+            )"
+          >
+
+            <strong>
+              💬 ${escapeHtml(title)}
+            </strong>
+
+            <small>
+              ${mine ? "Вы: " : ""}
+              ${escapeHtml(message.message)}
+            </small>
+
+          </div>
+        `;
+      })
+      .join("");
+}
+
+
+async function openConversation(
+  listingId,
+  otherUserId,
+  title
+) {
+
+  if (!currentUser) return;
+
+  currentChat = {
+    listingId,
+    receiverId: otherUserId,
+    listingTitle: title
+  };
+
+  document.getElementById("chatTitle").textContent =
+    "💬 " + title;
+
+  document.getElementById("chatSubtitle").textContent =
+    "Сообщения";
+
+  document.getElementById("chatModal")
+    .classList.add("show");
+
+  await loadChatMessages();
+
+  subscribeToChat();
+}
+
+
+/* =========================================================
+   HELPERS
+========================================================= */
+
+function escapeHtml(value) {
+
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+
+function escapeAttribute(value) {
+
+  return String(value ?? "")
+    .replaceAll("\\", "\\\\")
+    .replaceAll("'", "\\'");
+}
+
+
+function showToast(message) {
+
+  const toast =
+    document.getElementById("toast");
+
+  toast.textContent = message;
+
+  toast.classList.add("show");
+
+  setTimeout(() => {
+    toast.classList.remove("show");
+  }, 3000);
+}
+
+
+/* =========================================================
+   CLOSE MODAL WHEN CLICKING OUTSIDE
+========================================================= */
+
+document.getElementById("chatModal")
+  .addEventListener("click", event => {
+
+    if (
+      event.target.id === "chatModal"
+    ) {
+      closeChat();
+    }
+  });
+
+
+/* =========================================================
+   INITIAL PAGE
+========================================================= */
+
+updateUI();
 </script>
 
 </body>
