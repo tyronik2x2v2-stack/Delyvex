@@ -240,29 +240,14 @@
     </div>
 
     <p>Email: <span id="modalEmail"></span></p>
-    <p>Имя пользователя: <span id="modalUsername">не указано</span></p>
-
-    <div id="profileEditFields" class="hidden">
-      <div class="field">
-        <label>Никнейм</label>
-        <input id="editUsername" maxlength="30">
+    <div class="profile-main" style="margin:12px 0 16px">
+      <img id="modalAvatar" class="avatar" src="" alt="">
+      <div>
+        <div class="muted">Никнейм</div>
+        <strong id="modalUsername">не указано</strong>
       </div>
-
-      <div class="field">
-        <label>Описание</label>
-        <textarea id="editBio" maxlength="300" rows="4"></textarea>
-      </div>
-
-      <div class="field">
-        <label>Ссылка на аватарку</label>
-        <input id="editAvatar" placeholder="https://...">
-      </div>
-
-      <button class="primary" id="saveProfile">Сохранить профиль</button>
-      <div id="modalProfileMessage" class="message"></div>
     </div>
 
-    <button class="secondary" id="editProfile">Редактировать профиль</button>
     <button class="secondary" id="closeModalBottom">Закрыть</button>
   </div>
 </div>
@@ -386,6 +371,10 @@ async function ensureProfileFromGoogle(user){
     }
 
     const nickname = googleNickname(user);
+    const googleAvatar =
+      user?.user_metadata?.avatar_url ||
+      user?.user_metadata?.picture ||
+      "";
 
     if(!existing){
       const { data: created, error: insertError } = await sb
@@ -393,7 +382,7 @@ async function ensureProfileFromGoogle(user){
         .insert({
           id: user.id,
           username: nickname,
-          avatar_url: ""
+          avatar_url: googleAvatar
         })
         .select("id,username,avatar_url")
         .single();
@@ -407,10 +396,14 @@ async function ensureProfileFromGoogle(user){
       return created;
     }
 
-    if(!existing.username){
+    if(!existing.username || (!existing.avatar_url && googleAvatar)){
+      const patch = {};
+      if(!existing.username) patch.username = nickname;
+      if(!existing.avatar_url && googleAvatar) patch.avatar_url = googleAvatar;
+
       const { data: updated, error: updateError } = await sb
         .from("profiles")
-        .update({ username: nickname })
+        .update(patch)
         .eq("id", user.id)
         .select("id,username,avatar_url")
         .single();
@@ -477,6 +470,7 @@ function renderProfile(){
 
   $("modalEmail").textContent = currentUser.email || "";
   $("modalUsername").textContent = username || "не указано";
+  $("modalAvatar").src = avatar;
 
   $("editUsername").value = username || "";
   $("editBio").value = bio || "";
@@ -494,6 +488,7 @@ async function saveProfile(){
 
   const username = $("profileUsername").value.trim();
   const bio = $("profileBioInput").value.trim();
+  const avatarFile = $("avatarFile")?.files?.[0] || null;
 
   if(!username){
     setMessage("profileMessage", "Никнейм не может быть пустым.", "error");
@@ -504,11 +499,29 @@ async function saveProfile(){
   btn.disabled = true;
 
   try{
+    let avatarUrl = currentProfile?.avatar_url ||
+      currentUser.user_metadata?.avatar_url ||
+      currentUser.user_metadata?.picture ||
+      "";
+
+    if(avatarFile){
+      if(avatarFile.size > 2 * 1024 * 1024){
+        throw new Error("Аватарка должна быть меньше 2 МБ.");
+      }
+      avatarUrl = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(String(reader.result));
+        reader.onerror = () => reject(new Error("Не удалось прочитать аватарку."));
+        reader.readAsDataURL(avatarFile);
+      });
+    }
+
     const { error } = await sb
       .from("profiles")
       .upsert({
         id: currentUser.id,
-        username
+        username,
+        avatar_url: avatarUrl
       }, {
         onConflict: "id"
       });
@@ -518,7 +531,8 @@ async function saveProfile(){
     const { error: authError } = await sb.auth.updateUser({
       data: {
         username,
-        bio
+        bio,
+        avatar_url: avatarUrl
       }
     });
 
@@ -533,67 +547,6 @@ async function saveProfile(){
     console.error(error);
     setMessage(
       "profileMessage",
-      error?.message || "Не удалось сохранить профиль.",
-      "error"
-    );
-  }finally{
-    btn.disabled = false;
-  }
-}
-
-async function saveModalProfile(){
-  if(!currentUser) return;
-
-  const username = $("editUsername").value.trim();
-  const bio = $("editBio").value.trim();
-  const avatar = $("editAvatar").value.trim();
-
-  if(!username){
-    setMessage("modalProfileMessage", "Никнейм не может быть пустым.", "error");
-    return;
-  }
-
-  const btn = $("saveProfile");
-  btn.disabled = true;
-
-  try{
-    const { error } = await sb
-      .from("profiles")
-      .upsert({
-        id: currentUser.id,
-        username,
-        avatar_url: avatar
-      }, {
-        onConflict: "id"
-      });
-
-    if(error) throw error;
-
-    const { error: authError } = await sb.auth.updateUser({
-      data: {
-        username,
-        bio,
-        avatar_url: avatar
-      }
-    });
-
-    if(authError) throw authError;
-
-    await loadCurrentProfile();
-    renderProfile();
-
-    $("modalUsername").textContent = username;
-
-    setMessage(
-      "modalProfileMessage",
-      "Профиль сохранён.",
-      "ok"
-    );
-
-  }catch(error){
-    console.error(error);
-    setMessage(
-      "modalProfileMessage",
       error?.message || "Не удалось сохранить профиль.",
       "error"
     );
@@ -1042,51 +995,8 @@ async function publishListing(){
    PROFILE MODAL
 ========================= */
 
-function openProfileModal(){
-  if(!currentUser){
-    openAuth();
-    return;
-  }
-
-  renderProfile();
-
-  hide($("profileEditFields"));
-  show($("editProfile"));
-
-  $("modalProfileMessage").textContent = "";
-
-  show($("modal"));
-}
-
-function openProfileEditor(){
-  if(!currentUser) return;
-
-  renderProfile();
-
-  $("editUsername").value =
-    currentProfile?.username ||
-    currentUser.user_metadata?.username ||
-    googleNickname(currentUser);
-
-  $("editBio").value =
-    currentUser.user_metadata?.bio ||
-    "";
-
-  $("editAvatar").value =
-    currentProfile?.avatar_url ||
-    currentUser.user_metadata?.avatar_url ||
-    "";
-
-  show($("profileEditFields"));
-  hide($("editProfile"));
-
-  setMessage("modalProfileMessage", "");
-}
-
 function closeProfileModal(){
   hide($("modal"));
-  hide($("profileEditFields"));
-  show($("editProfile"));
 }
 
 /* =========================
@@ -1098,9 +1008,14 @@ $("authSubmit").addEventListener("click", loginWithGoogle);
 
 $("logoutBtn").addEventListener("click", logout);
 
-$("profileBtn").addEventListener("click", openProfileModal);
-
-$("editProfile").addEventListener("click", openProfileEditor);
+$("profileBtn").addEventListener("click", () => {
+  if(!currentUser){
+    openAuth();
+    return;
+  }
+  renderProfile();
+  show($("modal"));
+});
 
 $("closeModal").addEventListener("click", closeProfileModal);
 $("closeModalBottom").addEventListener("click", closeProfileModal);
@@ -1158,6 +1073,7 @@ $("editProfileBtn").addEventListener("click", () => {
   $("profileBioInput").value =
     currentUser.user_metadata?.bio ||
     "";
+  if($("avatarFile")) $("avatarFile").value = "";
 
   $("editProfileSection").scrollIntoView({
     behavior: "smooth",
@@ -1171,8 +1087,6 @@ $("cancelProfileBtn").addEventListener("click", () => {
   hide($("editProfileSection"));
   setMessage("profileMessage", "");
 });
-
-$("saveProfile").addEventListener("click", saveModalProfile);
 
 $("search").addEventListener("input", renderListings);
 
