@@ -5,98 +5,923 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Delyvex</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <style>
-*{box-sizing:border-box}body{margin:0;background:#0b1020;color:#fff;font-family:Arial,sans-serif}button,input,textarea,select{font:inherit}button{border:0;cursor:pointer}.hidden{display:none!important}
-header{position:sticky;top:0;z-index:20;height:64px;background:#111936;border-bottom:1px solid #263050;display:flex;align-items:center;gap:10px;padding:0 18px}.logo{font-size:23px;font-weight:800;color:#7c9cff}.spacer{flex:1}.nav{display:flex;gap:7px}.nav button,.secondary{background:#26345e;color:#fff;padding:10px 14px;border-radius:9px}.primary{background:#6d8cff;color:#fff;padding:10px 14px;border-radius:9px;font-weight:700}.danger{background:#7a3040;color:#fff;padding:10px 14px;border-radius:9px}.primary:hover{background:#809cff}.secondary:hover{background:#334575}.profile-button{background:linear-gradient(135deg,#6d8cff,#829cff);box-shadow:0 4px 14px #0004}.profile-button:hover{background:linear-gradient(135deg,#809cff,#94aaff);transform:translateY(-1px)}.danger:hover{background:#914052}button:disabled{opacity:.6;cursor:not-allowed}
-#guestActions,#userActions{display:flex;align-items:center;gap:8px}.user-name{max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#cdd6f4}
-main{max-width:1100px;margin:auto;padding:25px 16px}.hero{padding:30px;border:1px solid #2a3862;border-radius:18px;background:linear-gradient(135deg,#18234a,#111936);margin-bottom:20px}.hero h1{margin:0 0 10px}.hero p,.muted{color:#9fa9c9}.auth-card,.listings{background:#111936;border:1px solid #263050;border-radius:16px;padding:20px;margin-bottom:20px}.auth-card{max-width:520px;margin:20px auto}.field{margin:12px 0}.field label{display:block;color:#b9c3e5;font-size:13px;margin-bottom:6px}.field input,.field textarea,.field select,.search{width:100%;padding:11px;border-radius:9px;border:1px solid #35446e;background:#0b1020;color:#fff}.message{min-height:20px;margin-top:10px;color:#aeb8da}.message.error{color:#ff8e9d}.message.ok{color:#8dffb0}
-.categories{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:15px}.cat{background:#182242;color:#dfe6ff;padding:9px 13px;border-radius:9px}.cat.active{background:#6d8cff}.search{margin-bottom:16px}.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(245px,1fr));gap:14px}.card{background:#151f40;border:1px solid #2b3860;border-radius:13px;padding:15px}.card h3{margin:0 0 7px}.price{font-size:19px;font-weight:800;color:#8ea8ff;margin-top:8px}.seller{display:flex;align-items:center;gap:8px;margin-top:12px}.seller img{width:34px;height:34px;border-radius:50%;object-fit:cover;background:#26345e;border:1px solid #5368a8}.buy-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.delete-btn{background:#7a3040;color:#fff;padding:10px 14px;border-radius:9px;font-weight:700}.delete-btn:hover{background:#914052}.review-summary{margin-top:10px;color:#c1cae6;font-size:13px}.stars{color:#ffd76a;letter-spacing:1px}.empty{color:#9fa9c9;padding:20px 0}
-.modal{position:fixed;inset:0;background:#0009;display:flex;align-items:center;justify-content:center;padding:16px;z-index:50}.modal-box{width:min(500px,100%);max-height:90vh;overflow:auto;background:#111936;border:1px solid #35446e;border-radius:16px;padding:20px}.modal-head{display:flex;align-items:center;justify-content:space-between}.modal-close{background:none;color:#fff;font-size:22px;padding:4px 8px}.profile-row{display:flex;justify-content:space-between;gap:15px;align-items:center;flex-wrap:wrap}.profile-main{display:flex;align-items:center;gap:13px}.avatar{width:68px;height:68px;border-radius:50%;object-fit:cover;background:#26345e;border:2px solid #5368a8}.actions{display:flex;gap:8px;flex-wrap:wrap}.small{font-size:12px}.review-item{padding:9px 0;border-bottom:1px solid #263050}.review-item:last-child{border-bottom:0}footer{text-align:center;color:#737e9f;padding:25px}
-@media(max-width:700px){.nav{display:none}.user-name{display:none}header{padding:0 10px}.logo{font-size:20px}.hero h1{font-size:28px}}
+*{box-sizing:border-box}
+body{
+margin:0;
+background:#0b1020;
+color:#fff;
+font-family:Arial,sans-serif
+}
+button,input,textarea,select{font:inherit}
+button{border:0;cursor:pointer}
+.hidden{display:none!important}
+
+header{
+position:sticky;
+top:0;
+z-index:20;
+height:64px;
+background:#111936;
+border-bottom:1px solid #263050;
+display:flex;
+align-items:center;
+gap:10px;
+padding:0 18px
+}
+
+.logo{
+font-size:23px;
+font-weight:800;
+color:#7c9cff
+}
+
+.spacer{flex:1}
+
+.nav{
+display:flex;
+gap:7px
+}
+
+.nav button,.secondary{
+background:#26345e;
+color:#fff;
+padding:10px 14px;
+border-radius:9px
+}
+
+.primary{
+background:#6d8cff;
+color:#fff;
+padding:10px 14px;
+border-radius:9px;
+font-weight:700
+}
+
+.danger{
+background:#7a3040;
+color:#fff;
+padding:10px 14px;
+border-radius:9px
+}
+
+.primary:hover{background:#809cff}
+.secondary:hover{background:#334575}
+.danger:hover{background:#914052}
+
+.profile-button{
+background:linear-gradient(135deg,#6d8cff,#829cff);
+box-shadow:0 4px 14px #0004
+}
+
+.profile-button:hover{
+background:linear-gradient(135deg,#809cff,#94aaff);
+transform:translateY(-1px)
+}
+
+button:disabled{
+opacity:.6;
+cursor:not-allowed
+}
+
+#guestActions,#userActions{
+display:flex;
+align-items:center;
+gap:8px
+}
+
+.user-name{
+max-width:150px;
+overflow:hidden;
+text-overflow:ellipsis;
+white-space:nowrap;
+color:#cdd6f4
+}
+
+main{
+max-width:1100px;
+margin:auto;
+padding:25px 16px
+}
+
+.hero{
+padding:30px;
+border:1px solid #2a3862;
+border-radius:18px;
+background:linear-gradient(135deg,#18234a,#111936);
+margin-bottom:20px
+}
+
+.hero h1{margin:0 0 10px}
+.hero p,.muted{color:#9fa9c9}
+
+.auth-card,.listings{
+background:#111936;
+border:1px solid #263050;
+border-radius:16px;
+padding:20px;
+margin-bottom:20px
+}
+
+.auth-card{
+max-width:520px;
+margin:20px auto
+}
+
+.field{margin:12px 0}
+
+.field label{
+display:block;
+color:#b9c3e5;
+font-size:13px;
+margin-bottom:6px
+}
+
+.field input,
+.field textarea,
+.field select,
+.search{
+width:100%;
+padding:11px;
+border-radius:9px;
+border:1px solid #35446e;
+background:#0b1020;
+color:#fff
+}
+
+.message{
+min-height:20px;
+margin-top:10px;
+color:#aeb8da
+}
+
+.message.error{color:#ff8e9d}
+.message.ok{color:#8dffb0}
+
+.categories{
+display:flex;
+flex-wrap:wrap;
+gap:8px;
+margin-bottom:15px
+}
+
+.cat{
+background:#182242;
+color:#dfe6ff;
+padding:9px 13px;
+border-radius:9px
+}
+
+.cat.active{background:#6d8cff}
+
+.search{margin-bottom:16px}
+
+.grid{
+display:grid;
+grid-template-columns:repeat(auto-fill,minmax(245px,1fr));
+gap:14px
+}
+
+.card{
+background:#151f40;
+border:1px solid #2b3860;
+border-radius:13px;
+padding:15px
+}
+
+.card h3{margin:0 0 7px}
+
+.price{
+font-size:19px;
+font-weight:800;
+color:#8ea8ff;
+margin-top:8px
+}
+
+.seller{
+display:flex;
+align-items:center;
+gap:8px;
+margin-top:12px
+}
+
+.seller img{
+width:34px;
+height:34px;
+border-radius:50%;
+object-fit:cover;
+background:#26345e;
+border:1px solid #5368a8
+}
+
+.buy-row{
+display:flex;
+gap:8px;
+flex-wrap:wrap;
+margin-top:12px
+}
+
+.delete-btn{
+background:#7a3040;
+color:#fff;
+padding:10px 14px;
+border-radius:9px;
+font-weight:700
+}
+
+.delete-btn:hover{background:#914052}
+
+.review-summary{
+margin-top:10px;
+color:#c1cae6;
+font-size:13px
+}
+
+.stars{
+color:#ffd76a;
+letter-spacing:1px
+}
+
+.empty{
+color:#9fa9c9;
+padding:20px 0
+}
+
+.modal{
+position:fixed;
+inset:0;
+background:#0009;
+display:flex;
+align-items:center;
+justify-content:center;
+padding:16px;
+z-index:50
+}
+
+.modal-box{
+width:min(500px,100%);
+max-height:90vh;
+overflow:auto;
+background:#111936;
+border:1px solid #35446e;
+border-radius:16px;
+padding:20px
+}
+
+.modal-box.chat-box{
+width:min(650px,100%);
+height:min(720px,90vh);
+display:flex;
+flex-direction:column
+}
+
+.modal-head{
+display:flex;
+align-items:center;
+justify-content:space-between
+}
+
+.modal-close{
+background:none;
+color:#fff;
+font-size:22px;
+padding:4px 8px
+}
+
+.profile-row{
+display:flex;
+justify-content:space-between;
+gap:15px;
+align-items:center;
+flex-wrap:wrap
+}
+
+.profile-main{
+display:flex;
+align-items:center;
+gap:13px
+}
+
+.avatar{
+width:68px;
+height:68px;
+border-radius:50%;
+object-fit:cover;
+background:#26345e;
+border:2px solid #5368a8
+}
+
+.actions{
+display:flex;
+gap:8px;
+flex-wrap:wrap
+}
+
+.small{font-size:12px}
+
+.review-item{
+padding:9px 0;
+border-bottom:1px solid #263050
+}
+
+.review-item:last-child{border-bottom:0}
+
+
+/* ЧАТ */
+
+.chat-top{
+display:flex;
+align-items:center;
+gap:10px;
+padding-bottom:12px;
+border-bottom:1px solid #263050
+}
+
+.chat-avatar{
+width:42px;
+height:42px;
+border-radius:50%;
+object-fit:cover;
+background:#26345e
+}
+
+.chat-title{
+font-weight:700
+}
+
+.chat-subtitle{
+font-size:12px;
+color:#8f9abb;
+margin-top:3px
+}
+
+.chat-messages{
+flex:1;
+overflow-y:auto;
+padding:15px 4px;
+display:flex;
+flex-direction:column;
+gap:8px
+}
+
+.chat-empty{
+color:#8f9abb;
+text-align:center;
+margin:auto
+}
+
+.chat-message{
+max-width:78%;
+padding:9px 12px;
+border-radius:12px;
+word-break:break-word
+}
+
+.chat-message.mine{
+align-self:flex-end;
+background:#6d8cff;
+border-bottom-right-radius:4px
+}
+
+.chat-message.theirs{
+align-self:flex-start;
+background:#26345e;
+border-bottom-left-radius:4px
+}
+
+.chat-time{
+font-size:10px;
+opacity:.65;
+margin-top:4px
+}
+
+.chat-input-row{
+display:flex;
+gap:8px;
+border-top:1px solid #263050;
+padding-top:12px
+}
+
+.chat-input{
+flex:1;
+resize:none;
+min-height:45px;
+max-height:120px;
+padding:11px;
+border-radius:9px;
+border:1px solid #35446e;
+background:#0b1020;
+color:#fff
+}
+
+.chat-send{
+width:110px
+}
+
+
+/* ДИАЛОГИ */
+
+.conversations{
+display:flex;
+flex-direction:column;
+gap:8px;
+margin-top:15px
+}
+
+.conversation{
+display:flex;
+align-items:center;
+gap:12px;
+padding:12px;
+border:1px solid #2b3860;
+border-radius:11px;
+background:#151f40;
+cursor:pointer
+}
+
+.conversation:hover{
+background:#1b2850
+}
+
+.conversation-avatar{
+width:44px;
+height:44px;
+border-radius:50%;
+object-fit:cover;
+background:#26345e
+}
+
+.conversation-info{
+min-width:0;
+flex:1
+}
+
+.conversation-name{
+font-weight:700
+}
+
+.conversation-listing{
+font-size:12px;
+color:#8f9abb;
+margin-top:3px;
+white-space:nowrap;
+overflow:hidden;
+text-overflow:ellipsis
+}
+
+.conversation-last{
+font-size:13px;
+color:#c1cae6;
+margin-top:5px;
+white-space:nowrap;
+overflow:hidden;
+text-overflow:ellipsis
+}
+
+footer{
+text-align:center;
+color:#737e9f;
+padding:25px
+}
+
+@media(max-width:700px){
+.nav{display:none}
+.user-name{display:none}
+header{padding:0 10px}
+.logo{font-size:20px}
+.hero h1{font-size:28px}
+
+.chat-message{
+max-width:88%
+}
+
+.chat-send{
+width:80px
+}
+}
 </style>
 </head>
+
 <body>
 
 <header>
+
 <div class="logo">Delyvex</div>
-<div class="nav"><button id="homeBtn">Главная</button><button id="marketBtn">Каталог</button></div>
+
+<div class="nav">
+<button id="homeBtn">Главная</button>
+<button id="marketBtn">Каталог</button>
+</div>
+
 <div class="spacer"></div>
-<div id="guestActions"><button class="primary" id="googleLoginBtn">🔵 Войти через Google</button></div>
-<div id="userActions" class="hidden"><span class="user-name" id="userName"></span><button class="primary" id="sellBtn">Продать</button><button class="primary profile-button" id="profileBtn">👤 Профиль</button><button class="danger" id="logoutBtn">Выйти</button></div>
+
+<div id="guestActions">
+<button class="primary" id="googleLoginBtn">
+🔵 Войти через Google
+</button>
+</div>
+
+<div id="userActions" class="hidden">
+
+<span class="user-name" id="userName"></span>
+
+<button class="secondary" id="messagesBtn">
+💬 Сообщения
+</button>
+
+<button class="primary" id="sellBtn">
+Продать
+</button>
+
+<button class="primary profile-button" id="profileBtn">
+👤 Профиль
+</button>
+
+<button class="danger" id="logoutBtn">
+Выйти
+</button>
+
+</div>
+
 </header>
 
+
 <main>
-<section class="hero" id="hero"><h1>Добро пожаловать в Delyvex</h1><p>Покупай и продавай игровые товары.</p></section>
+
+<section class="hero" id="hero">
+
+<h1>Добро пожаловать в Delyvex</h1>
+
+<p>
+Покупай и продавай игровые товары.
+</p>
+
+</section>
+
 
 <section id="authSection" class="auth-card hidden">
+
 <h2>Вход в Delyvex</h2>
-<p class="muted">Вход выполняется через Google.</p>
-<button class="primary" id="authSubmit" style="width:100%">🔵 Войти через Google</button>
+
+<p class="muted">
+Вход выполняется через Google.
+</p>
+
+<button class="primary" id="authSubmit" style="width:100%">
+🔵 Войти через Google
+</button>
+
 <div id="authMessage" class="message"></div>
+
 </section>
+
 
 <section id="sellSection" class="auth-card hidden">
-<div class="modal-head"><h2>Продать</h2><button class="modal-close" id="closeSell">✕</button></div>
-<div class="field"><label>Название</label><input id="sellTitle" maxlength="80"></div>
-<div class="field"><label>Описание</label><textarea id="sellDescription" rows="4" maxlength="1000"></textarea></div>
-<div class="field"><label>Категория</label><select id="sellCategory"><option>Roblox</option><option>Minecraft</option><option>GTA</option><option>CS2</option><option>Другое</option></select></div>
-<div class="field"><label>Цена (₽)</label><input id="sellPrice" type="number" min="0" step="1"></div>
-<label class="muted"><input id="sellPolicy" type="checkbox"> Я согласен с правилами публикации.</label><br><br>
-<button class="primary" id="publishBtn">Опубликовать</button> <button class="secondary" id="cancelSellBtn">Отмена</button>
+
+<div class="modal-head">
+
+<h2>Продать</h2>
+
+<button class="modal-close" id="closeSell">
+✕
+</button>
+
+</div>
+
+<div class="field">
+<label>Название</label>
+<input id="sellTitle" maxlength="80">
+</div>
+
+<div class="field">
+<label>Описание</label>
+<textarea id="sellDescription" rows="4" maxlength="1000"></textarea>
+</div>
+
+<div class="field">
+<label>Категория</label>
+
+<select id="sellCategory">
+<option>Roblox</option>
+<option>Minecraft</option>
+<option>GTA</option>
+<option>CS2</option>
+<option>Другое</option>
+</select>
+
+</div>
+
+<div class="field">
+<label>Цена (₽)</label>
+<input id="sellPrice" type="number" min="0" step="1">
+</div>
+
+<label class="muted">
+<input id="sellPolicy" type="checkbox">
+Я согласен с правилами публикации.
+</label>
+
+<br><br>
+
+<button class="primary" id="publishBtn">
+Опубликовать
+</button>
+
+<button class="secondary" id="cancelSellBtn">
+Отмена
+</button>
+
 <div id="sellMessage" class="message"></div>
+
 </section>
+
 
 <section id="editProfileSection" class="auth-card hidden">
+
 <h2>Редактировать профиль</h2>
-<div class="field"><label>Никнейм</label><input id="profileUsername" maxlength="30"></div>
-<div class="field"><label>Описание</label><textarea id="profileBioInput" rows="3" maxlength="300"></textarea></div>
-<div class="field"><label>Аватарка</label><input id="avatarFile" type="file" accept="image/png,image/jpeg,image/webp"></div>
-<button class="primary" id="saveProfileBtn">Сохранить</button> <button class="secondary" id="cancelProfileBtn">Отмена</button>
+
+<div class="field">
+<label>Никнейм</label>
+<input id="profileUsername" maxlength="30">
+</div>
+
+<div class="field">
+<label>Описание</label>
+<textarea id="profileBioInput" rows="3" maxlength="300"></textarea>
+</div>
+
+<div class="field">
+<label>Аватарка</label>
+<input id="avatarFile" type="file" accept="image/png,image/jpeg,image/webp">
+</div>
+
+<button class="primary" id="saveProfileBtn">
+Сохранить
+</button>
+
+<button class="secondary" id="cancelProfileBtn">
+Отмена
+</button>
+
 <div id="profileMessage" class="message"></div>
+
 </section>
+
 
 <section id="marketSection" class="listings">
+
 <div class="categories">
-<button class="cat active" data-cat="all">Все</button>
-<button class="cat" data-cat="Roblox">Roblox</button>
-<button class="cat" data-cat="Minecraft">Minecraft</button>
-<button class="cat" data-cat="GTA">GTA</button>
-<button class="cat" data-cat="CS2">CS2</button>
-<button class="cat" data-cat="Другое">Другое</button>
+
+<button class="cat active" data-cat="all">
+Все
+</button>
+
+<button class="cat" data-cat="Roblox">
+Roblox
+</button>
+
+<button class="cat" data-cat="Minecraft">
+Minecraft
+</button>
+
+<button class="cat" data-cat="GTA">
+GTA
+</button>
+
+<button class="cat" data-cat="CS2">
+CS2
+</button>
+
+<button class="cat" data-cat="Другое">
+Другое
+</button>
+
 </div>
-<input id="search" class="search" placeholder="Поиск по объявлениям...">
+
+<input
+id="search"
+class="search"
+placeholder="Поиск по объявлениям..."
+>
+
 <div id="listingsGrid" class="grid"></div>
+
 </section>
+
 </main>
 
-<footer>Delyvex</footer>
+
+<footer>
+Delyvex
+</footer>
+
+
+<!-- ПРОФИЛЬ -->
 
 <div id="profileModal" class="modal hidden">
+
 <div class="modal-box">
-<div class="modal-head"><h2>Профиль</h2><button class="modal-close" id="closeProfileModal">✕</button></div>
+
+<div class="modal-head">
+
+<h2>Профиль</h2>
+
+<button class="modal-close" id="closeProfileModal">
+✕
+</button>
+
+</div>
+
 <div class="profile-main">
+
 <img id="modalAvatar" class="avatar" src="" alt="">
-<div><strong id="modalUsername"></strong><div class="muted" id="modalEmail"></div><div class="muted" id="modalBio"></div></div>
+
+<div>
+
+<strong id="modalUsername"></strong>
+
+<div class="muted" id="modalEmail"></div>
+
+<div class="muted" id="modalBio"></div>
+
 </div>
+
+</div>
+
 <br>
-<button class="primary" id="modalEditProfileBtn">Редактировать профиль</button>
+
+<button class="primary" id="modalEditProfileBtn">
+Редактировать профиль
+</button>
+
 </div>
+
 </div>
+
+
+<!-- ОТЗЫВ -->
 
 <div id="reviewModal" class="modal hidden">
+
 <div class="modal-box">
-<div class="modal-head"><h2>Оставить отзыв</h2><button class="modal-close" id="closeReviewModal">✕</button></div>
-<p class="muted" id="reviewListingTitle"></p>
-<div class="field"><label>Оценка</label><select id="reviewRating"><option value="5">★★★★★ 5</option><option value="4">★★★★☆ 4</option><option value="3">★★★☆☆ 3</option><option value="2">★★☆☆☆ 2</option><option value="1">★☆☆☆☆ 1</option></select></div>
-<div class="field"><label>Отзыв</label><textarea id="reviewText" rows="5" maxlength="1000" placeholder="Напишите отзыв после покупки..."></textarea></div>
-<button class="primary" id="submitReviewBtn">Опубликовать отзыв</button> <button class="secondary" id="cancelReviewBtn">Отмена</button>
-<div id="reviewMessage" class="message"></div>
-</div>
+
+<div class="modal-head">
+
+<h2>Оставить отзыв</h2>
+
+<button class="modal-close" id="closeReviewModal">
+✕
+</button>
+
 </div>
 
+<p class="muted" id="reviewListingTitle"></p>
+
+<div class="field">
+
+<label>Оценка</label>
+
+<select id="reviewRating">
+
+<option value="5">★★★★★ 5</option>
+<option value="4">★★★★☆ 4</option>
+<option value="3">★★★☆☆ 3</option>
+<option value="2">★★☆☆☆ 2</option>
+<option value="1">★☆☆☆☆ 1</option>
+
+</select>
+
+</div>
+
+<div class="field">
+
+<label>Отзыв</label>
+
+<textarea
+id="reviewText"
+rows="5"
+maxlength="1000"
+placeholder="Напишите отзыв после покупки..."
+></textarea>
+
+</div>
+
+<button class="primary" id="submitReviewBtn">
+Опубликовать отзыв
+</button>
+
+<button class="secondary" id="cancelReviewBtn">
+Отмена
+</button>
+
+<div id="reviewMessage" class="message"></div>
+
+</div>
+
+</div>
+
+
+<!-- СПИСОК СООБЩЕНИЙ -->
+
+<div id="messagesModal" class="modal hidden">
+
+<div class="modal-box">
+
+<div class="modal-head">
+
+<h2>💬 Сообщения</h2>
+
+<button class="modal-close" id="closeMessagesModal">
+✕
+</button>
+
+</div>
+
+<p class="muted">
+Твои диалоги с покупателями и продавцами.
+</p>
+
+<div id="conversationsList" class="conversations"></div>
+
+<div id="conversationsMessage" class="message"></div>
+
+</div>
+
+</div>
+
+
+<!-- ЧАТ -->
+
+<div id="chatModal" class="modal hidden">
+
+<div class="modal-box chat-box">
+
+<div class="chat-top">
+
+<img id="chatAvatar" class="chat-avatar" src="" alt="">
+
+<div style="flex:1">
+
+<div id="chatName" class="chat-title">
+Пользователь
+</div>
+
+<div id="chatListing" class="chat-subtitle">
+Объявление
+</div>
+
+</div>
+
+<button class="modal-close" id="closeChatModal">
+✕
+</button>
+
+</div>
+
+
+<div id="chatMessages" class="chat-messages">
+
+<div class="chat-empty">
+Сообщений пока нет.
+</div>
+
+</div>
+
+
+<div id="chatMessageError" class="message"></div>
+
+
+<div class="chat-input-row">
+
+<textarea
+id="chatInput"
+class="chat-input"
+rows="1"
+maxlength="2000"
+placeholder="Напишите сообщение..."
+></textarea>
+
+<button
+class="primary chat-send"
+id="sendChatBtn"
+>
+Отправить
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+
 <script>
+
 const SUPABASE_URL="https://gisdufgixjfudblxydvm.supabase.co";
+
 const SUPABASE_KEY="sb_publishable_irNKt_PStZrQ2NCEdaD5sg_quCmigAn";
+
 
 const sb=window.supabase.createClient(
 SUPABASE_URL,
@@ -111,167 +936,343 @@ flowType:"pkce"
 }
 );
 
-let currentUser=null,currentProfile=null,allListings=[],activeCategory="all",reviewListingId=null;
+
+let currentUser=null;
+let currentProfile=null;
+
+let allListings=[];
+
+let activeCategory="all";
+
+let reviewListingId=null;
+
+
+/* CHAT */
+
+let chatListingId=null;
+let chatOtherUserId=null;
+let chatRefreshTimer=null;
+
 
 const $=id=>document.getElementById(id);
+
 const show=e=>e&&e.classList.remove("hidden");
+
 const hide=e=>e&&e.classList.add("hidden");
 
+
 function msg(id,t,type=""){
+
 const e=$(id);
+
 if(!e)return;
+
 e.textContent=t||"";
+
 e.className="message"+(type?" "+type:"");
+
 }
 
+
 function esc(v){
-return String(v??"").replace(/[&<>"']/g,m=>({
+
+return String(v??"").replace(
+/[&<>"']/g,
+m=>({
 "&":"&amp;",
 "<":"&lt;",
 ">":"&gt;",
 "\"":"&quot;",
 "'":"&#039;"
-}[m]));
+}[m])
+);
+
 }
+
 
 function price(v){
-return new Intl.NumberFormat("ru-RU").format(Number(v)||0)+" ₽";
+
+return new Intl.NumberFormat("ru-RU")
+.format(Number(v)||0)+" ₽";
+
 }
+
 
 function nickname(u){
+
 const m=u?.user_metadata||{};
-return String(m.user_name||m.preferred_username||m.name||m.full_name||(u?.email||"Пользователь").split("@")[0]).slice(0,30);
+
+return String(
+m.user_name||
+m.preferred_username||
+m.name||
+m.full_name||
+(u?.email||"Пользователь").split("@")[0]
+).slice(0,30);
+
 }
+
 
 function avatar(u,p){
-return p?.avatar_url||u?.user_metadata?.avatar_url||u?.user_metadata?.picture||
-"https://ui-avatars.com/api/?name="+encodeURIComponent(p?.username||nickname(u))+"&background=26345e&color=ffffff";
+
+return p?.avatar_url||
+u?.user_metadata?.avatar_url||
+u?.user_metadata?.picture||
+"https://ui-avatars.com/api/?name="+
+encodeURIComponent(p?.username||nickname(u))+
+"&background=26345e&color=ffffff";
+
 }
+
 
 function stars(n){
+
 n=Math.round(Number(n)||0);
-return "★★★★★".slice(0,n)+"☆☆☆☆☆".slice(0,5-n);
+
+return "★★★★★".slice(0,n)+
+"☆☆☆☆☆".slice(0,5-n);
+
 }
 
+
+/* =========================
+   ПРОФИЛЬ
+========================= */
+
 async function ensureProfile(u){
+
 if(!u)return null;
 
-const {data:old,error}=await sb.from("profiles").select("id,username,avatar_url").eq("id",u.id).maybeSingle();
+const {data:old,error}=await sb
+.from("profiles")
+.select("id,username,avatar_url")
+.eq("id",u.id)
+.maybeSingle();
 
 if(error)throw error;
 
-const ga=u.user_metadata?.avatar_url||u.user_metadata?.picture||"";
+
+const ga=
+u.user_metadata?.avatar_url||
+u.user_metadata?.picture||
+"";
+
 
 if(!old){
-const {data,error:e}=await sb.from("profiles").insert({
+
+const {data,error:e}=await sb
+.from("profiles")
+.insert({
 id:u.id,
 username:nickname(u),
 avatar_url:ga
-}).select("id,username,avatar_url").single();
+})
+.select("id,username,avatar_url")
+.single();
 
 if(e)throw e;
 
 return currentProfile=data;
 }
 
+
 if((!old.username||!old.avatar_url)&&ga){
+
 const patch={};
-if(!old.username)patch.username=nickname(u);
-if(!old.avatar_url)patch.avatar_url=ga;
 
-const {data,error:e}=await sb.from("profiles").update(patch).eq("id",u.id).select("id,username,avatar_url").single();
+if(!old.username)
+patch.username=nickname(u);
 
-if(!e)return currentProfile=data;
+if(!old.avatar_url)
+patch.avatar_url=ga;
+
+
+const {data,error:e}=await sb
+.from("profiles")
+.update(patch)
+.eq("id",u.id)
+.select("id,username,avatar_url")
+.single();
+
+if(!e)
+return currentProfile=data;
+
 }
+
 
 return currentProfile=old;
+
 }
 
+
 async function syncAuth(){
+
 const {data,error}=await sb.auth.getSession();
 
 if(error)throw error;
 
 currentUser=data.session?.user||null;
 
-if(currentUser)await ensureProfile(currentUser);
-else currentProfile=null;
+if(currentUser)
+await ensureProfile(currentUser);
+else
+currentProfile=null;
 
 renderAuth();
+
 }
 
+
 function renderAuth(){
+
 if(currentUser){
+
 hide($("guestActions"));
 show($("userActions"));
 hide($("authSection"));
-$("userName").textContent=currentProfile?.username||nickname(currentUser);
+
+$("userName").textContent=
+currentProfile?.username||
+nickname(currentUser);
+
 }else{
+
 show($("guestActions"));
 hide($("userActions"));
+
 hide($("authSection"));
 hide($("sellSection"));
 hide($("editProfileSection"));
-}
+
 }
 
+}
+
+
+/* =========================
+   GOOGLE LOGIN
+========================= */
+
 async function loginWithGoogle(){
-const a=$("googleLoginBtn"),b=$("authSubmit");
+
+const a=$("googleLoginBtn");
+const b=$("authSubmit");
 
 a.disabled=true;
 b.disabled=true;
 
-msg("authMessage","Открываем Google…");
+msg(
+"authMessage",
+"Открываем Google…"
+);
 
 try{
-if(location.protocol!=="http:"&&location.protocol!=="https:")
-throw new Error("GitHub Pages должен быть открыт через https.");
 
-const redirectTo=location.origin+location.pathname;
+if(
+location.protocol!=="http:"&&
+location.protocol!=="https:"
+)
+throw new Error(
+"GitHub Pages должен быть открыт через https."
+);
 
-const {data,error}=await sb.auth.signInWithOAuth({
+
+const redirectTo=
+location.origin+
+location.pathname;
+
+
+const {data,error}=
+await sb.auth.signInWithOAuth({
+
 provider:"google",
+
 options:{
 redirectTo,
-queryParams:{prompt:"select_account"}
+queryParams:{
+prompt:"select_account"
 }
+}
+
 });
+
 
 if(error)throw error;
 
-if(data?.url)location.href=data.url;
-else throw new Error("Не получен адрес Google.");
+if(data?.url)
+location.href=data.url;
+
+else
+throw new Error(
+"Не получен адрес Google."
+);
+
 
 }catch(e){
+
 console.error(e);
-msg("authMessage","Ошибка Google: "+(e.message||"неизвестная ошибка"),"error");
+
+msg(
+"authMessage",
+"Ошибка Google: "+
+(e.message||"неизвестная ошибка"),
+"error"
+);
+
 a.disabled=false;
 b.disabled=false;
-}
+
 }
 
+}
+
+
 async function handleOAuthCallback(){
-const params=new URLSearchParams(location.search);
+
+const params=
+new URLSearchParams(location.search);
+
 const code=params.get("code");
 
 if(!code)return;
 
-msg("authMessage","Завершаем вход…");
+msg(
+"authMessage",
+"Завершаем вход…"
+);
 
 try{
-const {error}=await sb.auth.exchangeCodeForSession(code);
+
+const {error}=
+await sb.auth.exchangeCodeForSession(code);
 
 if(error)throw error;
 
-history.replaceState({},document.title,location.pathname);
+history.replaceState(
+{},
+document.title,
+location.pathname
+);
 
 }catch(e){
+
 console.error(e);
-msg("authMessage","Ошибка завершения входа: "+e.message,"error");
-}
+
+msg(
+"authMessage",
+"Ошибка завершения входа: "+
+e.message,
+"error"
+);
+
 }
 
-sb.auth.onAuthStateChange((event,session)=>{
+}
+
+
+sb.auth.onAuthStateChange(
+(event,session)=>{
+
 currentUser=session?.user||null;
 
 if(event==="SIGNED_OUT")
@@ -280,31 +1281,66 @@ currentProfile=null;
 renderAuth();
 
 setTimeout(()=>{
-if(currentUser)
-ensureProfile(currentUser).then(renderAuth).catch(console.error);
+
+if(currentUser){
+
+ensureProfile(currentUser)
+.then(renderAuth)
+.catch(console.error);
+
+}
+
 },0);
-});
+
+}
+);
+
+
+/* =========================
+   ПРОФИЛЬ
+========================= */
 
 function openProfile(){
-if(!currentUser)return loginWithGoogle();
 
-$("modalUsername").textContent=currentProfile?.username||nickname(currentUser);
-$("modalEmail").textContent=currentUser.email||"";
-$("modalBio").textContent=currentUser.user_metadata?.bio||"";
-$("modalAvatar").src=avatar(currentUser,currentProfile);
+if(!currentUser)
+return loginWithGoogle();
+
+$("modalUsername").textContent=
+currentProfile?.username||
+nickname(currentUser);
+
+$("modalEmail").textContent=
+currentUser.email||"";
+
+$("modalBio").textContent=
+currentUser.user_metadata?.bio||"";
+
+$("modalAvatar").src=
+avatar(currentUser,currentProfile);
 
 show($("profileModal"));
+
 }
+
 
 function closeProfile(){
+
 hide($("profileModal"));
+
 }
 
+
 function openEditor(){
+
 closeProfile();
 
-$("profileUsername").value=currentProfile?.username||nickname(currentUser);
-$("profileBioInput").value=currentUser.user_metadata?.bio||"";
+$("profileUsername").value=
+currentProfile?.username||
+nickname(currentUser);
+
+$("profileBioInput").value=
+currentUser.user_metadata?.bio||"";
+
 $("avatarFile").value="";
 
 show($("editProfileSection"));
@@ -313,414 +1349,116 @@ $("editProfileSection").scrollIntoView({
 behavior:"smooth",
 block:"center"
 });
+
 }
+
 
 async function saveProfile(){
+
 if(!currentUser)return;
 
-const username=$("profileUsername").value.trim();
-const bio=$("profileBioInput").value.trim();
-const file=$("avatarFile").files[0];
+const username=
+$("profileUsername").value.trim();
+
+const bio=
+$("profileBioInput").value.trim();
+
+const file=
+$("avatarFile").files[0];
+
 
 if(!username)
-return msg("profileMessage","Введите никнейм.","error");
+return msg(
+"profileMessage",
+"Введите никнейм.",
+"error"
+);
+
 
 const btn=$("saveProfileBtn");
+
 btn.disabled=true;
 
+
 try{
-let av=currentProfile?.avatar_url||currentUser.user_metadata?.avatar_url||currentUser.user_metadata?.picture||"";
+
+let av=
+currentProfile?.avatar_url||
+currentUser.user_metadata?.avatar_url||
+currentUser.user_metadata?.picture||
+"";
+
 
 if(file){
+
 if(file.size>2*1024*1024)
-throw new Error("Аватарка должна быть меньше 2 МБ.");
+throw new Error(
+"Аватарка должна быть меньше 2 МБ."
+);
+
 
 av=await new Promise((res,rej)=>{
+
 const r=new FileReader();
+
 r.onload=()=>res(r.result);
-r.onerror=()=>rej(new Error("Не удалось прочитать аватарку."));
+
+r.onerror=()=>rej(
+new Error("Не удалось прочитать аватарку.")
+);
+
 r.readAsDataURL(file);
+
 });
+
 }
 
-const {error}=await sb.from("profiles").upsert({
+
+const {error}=await sb
+.from("profiles")
+.upsert({
 id:currentUser.id,
 username,
 avatar_url:av
-},{onConflict:"id"});
+},{
+onConflict:"id"
+});
 
 if(error)throw error;
 
-const {error:ae}=await sb.auth.updateUser({
-data:{username,bio,avatar_url:av}
+
+const {error:ae}=
+await sb.auth.updateUser({
+data:{
+username,
+bio,
+avatar_url:av
+}
 });
 
 if(ae)throw ae;
 
+
 await ensureProfile(currentUser);
+
 hide($("editProfileSection"));
+
 renderAuth();
 
-window.scrollTo({top:0,behavior:"smooth"});
-
-}catch(e){
-console.error(e);
-msg("profileMessage",e.message||"Не удалось сохранить профиль.","error");
-}finally{
-btn.disabled=false;
-}
-}
-
-async function loadListings(){
-const grid=$("listingsGrid");
-
-try{
-const {data,error}=await sb.from("listings")
-.select("id,seller_id,title,description,category,price,is_active,created_at")
-.eq("is_active",true)
-.order("created_at",{ascending:false});
-
-if(error)throw error;
-
-allListings=data||[];
-
-const ids=[...new Set(allListings.map(x=>x.seller_id).filter(Boolean))];
-
-if(ids.length){
-const {data:p}=await sb.from("profiles").select("id,username,avatar_url").in("id",ids);
-
-const map=Object.fromEntries((p||[]).map(x=>[x.id,x]));
-
-allListings=allListings.map(x=>({
-...x,
-profile:map[x.seller_id]||null
-}));
-}
-
-await loadReviewStats();
-renderListings();
-
-}catch(e){
-console.error(e);
-grid.innerHTML="<div class='empty'>Не удалось загрузить объявления.</div>";
-}
-}
-
-async function loadReviewStats(){
-try{
-const {data,error}=await sb.from("reviews").select("listing_id,rating");
-
-if(error)throw error;
-
-const map={};
-
-(data||[]).forEach(r=>{
-map[r.listing_id]??=[];
-map[r.listing_id].push(Number(r.rating)||0);
+window.scrollTo({
+top:0,
+behavior:"smooth"
 });
 
-allListings=allListings.map(x=>{
-const a=map[x.id]||[];
-
-return {
-...x,
-reviewCount:a.length,
-reviewAverage:a.length?a.reduce((s,n)=>s+n,0)/a.length:0
-};
-});
-
-}catch(e){
-console.warn("Отзывы недоступны:",e.message);
-
-allListings=allListings.map(x=>({
-...x,
-reviewCount:0,
-reviewAverage:0
-}));
-}
-}
-
-function renderListings(){
-const q=$("search").value.trim().toLowerCase();
-
-const list=allListings.filter(x=>
-(activeCategory==="all"||x.category===activeCategory)&&
-(!q||[x.title,x.description,x.category,x.profile?.username].join(" ").toLowerCase().includes(q))
-);
-
-if(!list.length){
-$("listingsGrid").innerHTML="<div class='empty'>Нет объявлений.</div>";
-return;
-}
-
-$("listingsGrid").innerHTML=list.map(x=>{
-const name=x.profile?.username||"Пользователь";
-
-const av=x.profile?.avatar_url||
-"https://ui-avatars.com/api/?name="+encodeURIComponent(name)+"&background=26345e&color=ffffff";
-
-/*
-Исправлено:
-ID пользователя и seller_id сравниваются как строки.
-*/
-const own=!!currentUser&&String(currentUser.id)===String(x.seller_id);
-
-const rating=x.reviewCount
-?`<span class="stars">${stars(x.reviewAverage)}</span> ${x.reviewAverage.toFixed(1)} (${x.reviewCount})`
-:"Отзывов пока нет";
-
-return `<article class="card">
-<h3>${esc(x.title)}</h3>
-<div class="muted">${esc(x.category||"Другое")}</div>
-<p>${esc(x.description||"")}</p>
-<div class="price">${price(x.price)}</div>
-<div class="seller">
-<img src="${esc(av)}" alt="">
-<strong>${esc(name)}</strong>
-</div>
-<div class="review-summary">${rating}</div>
-<div class="buy-row">
-${own
-?`<button class="delete-btn" data-delete="${esc(String(x.id))}">Удалить товар</button>`
-:`<button class="primary" data-buy="${esc(String(x.id))}">Купить</button>`}
-</div>
-</article>`;
-}).join("");
-
-document.querySelectorAll("[data-buy]").forEach(
-b=>b.onclick=()=>buyListing(b.dataset.buy)
-);
-
-document.querySelectorAll("[data-delete]").forEach(
-b=>b.onclick=()=>deleteListing(b.dataset.delete)
-);
-}
-
-
-/*
-========================================
-ИСПРАВЛЕННОЕ УДАЛЕНИЕ ТОВАРА
-========================================
-*/
-
-async function deleteListing(id){
-
-if(!currentUser)
-return openAuth();
-
-/* Находим объявление по ID */
-const item=allListings.find(
-x=>String(x.id)===String(id)
-);
-
-if(!item){
-return alert("Объявление не найдено.");
-}
-
-/* ID приводим к строкам для корректного сравнения */
-const currentUserId=String(currentUser.id);
-const sellerId=String(item.seller_id);
-
-/* Проверяем владельца */
-if(sellerId!==currentUserId){
-
-console.log("Ошибка проверки владельца:",{
-currentUserId,
-sellerId,
-listingId:item.id,
-title:item.title
-});
-
-return alert("Удалить можно только своё объявление.");
-}
-
-if(!confirm(
-`Удалить объявление «${item.title}»?\n\nОно исчезнет из каталога.`
-))
-return;
-
-const btn=document.querySelector(
-`[data-delete="${CSS.escape(String(id))}"]`
-);
-
-if(btn)btn.disabled=true;
-
-try{
-
-/*
-Удаляем только объявление,
-которое принадлежит текущему пользователю.
-*/
-const {data,error}=await sb
-.from("listings")
-.delete()
-.eq("id",item.id)
-.eq("seller_id",currentUser.id)
-.select("id");
-
-if(error)throw error;
-
-/*
-Если Supabase вернул пустой массив,
-значит RLS запретил удаление.
-*/
-if(!data||data.length===0){
-throw new Error(
-"Supabase не удалил объявление. Проверь RLS-политику DELETE для таблицы listings."
-);
-}
-
-/* Удаляем из списка на странице */
-allListings=allListings.filter(
-x=>String(x.id)!==String(item.id)
-);
-
-renderListings();
-
-}catch(e){
-
-console.error("DELETE ERROR:",e);
-
-alert(
-"Не удалось удалить объявление: "+
-(e.message||"ошибка")
-);
-
-}finally{
-
-if(btn)btn.disabled=false;
-
-}
-}
-
-async function buyListing(id){
-
-if(!currentUser)return openAuth();
-
-const item=allListings.find(
-x=>String(x.id)===String(id)
-);
-
-if(!item)return;
-
-if(String(item.seller_id)===String(currentUser.id))
-return alert("Нельзя купить своё объявление.");
-
-if(!confirm(
-`Купить «${item.title}» за ${price(item.price)}?\n\nЭто демонстрационная покупка без реальной оплаты.`
-))
-return;
-
-const {error}=await sb.from("purchases").insert({
-buyer_id:currentUser.id,
-listing_id:item.id,
-seller_id:item.seller_id
-});
-
-if(error){
-
-if(error.code==="23505")
-return openReview(item.id);
-
-console.error(error);
-
-return alert(
-"Не удалось сохранить покупку. Проверь SQL для purchases."
-);
-}
-
-alert("Покупка оформлена!");
-openReview(item.id);
-}
-
-function openReview(id){
-
-if(!currentUser)return openAuth();
-
-const item=allListings.find(
-x=>String(x.id)===String(id)
-);
-
-if(!item)return;
-
-reviewListingId=id;
-
-$("reviewListingTitle").textContent=item.title;
-$("reviewRating").value="5";
-$("reviewText").value="";
-
-msg("reviewMessage","");
-
-show($("reviewModal"));
-}
-
-function closeReview(){
-hide($("reviewModal"));
-reviewListingId=null;
-}
-
-async function submitReview(){
-
-if(!currentUser||!reviewListingId)return;
-
-const item=allListings.find(
-x=>String(x.id)===String(reviewListingId)
-);
-
-if(!item)return;
-
-const text=$("reviewText").value.trim();
-const rating=Number($("reviewRating").value);
-
-if(!text)
-return msg("reviewMessage","Напишите отзыв.","error");
-
-const btn=$("submitReviewBtn");
-btn.disabled=true;
-
-try{
-
-const {data:p,error:pe}=await sb
-.from("purchases")
-.select("id")
-.eq("buyer_id",currentUser.id)
-.eq("listing_id",item.id)
-.maybeSingle();
-
-if(pe)throw pe;
-
-if(!p)
-throw new Error("Сначала нужно купить товар.");
-
-const {error}=await sb.from("reviews").insert({
-buyer_id:currentUser.id,
-listing_id:item.id,
-seller_id:item.seller_id,
-rating,
-text
-});
-
-if(error){
-
-if(error.code==="23505")
-throw new Error("Вы уже оставляли отзыв на этот товар.");
-
-throw error;
-}
-
-msg("reviewMessage","Отзыв опубликован!","ok");
-
-await loadListings();
-
-setTimeout(closeReview,500);
 
 }catch(e){
 
 console.error(e);
 
 msg(
-"reviewMessage",
-e.message||"Ошибка отзыва",
+"profileMessage",
+e.message||
+"Не удалось сохранить профиль.",
 "error"
 );
 
@@ -729,7 +1467,662 @@ e.message||"Ошибка отзыва",
 btn.disabled=false;
 
 }
+
 }
+
+
+/* =========================
+   ОБЪЯВЛЕНИЯ
+========================= */
+
+async function loadListings(){
+
+const grid=$("listingsGrid");
+
+try{
+
+const {data,error}=await sb
+.from("listings")
+.select(
+"id,seller_id,title,description,category,price,is_active,created_at"
+)
+.eq("is_active",true)
+.order("created_at",{
+ascending:false
+});
+
+if(error)throw error;
+
+allListings=data||[];
+
+
+const ids=[
+...new Set(
+allListings
+.map(x=>x.seller_id)
+.filter(Boolean)
+)
+];
+
+
+if(ids.length){
+
+const {data:p}=await sb
+.from("profiles")
+.select("id,username,avatar_url")
+.in("id",ids);
+
+
+const map=
+Object.fromEntries(
+(p||[]).map(x=>[x.id,x])
+);
+
+
+allListings=
+allListings.map(x=>({
+...x,
+profile:map[x.seller_id]||null
+}));
+
+}
+
+
+await loadReviewStats();
+
+renderListings();
+
+
+}catch(e){
+
+console.error(e);
+
+grid.innerHTML=
+"<div class='empty'>Не удалось загрузить объявления.</div>";
+
+}
+
+}
+
+
+async function loadReviewStats(){
+
+try{
+
+const {data,error}=await sb
+.from("reviews")
+.select("listing_id,rating");
+
+if(error)throw error;
+
+const map={};
+
+
+(data||[]).forEach(r=>{
+
+map[r.listing_id]??=[];
+
+map[r.listing_id].push(
+Number(r.rating)||0
+);
+
+});
+
+
+allListings=
+allListings.map(x=>{
+
+const a=map[x.id]||[];
+
+return {
+
+...x,
+
+reviewCount:a.length,
+
+reviewAverage:
+a.length
+?a.reduce((s,n)=>s+n,0)/a.length
+:0
+
+};
+
+});
+
+
+}catch(e){
+
+console.warn(
+"Отзывы недоступны:",
+e.message
+);
+
+
+allListings=
+allListings.map(x=>({
+...x,
+reviewCount:0,
+reviewAverage:0
+}));
+
+}
+
+}
+
+
+function renderListings(){
+
+const q=
+$("search").value
+.trim()
+.toLowerCase();
+
+
+const list=
+allListings.filter(x=>
+
+(
+activeCategory==="all"||
+x.category===activeCategory
+)&&
+
+(
+!q||
+[
+x.title,
+x.description,
+x.category,
+x.profile?.username
+]
+.join(" ")
+.toLowerCase()
+.includes(q)
+)
+
+);
+
+
+if(!list.length){
+
+$("listingsGrid").innerHTML=
+"<div class='empty'>Нет объявлений.</div>";
+
+return;
+
+}
+
+
+$("listingsGrid").innerHTML=
+list.map(x=>{
+
+const name=
+x.profile?.username||
+"Пользователь";
+
+
+const av=
+x.profile?.avatar_url||
+"https://ui-avatars.com/api/?name="+
+encodeURIComponent(name)+
+"&background=26345e&color=ffffff";
+
+
+const own=
+!!currentUser&&
+String(currentUser.id)===
+String(x.seller_id);
+
+
+const rating=
+x.reviewCount
+?`<span class="stars">${stars(x.reviewAverage)}</span> ${x.reviewAverage.toFixed(1)} (${x.reviewCount})`
+:"Отзывов пока нет";
+
+
+return `<article class="card">
+
+<h3>${esc(x.title)}</h3>
+
+<div class="muted">
+${esc(x.category||"Другое")}
+</div>
+
+<p>
+${esc(x.description||"")}
+</p>
+
+<div class="price">
+${price(x.price)}
+</div>
+
+<div class="seller">
+
+<img
+src="${esc(av)}"
+alt=""
+>
+
+<strong>
+${esc(name)}
+</strong>
+
+</div>
+
+<div class="review-summary">
+${rating}
+</div>
+
+<div class="buy-row">
+
+${
+own
+
+?
+
+`<button
+class="delete-btn"
+data-delete="${esc(String(x.id))}"
+>
+Удалить товар
+</button>`
+
+:
+
+`<button
+class="primary"
+data-buy="${esc(String(x.id))}"
+>
+Купить
+</button>
+
+<button
+class="secondary"
+data-chat="${esc(String(x.id))}"
+>
+💬 Написать продавцу
+</button>`
+
+}
+
+</div>
+
+</article>`;
+
+}).join("");
+
+
+document
+.querySelectorAll("[data-buy]")
+.forEach(
+b=>b.onclick=
+()=>buyListing(b.dataset.buy)
+);
+
+
+document
+.querySelectorAll("[data-delete]")
+.forEach(
+b=>b.onclick=
+()=>deleteListing(b.dataset.delete)
+);
+
+
+document
+.querySelectorAll("[data-chat]")
+.forEach(
+b=>b.onclick=
+()=>openChatForListing(b.dataset.chat)
+);
+
+}
+
+
+/* =========================
+   УДАЛЕНИЕ
+========================= */
+
+async function deleteListing(id){
+
+if(!currentUser)
+return openAuth();
+
+
+const item=
+allListings.find(
+x=>String(x.id)===String(id)
+);
+
+
+if(!item)
+return alert(
+"Объявление не найдено."
+);
+
+
+const currentUserId=
+String(currentUser.id);
+
+const sellerId=
+String(item.seller_id);
+
+
+if(sellerId!==currentUserId){
+
+console.log(
+"Ошибка проверки владельца:",
+{
+currentUserId,
+sellerId,
+listingId:item.id,
+title:item.title
+}
+);
+
+return alert(
+"Удалить можно только своё объявление."
+);
+
+}
+
+
+if(!confirm(
+`Удалить объявление «${item.title}»?\n\nОно исчезнет из каталога.`
+))
+return;
+
+
+const btn=
+document.querySelector(
+`[data-delete="${CSS.escape(String(id))}"]`
+);
+
+
+if(btn)
+btn.disabled=true;
+
+
+try{
+
+const {data,error}=await sb
+.from("listings")
+.delete()
+.eq("id",item.id)
+.eq("seller_id",currentUser.id)
+.select("id");
+
+
+if(error)throw error;
+
+
+if(!data||data.length===0){
+
+throw new Error(
+"Supabase не удалил объявление. Проверь RLS-политику DELETE для таблицы listings."
+);
+
+}
+
+
+allListings=
+allListings.filter(
+x=>String(x.id)!==
+String(item.id)
+);
+
+
+renderListings();
+
+
+}catch(e){
+
+console.error(
+"DELETE ERROR:",
+e
+);
+
+alert(
+"Не удалось удалить объявление: "+
+(e.message||"ошибка")
+);
+
+}finally{
+
+if(btn)
+btn.disabled=false;
+
+}
+
+}
+
+
+/* =========================
+   ПОКУПКА
+========================= */
+
+async function buyListing(id){
+
+if(!currentUser)
+return openAuth();
+
+
+const item=
+allListings.find(
+x=>String(x.id)===String(id)
+);
+
+
+if(!item)return;
+
+
+if(
+String(item.seller_id)===
+String(currentUser.id)
+)
+return alert(
+"Нельзя купить своё объявление."
+);
+
+
+if(!confirm(
+`Купить «${item.title}» за ${price(item.price)}?\n\nЭто демонстрационная покупка без реальной оплаты.`
+))
+return;
+
+
+const {error}=await sb
+.from("purchases")
+.insert({
+buyer_id:currentUser.id,
+listing_id:item.id,
+seller_id:item.seller_id
+});
+
+
+if(error){
+
+if(error.code==="23505")
+return openReview(item.id);
+
+
+console.error(error);
+
+return alert(
+"Не удалось сохранить покупку. Проверь SQL для purchases."
+);
+
+}
+
+
+alert("Покупка оформлена!");
+
+openReview(item.id);
+
+}
+
+
+/* =========================
+   ОТЗЫВЫ
+========================= */
+
+function openReview(id){
+
+if(!currentUser)
+return openAuth();
+
+
+const item=
+allListings.find(
+x=>String(x.id)===String(id)
+);
+
+
+if(!item)return;
+
+
+reviewListingId=id;
+
+$("reviewListingTitle").textContent=
+item.title;
+
+$("reviewRating").value="5";
+
+$("reviewText").value="";
+
+msg("reviewMessage","");
+
+show($("reviewModal"));
+
+}
+
+
+function closeReview(){
+
+hide($("reviewModal"));
+
+reviewListingId=null;
+
+}
+
+
+async function submitReview(){
+
+if(!currentUser||
+!reviewListingId)
+return;
+
+
+const item=
+allListings.find(
+x=>String(x.id)===
+String(reviewListingId)
+);
+
+
+if(!item)return;
+
+
+const text=
+$("reviewText").value.trim();
+
+const rating=
+Number($("reviewRating").value);
+
+
+if(!text)
+return msg(
+"reviewMessage",
+"Напишите отзыв.",
+"error"
+);
+
+
+const btn=$("submitReviewBtn");
+
+btn.disabled=true;
+
+
+try{
+
+const {data:p,error:pe}=
+await sb
+.from("purchases")
+.select("id")
+.eq("buyer_id",currentUser.id)
+.eq("listing_id",item.id)
+.maybeSingle();
+
+
+if(pe)throw pe;
+
+
+if(!p)
+throw new Error(
+"Сначала нужно купить товар."
+);
+
+
+const {error}=await sb
+.from("reviews")
+.insert({
+buyer_id:currentUser.id,
+listing_id:item.id,
+seller_id:item.seller_id,
+rating,
+text
+});
+
+
+if(error){
+
+if(error.code==="23505")
+throw new Error(
+"Вы уже оставляли отзыв на этот товар."
+);
+
+throw error;
+
+}
+
+
+msg(
+"reviewMessage",
+"Отзыв опубликован!",
+"ok"
+);
+
+
+await loadListings();
+
+
+setTimeout(
+closeReview,
+500
+);
+
+
+}catch(e){
+
+console.error(e);
+
+msg(
+"reviewMessage",
+e.message||
+"Ошибка отзыва",
+"error"
+);
+
+}finally{
+
+btn.disabled=false;
+
+}
+
+}
+
+
+/* =========================
+   АВТОРИЗАЦИЯ
+========================= */
 
 function openAuth(){
 
@@ -742,21 +2135,42 @@ block:"center"
 
 }
 
+
+/* =========================
+   ПУБЛИКАЦИЯ
+========================= */
+
 async function publishListing(){
 
-if(!currentUser)return openAuth();
+if(!currentUser)
+return openAuth();
 
-const title=$("sellTitle").value.trim();
-const description=$("sellDescription").value.trim();
-const category=$("sellCategory").value;
-const priceValue=Number($("sellPrice").value);
 
-if(!title||!description||!Number.isFinite(priceValue)||priceValue<0)
+const title=
+$("sellTitle").value.trim();
+
+const description=
+$("sellDescription").value.trim();
+
+const category=
+$("sellCategory").value;
+
+const priceValue=
+Number($("sellPrice").value);
+
+
+if(
+!title||
+!description||
+!Number.isFinite(priceValue)||
+priceValue<0
+)
 return msg(
 "sellMessage",
 "Заполни все поля корректно.",
 "error"
 );
+
 
 if(!$("sellPolicy").checked)
 return msg(
@@ -765,12 +2179,17 @@ return msg(
 "error"
 );
 
+
 const btn=$("publishBtn");
+
 btn.disabled=true;
+
 
 try{
 
-const {error}=await sb.from("listings").insert({
+const {error}=await sb
+.from("listings")
+.insert({
 seller_id:currentUser.id,
 title,
 description,
@@ -779,7 +2198,9 @@ price:priceValue,
 is_active:true
 });
 
+
 if(error)throw error;
+
 
 msg(
 "sellMessage",
@@ -787,17 +2208,21 @@ msg(
 "ok"
 );
 
+
 $("sellTitle").value="";
 $("sellDescription").value="";
 $("sellPrice").value="";
 $("sellPolicy").checked=false;
 
+
 await loadListings();
+
 
 setTimeout(
 ()=>hide($("sellSection")),
 500
 );
+
 
 }catch(e){
 
@@ -805,7 +2230,8 @@ console.error(e);
 
 msg(
 "sellMessage",
-e.message||"Не удалось опубликовать объявление.",
+e.message||
+"Не удалось опубликовать объявление.",
 "error"
 );
 
@@ -814,13 +2240,793 @@ e.message||"Не удалось опубликовать объявление.",
 btn.disabled=false;
 
 }
+
 }
 
+
+/* ==================================================
+   ЧАТ
+================================================== */
+
+
+/*
+Открыть чат по объявлению.
+Покупатель пишет продавцу.
+*/
+
+async function openChatForListing(id){
+
+if(!currentUser)
+return openAuth();
+
+
+const item=
+allListings.find(
+x=>String(x.id)===
+String(id)
+);
+
+
+if(!item)
+return alert(
+"Объявление не найдено."
+);
+
+
+if(
+String(item.seller_id)===
+String(currentUser.id)
+)
+return alert(
+"Нельзя написать самому себе."
+);
+
+
+chatListingId=item.id;
+
+chatOtherUserId=item.seller_id;
+
+
+$("chatName").textContent=
+item.profile?.username||
+"Продавец";
+
+
+$("chatListing").textContent=
+"Объявление: "+item.title;
+
+
+$("chatAvatar").src=
+item.profile?.avatar_url||
+"https://ui-avatars.com/api/?name="+
+encodeURIComponent(
+item.profile?.username||
+"Продавец"
+)+
+"&background=26345e&color=ffffff";
+
+
+$("chatInput").value="";
+
+msg(
+"chatMessageError",
+""
+);
+
+
+show($("chatModal"));
+
+
+await loadChatMessages();
+
+
+startChatRefresh();
+
+setTimeout(
+()=>$("chatInput").focus(),
+100
+);
+
+}
+
+
+/*
+Открытие существующего диалога.
+*/
+
+async function openExistingChat(
+listingId,
+otherUserId
+){
+
+if(!currentUser)
+return openAuth();
+
+
+const item=
+allListings.find(
+x=>String(x.id)===
+String(listingId)
+);
+
+
+chatListingId=listingId;
+
+chatOtherUserId=otherUserId;
+
+
+let otherProfile=null;
+
+
+const {data:p,error}=await sb
+.from("profiles")
+.select("id,username,avatar_url")
+.eq("id",otherUserId)
+.maybeSingle();
+
+
+if(!error)
+otherProfile=p;
+
+
+$("chatName").textContent=
+otherProfile?.username||
+"Пользователь";
+
+
+$("chatListing").textContent=
+"Объявление: "+
+(item?.title||"");
+
+
+$("chatAvatar").src=
+otherProfile?.avatar_url||
+"https://ui-avatars.com/api/?name="+
+encodeURIComponent(
+otherProfile?.username||
+"Пользователь"
+)+
+"&background=26345e&color=ffffff";
+
+
+$("chatInput").value="";
+
+msg(
+"chatMessageError",
+""
+);
+
+
+hide($("messagesModal"));
+
+show($("chatModal"));
+
+
+await loadChatMessages();
+
+startChatRefresh();
+
+setTimeout(
+()=>$("chatInput").focus(),
+100
+);
+
+}
+
+
+/*
+Загрузка сообщений текущего диалога.
+*/
+
+async function loadChatMessages(){
+
+if(
+!currentUser||
+!chatListingId||
+!chatOtherUserId
+)
+return;
+
+
+const box=$("chatMessages");
+
+
+const {data,error}=await sb
+.from("messages")
+.select(
+"id,listing_id,sender_id,receiver_id,message,created_at"
+)
+.eq("listing_id",chatListingId)
+.or(
+`and(sender_id.eq.${currentUser.id},receiver_id.eq.${chatOtherUserId}),and(sender_id.eq.${chatOtherUserId},receiver_id.eq.${currentUser.id})`
+)
+.order("created_at",{
+ascending:true
+});
+
+
+if(error){
+
+console.error(
+"CHAT LOAD ERROR:",
+error
+);
+
+box.innerHTML=
+`<div class="chat-empty">
+Не удалось загрузить сообщения.
+</div>`;
+
+return;
+
+}
+
+
+if(!data||!data.length){
+
+box.innerHTML=
+`<div class="chat-empty">
+Сообщений пока нет. Напиши первым!
+</div>`;
+
+return;
+
+}
+
+
+box.innerHTML=
+data.map(m=>{
+
+const mine=
+String(m.sender_id)===
+String(currentUser.id);
+
+
+const date=
+new Date(m.created_at)
+.toLocaleTimeString(
+"ru-RU",
+{
+hour:"2-digit",
+minute:"2-digit"
+}
+);
+
+
+return `
+<div class="chat-message ${mine?"mine":"theirs"}">
+
+<div>
+${esc(m.message)}
+</div>
+
+<div class="chat-time">
+${date}
+</div>
+
+</div>
+`;
+
+}).join("");
+
+
+box.scrollTop=box.scrollHeight;
+
+}
+
+
+/*
+Отправка сообщения.
+*/
+
+async function sendChatMessage(){
+
+if(
+!currentUser||
+!chatListingId||
+!chatOtherUserId
+)
+return;
+
+
+const input=$("chatInput");
+
+const text=input.value.trim();
+
+
+if(!text)
+return;
+
+
+const btn=$("sendChatBtn");
+
+btn.disabled=true;
+
+
+try{
+
+const {error}=await sb
+.from("messages")
+.insert({
+
+listing_id:chatListingId,
+
+sender_id:currentUser.id,
+
+receiver_id:chatOtherUserId,
+
+message:text
+
+});
+
+
+if(error)throw error;
+
+
+input.value="";
+
+msg(
+"chatMessageError",
+""
+);
+
+
+await loadChatMessages();
+
+
+}catch(e){
+
+console.error(
+"CHAT SEND ERROR:",
+e
+);
+
+
+msg(
+"chatMessageError",
+"Не удалось отправить сообщение: "+
+(e.message||"ошибка"),
+"error"
+);
+
+
+}finally{
+
+btn.disabled=false;
+
+}
+
+}
+
+
+/*
+Автообновление чата.
+*/
+
+function startChatRefresh(){
+
+stopChatRefresh();
+
+
+chatRefreshTimer=
+setInterval(
+()=>{
+
+if(
+!$("chatModal").classList.contains("hidden")
+)
+loadChatMessages();
+
+},
+3000
+);
+
+}
+
+
+function stopChatRefresh(){
+
+if(chatRefreshTimer){
+
+clearInterval(
+chatRefreshTimer
+);
+
+chatRefreshTimer=null;
+
+}
+
+}
+
+
+/*
+Закрытие чата.
+*/
+
+function closeChat(){
+
+stopChatRefresh();
+
+hide($("chatModal"));
+
+chatListingId=null;
+
+chatOtherUserId=null;
+
+}
+
+
+/* ==================================================
+   СПИСОК ДИАЛОГОВ
+================================================== */
+
+async function openMessages(){
+
+if(!currentUser)
+return openAuth();
+
+
+show($("messagesModal"));
+
+await loadConversations();
+
+}
+
+
+/*
+Загружаем все сообщения пользователя
+и превращаем их в список диалогов.
+*/
+
+async function loadConversations(){
+
+const box=$("conversationsList");
+
+box.innerHTML=
+"<div class='empty'>Загрузка...</div>";
+
+
+const {data,error}=await sb
+.from("messages")
+.select(
+"id,listing_id,sender_id,receiver_id,message,created_at"
+)
+.or(
+`sender_id.eq.${currentUser.id},receiver_id.eq.${currentUser.id}`
+)
+.order("created_at",{
+ascending:false
+});
+
+
+if(error){
+
+console.error(
+"CONVERSATIONS ERROR:",
+error
+);
+
+box.innerHTML=
+"<div class='empty'>Не удалось загрузить сообщения.</div>";
+
+return;
+
+}
+
+
+if(!data||!data.length){
+
+box.innerHTML=
+"<div class='empty'>У тебя пока нет сообщений.</div>";
+
+return;
+
+}
+
+
+/*
+Берём последнее сообщение
+для каждого объявления + собеседника.
+*/
+
+const map=new Map();
+
+
+for(const m of data){
+
+const other=
+String(m.sender_id)===
+String(currentUser.id)
+?m.receiver_id
+:m.sender_id;
+
+
+const key=
+String(m.listing_id)+"_"+String(other);
+
+
+if(!map.has(key))
+map.set(key,{
+...m,
+otherUserId:other
+});
+
+}
+
+
+const conversations=
+[...map.values()];
+
+
+/*
+Получаем профили собеседников.
+*/
+
+const ids=[
+...new Set(
+conversations.map(x=>x.otherUserId)
+)
+];
+
+
+let profiles={};
+
+
+if(ids.length){
+
+const {data:p}=await sb
+.from("profiles")
+.select("id,username,avatar_url")
+.in("id",ids);
+
+
+profiles=
+Object.fromEntries(
+(p||[]).map(x=>[x.id,x])
+);
+
+}
+
+
+/*
+Рисуем список.
+*/
+
+box.innerHTML=
+conversations.map(c=>{
+
+const p=
+profiles[c.otherUserId];
+
+
+const item=
+allListings.find(
+x=>String(x.id)===
+String(c.listing_id)
+);
+
+
+const name=
+p?.username||
+"Пользователь";
+
+
+const av=
+p?.avatar_url||
+"https://ui-avatars.com/api/?name="+
+encodeURIComponent(name)+
+"&background=26345e&color=ffffff";
+
+
+const preview=
+String(c.message||"");
+
+
+return `
+<div
+class="conversation"
+data-conversation-listing="${esc(String(c.listing_id))}"
+data-conversation-user="${esc(String(c.otherUserId))}"
+>
+
+<img
+class="conversation-avatar"
+src="${esc(av)}"
+alt=""
+>
+
+<div class="conversation-info">
+
+<div class="conversation-name">
+${esc(name)}
+</div>
+
+<div class="conversation-listing">
+${esc(item?.title||"Объявление")}
+</div>
+
+<div class="conversation-last">
+${esc(preview)}
+</div>
+
+</div>
+
+</div>
+`;
+
+}).join("");
+
+
+document
+.querySelectorAll("[data-conversation-listing]")
+.forEach(el=>{
+
+el.onclick=()=>{
+
+openExistingChat(
+el.dataset.conversationListing,
+el.dataset.conversationUser
+);
+
+};
+
+});
+
+}
+
+
+/* ==================================================
+   КНОПКИ
+================================================== */
+
+$("googleLoginBtn").onclick=
+loginWithGoogle;
+
+$("authSubmit").onclick=
+loginWithGoogle;
+
+$("logoutBtn").onclick=
+logout;
+
+$("profileBtn").onclick=
+openProfile;
+
+$("closeProfileModal").onclick=
+closeProfile;
+
+$("modalEditProfileBtn").onclick=
+openEditor;
+
+$("closeReviewModal").onclick=
+closeReview;
+
+$("cancelReviewBtn").onclick=
+closeReview;
+
+$("submitReviewBtn").onclick=
+submitReview;
+
+
+/* CHAT */
+
+$("messagesBtn").onclick=
+openMessages;
+
+$("closeMessagesModal").onclick=
+()=>{
+hide($("messagesModal"));
+};
+
+$("closeChatModal").onclick=
+closeChat;
+
+$("sendChatBtn").onclick=
+sendChatMessage;
+
+
+/*
+Отправка по Enter.
+Shift+Enter — новая строка.
+*/
+
+$("chatInput").addEventListener(
+"keydown",
+e=>{
+
+if(
+e.key==="Enter"&&
+!e.shiftKey
+){
+
+e.preventDefault();
+
+sendChatMessage();
+
+}
+
+});
+
+
+$("sellBtn").onclick=()=>{
+
+hide($("editProfileSection"));
+
+show($("sellSection"));
+
+$("sellSection").scrollIntoView({
+behavior:"smooth",
+block:"center"
+});
+
+};
+
+
+$("closeSell").onclick=
+()=>hide($("sellSection"));
+
+$("cancelSellBtn").onclick=
+()=>hide($("sellSection"));
+
+$("publishBtn").onclick=
+publishListing;
+
+$("saveProfileBtn").onclick=
+saveProfile;
+
+$("cancelProfileBtn").onclick=
+()=>hide($("editProfileSection"));
+
+$("search").oninput=
+renderListings;
+
+
+$("homeBtn").onclick=
+()=>window.scrollTo({
+top:0,
+behavior:"smooth"
+});
+
+
+$("marketBtn").onclick=
+()=>$("marketSection").scrollIntoView({
+behavior:"smooth"
+});
+
+
+document
+.querySelectorAll(".cat")
+.forEach(
+b=>b.onclick=()=>{
+
+document
+.querySelectorAll(".cat")
+.forEach(
+x=>x.classList.remove("active")
+);
+
+b.classList.add("active");
+
+activeCategory=
+b.dataset.cat;
+
+renderListings();
+
+}
+);
+
+
+/* ==================================================
+   ВЫХОД
+================================================== */
+
 async function logout(){
+
+stopChatRefresh();
 
 await sb.auth.signOut();
 
 currentUser=null;
+
 currentProfile=null;
 
 renderAuth();
@@ -829,62 +3035,13 @@ window.scrollTo({
 top:0,
 behavior:"smooth"
 });
+
 }
 
 
-/* Кнопки */
-
-$("googleLoginBtn").onclick=loginWithGoogle;
-$("authSubmit").onclick=loginWithGoogle;
-$("logoutBtn").onclick=logout;
-$("profileBtn").onclick=openProfile;
-$("closeProfileModal").onclick=closeProfile;
-$("modalEditProfileBtn").onclick=openEditor;
-$("closeReviewModal").onclick=closeReview;
-$("cancelReviewBtn").onclick=closeReview;
-$("submitReviewBtn").onclick=submitReview;
-
-$("sellBtn").onclick=()=>{
-hide($("editProfileSection"));
-show($("sellSection"));
-$("sellSection").scrollIntoView({
-behavior:"smooth",
-block:"center"
-});
-};
-
-$("closeSell").onclick=()=>hide($("sellSection"));
-$("cancelSellBtn").onclick=()=>hide($("sellSection"));
-$("publishBtn").onclick=publishListing;
-$("saveProfileBtn").onclick=saveProfile;
-$("cancelProfileBtn").onclick=()=>hide($("editProfileSection"));
-$("search").oninput=renderListings;
-
-$("homeBtn").onclick=()=>window.scrollTo({
-top:0,
-behavior:"smooth"
-});
-
-$("marketBtn").onclick=()=>$("marketSection").scrollIntoView({
-behavior:"smooth"
-});
-
-document.querySelectorAll(".cat").forEach(b=>b.onclick=()=>{
-
-document.querySelectorAll(".cat").forEach(
-x=>x.classList.remove("active")
-);
-
-b.classList.add("active");
-
-activeCategory=b.dataset.cat;
-
-renderListings();
-
-});
-
-
-/* Запуск */
+/* ==================================================
+   ЗАПУСК
+================================================== */
 
 (async function init(){
 
@@ -900,7 +3057,8 @@ console.error(e);
 
 msg(
 "authMessage",
-e.message||"Ошибка запуска",
+e.message||
+"Ошибка запуска",
 "error"
 );
 
