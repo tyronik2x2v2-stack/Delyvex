@@ -9,6 +9,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
+
 *{
   box-sizing:border-box;
 }
@@ -20,7 +21,9 @@ body{
   font-family:Arial,sans-serif;
 }
 
-button,input,textarea,select{
+button,
+input,
+textarea{
   font:inherit;
 }
 
@@ -32,7 +35,9 @@ button{
   display:none!important;
 }
 
-/* AUTH */
+/* =========================
+AUTH
+========================= */
 
 #authGate{
   position:fixed;
@@ -53,11 +58,10 @@ button{
   border-radius:24px;
   padding:35px 25px;
   text-align:center;
-  box-shadow:0 20px 70px rgba(0,0,0,.45);
 }
 
 .logo{
-  font-size:34px;
+  font-size:36px;
   font-weight:900;
   color:#c084fc;
   margin-bottom:10px;
@@ -79,11 +83,9 @@ button{
   font-weight:700;
 }
 
-.google-btn:hover{
-  opacity:.9;
-}
-
-/* HEADER */
+/* =========================
+HEADER
+========================= */
 
 header{
   height:70px;
@@ -119,7 +121,6 @@ header{
 
 .nav-btn:hover{
   background:#21152e;
-  color:#fff;
 }
 
 .header-profile{
@@ -127,14 +128,16 @@ header{
 }
 
 .header-avatar{
-  width:38px;
-  height:38px;
+  width:40px;
+  height:40px;
   border-radius:50%;
   object-fit:cover;
   border:2px solid #8b5cf6;
 }
 
-/* MAIN */
+/* =========================
+MAIN
+========================= */
 
 main{
   max-width:1100px;
@@ -155,7 +158,9 @@ main{
   margin:0 0 20px;
 }
 
-/* SEARCH */
+/* =========================
+SEARCH
+========================= */
 
 .search-box{
   display:flex;
@@ -174,11 +179,9 @@ main{
   outline:none;
 }
 
-.search-box input:focus{
-  border-color:#8b5cf6;
-}
-
-/* BUTTON */
+/* =========================
+BUTTONS
+========================= */
 
 .primary-btn{
   border:0;
@@ -193,7 +196,22 @@ main{
   background:#7c3aed;
 }
 
-/* CARDS */
+.chat-btn{
+  border:1px solid #8b5cf6;
+  background:#241733;
+  color:#fff;
+  padding:13px 18px;
+  border-radius:12px;
+  font-weight:700;
+}
+
+.chat-btn:hover{
+  background:#35204d;
+}
+
+/* =========================
+CARDS
+========================= */
 
 .card{
   background:#130d1f;
@@ -209,11 +227,12 @@ main{
 }
 
 .listing-image{
-  width:130px;
-  height:130px;
+  width:180px;
+  height:180px;
   border-radius:14px;
   object-fit:cover;
   background:#0b0812;
+  flex-shrink:0;
 }
 
 .listing-info{
@@ -248,7 +267,16 @@ main{
   margin-top:10px;
 }
 
-/* FORMS */
+.listing-actions{
+  display:flex;
+  gap:8px;
+  margin-top:14px;
+  flex-wrap:wrap;
+}
+
+/* =========================
+FORMS
+========================= */
 
 .form-card{
   max-width:650px;
@@ -267,8 +295,7 @@ main{
 }
 
 .form-group input,
-.form-group textarea,
-.form-group select{
+.form-group textarea{
   width:100%;
   background:#0b0812;
   color:#fff;
@@ -283,13 +310,19 @@ main{
   resize:vertical;
 }
 
-.form-group input:focus,
-.form-group textarea:focus,
-.form-group select:focus{
-  border-color:#8b5cf6;
+.product-preview{
+  width:100%;
+  max-height:300px;
+  object-fit:contain;
+  background:#0b0812;
+  border-radius:14px;
+  margin-top:12px;
+  border:1px solid #30203f;
 }
 
-/* PROFILE */
+/* =========================
+PROFILE
+========================= */
 
 .profile-card{
   max-width:700px;
@@ -321,7 +354,39 @@ main{
   margin-top:5px;
 }
 
-/* AVATARS */
+/* =========================
+RATING
+========================= */
+
+.rating-box{
+  background:#100b1a;
+  border:1px solid #2b1b3d;
+  border-radius:15px;
+  padding:16px;
+  margin-bottom:22px;
+  text-align:center;
+}
+
+.rating-number{
+  font-size:32px;
+  font-weight:900;
+  color:#c084fc;
+}
+
+.rating-stars{
+  font-size:27px;
+  color:#fbbf24;
+  letter-spacing:3px;
+  margin:5px 0;
+}
+
+.rating-count{
+  color:#999;
+}
+
+/* =========================
+AVATARS
+========================= */
 
 .avatar-grid{
   display:grid;
@@ -372,13 +437,9 @@ main{
   border:3px solid #8b5cf6;
 }
 
-/* CHAT */
-
-.chat-list{
-  display:flex;
-  flex-direction:column;
-  gap:10px;
-}
+/* =========================
+CHATS
+========================= */
 
 .chat-item{
   background:#130d1f;
@@ -386,6 +447,7 @@ main{
   padding:16px;
   border-radius:15px;
   cursor:pointer;
+  margin-bottom:10px;
 }
 
 .chat-item:hover{
@@ -439,16 +501,18 @@ main{
   padding:13px;
 }
 
-/* MOBILE */
-
-.mobile-nav{
-  display:none;
-}
-
 .empty{
   text-align:center;
   color:#777;
   padding:50px 20px;
+}
+
+/* =========================
+MOBILE
+========================= */
+
+.mobile-nav{
+  display:none;
 }
 
 @media(max-width:700px){
@@ -480,7 +544,7 @@ main{
 
   .listing-image{
     width:100%;
-    height:190px;
+    height:220px;
   }
 
   .avatar-grid{
@@ -518,16 +582,16 @@ main{
     flex-direction:column;
   }
 
-  .profile-top{
-    align-items:flex-start;
-  }
 }
+
 </style>
 </head>
 
 <body>
 
-<!-- AUTH -->
+<!-- =========================
+AUTH
+========================= -->
 
 <div id="authGate">
 
@@ -553,7 +617,9 @@ main{
 </div>
 
 
-<!-- HEADER -->
+<!-- =========================
+HEADER
+========================= -->
 
 <header>
 
@@ -609,7 +675,9 @@ main{
 
 <main>
 
-<!-- HOME -->
+<!-- =========================
+HOME
+========================= -->
 
 <section id="home" class="section active">
 
@@ -640,7 +708,9 @@ main{
 </section>
 
 
-<!-- SELL -->
+<!-- =========================
+SELL
+========================= -->
 
 <section id="sell" class="section">
 
@@ -652,7 +722,9 @@ main{
 
     <div class="form-group">
 
-      <label>Игра</label>
+      <label>
+        Игра
+      </label>
 
       <input
         id="sellGame"
@@ -662,9 +734,12 @@ main{
 
     </div>
 
+
     <div class="form-group">
 
-      <label>Название</label>
+      <label>
+        Название товара
+      </label>
 
       <input
         id="sellTitle"
@@ -674,9 +749,12 @@ main{
 
     </div>
 
+
     <div class="form-group">
 
-      <label>Описание</label>
+      <label>
+        Описание
+      </label>
 
       <textarea
         id="sellDescription"
@@ -685,9 +763,12 @@ main{
 
     </div>
 
+
     <div class="form-group">
 
-      <label>Цена</label>
+      <label>
+        Цена
+      </label>
 
       <input
         id="sellPrice"
@@ -698,17 +779,28 @@ main{
 
     </div>
 
+
     <div class="form-group">
 
-      <label>Ссылка на изображение</label>
+      <label>
+        Картинка товара
+      </label>
 
       <input
-        id="sellImage"
-        type="text"
-        placeholder="https://..."
+        id="sellImageFile"
+        type="file"
+        accept="image/*"
+        onchange="previewProductImage()"
+      >
+
+      <img
+        id="productImagePreview"
+        class="product-preview hidden"
+        alt="Предпросмотр"
       >
 
     </div>
+
 
     <button
       class="primary-btn"
@@ -722,7 +814,9 @@ main{
 </section>
 
 
-<!-- CHATS -->
+<!-- =========================
+CHATS
+========================= -->
 
 <section id="chats" class="section">
 
@@ -735,7 +829,9 @@ main{
 </section>
 
 
-<!-- PROFILE -->
+<!-- =========================
+PROFILE
+========================= -->
 
 <section id="profile" class="section">
 
@@ -773,9 +869,37 @@ main{
     </div>
 
 
+    <div class="rating-box">
+
+      <div
+        id="profileRating"
+        class="rating-number"
+      >
+        0.0
+      </div>
+
+      <div
+        id="profileStars"
+        class="rating-stars"
+      >
+        ☆☆☆☆☆
+      </div>
+
+      <div
+        id="profileReviewCount"
+        class="rating-count"
+      >
+        0 отзывов
+      </div>
+
+    </div>
+
+
     <div class="form-group">
 
-      <label>Никнейм</label>
+      <label>
+        Никнейм
+      </label>
 
       <input
         id="nicknameInput"
@@ -806,7 +930,7 @@ main{
       <img
         id="selectedAvatarPreview"
         src=""
-        alt="Выбранный аватар"
+        alt=""
       >
 
     </div>
@@ -822,7 +946,10 @@ main{
 
     <button
       class="primary-btn"
-      style="margin-top:10px;background:#241733;"
+      style="
+        margin-top:10px;
+        background:#241733;
+      "
       onclick="logout()"
     >
       Выйти
@@ -833,7 +960,9 @@ main{
 </section>
 
 
-<!-- CHAT WINDOW -->
+<!-- =========================
+CHAT WINDOW
+========================= -->
 
 <section id="chatWindow" class="section">
 
@@ -861,7 +990,11 @@ main{
         id="chatInput"
         type="text"
         placeholder="Написать сообщение..."
-        onkeydown="if(event.key==='Enter')sendMessage()"
+        onkeydown="
+          if(event.key==='Enter'){
+            sendMessage()
+          }
+        "
       >
 
       <button
@@ -880,7 +1013,9 @@ main{
 </main>
 
 
-<!-- MOBILE NAV -->
+<!-- =========================
+MOBILE NAV
+========================= -->
 
 <div class="mobile-nav">
 
@@ -910,7 +1045,7 @@ main{
 <script>
 
 /* =========================
-   SUPABASE
+SUPABASE
 ========================= */
 
 const SUPABASE_URL =
@@ -930,7 +1065,26 @@ const GITHUB_URL =
 
 
 /* =========================
-   LOCAL AVATARS
+STATE
+========================= */
+
+let currentUser = null;
+
+let listings = [];
+
+let selectedAvatar = null;
+
+let selectedProductImage = null;
+
+let currentChat = null;
+
+let currentReceiver = null;
+
+let currentListing = null;
+
+
+/* =========================
+AVATARS
 ========================= */
 
 function makeAvatar(bg,face){
@@ -957,8 +1111,8 @@ function makeAvatar(bg,face){
 
     <path
       d="M18 88
-         C21 67 34 57 50 57
-         C66 57 79 67 82 88"
+      C21 67 34 57 50 57
+      C66 57 79 67 82 88"
       fill="#ffffff"
     />
 
@@ -986,8 +1140,10 @@ function makeAvatar(bg,face){
 
   </svg>`;
 
-  return "data:image/svg+xml;charset=UTF-8," +
-    encodeURIComponent(svg);
+  return (
+    "data:image/svg+xml;charset=UTF-8," +
+    encodeURIComponent(svg)
+  );
 }
 
 
@@ -1019,27 +1175,12 @@ const AVATARS = [
 
 ];
 
-
-/* =========================
-   STATE
-========================= */
-
-let currentUser = null;
-
-let listings = [];
-
-let selectedAvatar =
-  AVATARS[0];
-
-let currentChat = null;
-
-let currentReceiver = null;
-
-let currentListing = null;
+selectedAvatar =
+AVATARS[0];
 
 
 /* =========================
-   GOOGLE
+GOOGLE LOGIN
 ========================= */
 
 async function loginWithGoogle(){
@@ -1065,7 +1206,6 @@ async function loginWithGoogle(){
 
       });
 
-
     if(result.error){
 
       alert(
@@ -1088,7 +1228,7 @@ async function loginWithGoogle(){
 
 
 /* =========================
-   AUTH
+AUTH GATE
 ========================= */
 
 function showAuthGate(){
@@ -1110,7 +1250,7 @@ function hideAuthGate(){
 
 
 /* =========================
-   INITIALIZE
+INITIALIZE
 ========================= */
 
 async function initialize(){
@@ -1184,7 +1324,7 @@ sb.auth.onAuthStateChange(
 
 
 /* =========================
-   NAVIGATION
+NAVIGATION
 ========================= */
 
 function showSection(section){
@@ -1200,9 +1340,10 @@ function showSection(section){
 
   document
     .querySelectorAll(".section")
-    .forEach(el=>{
-      el.classList.remove("active");
-    });
+    .forEach(
+      el =>
+        el.classList.remove("active")
+    );
 
 
   const target =
@@ -1225,6 +1366,8 @@ function showSection(section){
 
   if(section === "profile"){
 
+    loadProfile();
+
     renderAvatars();
 
   }
@@ -1233,7 +1376,7 @@ function showSection(section){
 
 
 /* =========================
-   PROFILE
+PROFILE
 ========================= */
 
 async function loadProfile(){
@@ -1259,8 +1402,6 @@ async function loadProfile(){
   if(error){
 
     console.error(error);
-
-    return;
 
   }
 
@@ -1291,49 +1432,58 @@ async function loadProfile(){
     avatar;
 
 
-  document
-    .getElementById("nicknameInput")
-    .value = nickname;
+  document.getElementById(
+    "nicknameInput"
+  ).value =
+    nickname;
 
 
-  document
-    .getElementById("profileNickname")
-    .textContent = nickname;
+  document.getElementById(
+    "profileNickname"
+  ).textContent =
+    nickname;
 
 
-  document
-    .getElementById("profileEmail")
-    .textContent =
-      currentUser.email || "";
+  document.getElementById(
+    "profileEmail"
+  ).textContent =
+    currentUser.email || "";
 
 
-  document
-    .getElementById("profileAvatar")
-    .src = avatar;
+  document.getElementById(
+    "profileAvatar"
+  ).src =
+    avatar;
 
 
-  document
-    .getElementById("headerAvatar")
-    .src = avatar;
+  document.getElementById(
+    "selectedAvatarPreview"
+  ).src =
+    avatar;
 
 
-  document
-    .getElementById("headerAvatar")
-    .classList.remove("hidden");
+  document.getElementById(
+    "headerAvatar"
+  ).src =
+    avatar;
 
 
-  document
-    .getElementById("selectedAvatarPreview")
-    .src = avatar;
+  document.getElementById(
+    "headerAvatar"
+  ).classList.remove("hidden");
 
 
   renderAvatars();
+
+  await loadProfileRating(
+    currentUser.id
+  );
 
 }
 
 
 /* =========================
-   AVATAR GRID
+AVATAR GRID
 ========================= */
 
 function renderAvatars(){
@@ -1400,12 +1550,10 @@ function renderAvatars(){
           avatar;
 
 
-        document
-          .getElementById(
-            "selectedAvatarPreview"
-          )
-          .src =
-            avatar;
+        document.getElementById(
+          "selectedAvatarPreview"
+        ).src =
+          avatar;
 
 
         renderAvatars();
@@ -1424,7 +1572,7 @@ function renderAvatars(){
 
 
 /* =========================
-   SAVE PROFILE
+SAVE PROFILE
 ========================= */
 
 async function saveProfile(){
@@ -1482,7 +1630,7 @@ async function saveProfile(){
     console.error(error);
 
     alert(
-      "Ошибка сохранения профиля:\n\n" +
+      "Ошибка сохранения:\n\n" +
       error.message
     );
 
@@ -1491,47 +1639,209 @@ async function saveProfile(){
   }
 
 
-  document
-    .getElementById(
-      "profileNickname"
-    )
-    .textContent =
-      nickname;
+  document.getElementById(
+    "profileNickname"
+  ).textContent =
+    nickname;
 
 
-  document
-    .getElementById(
-      "profileAvatar"
-    )
-    .src =
-      selectedAvatar;
+  document.getElementById(
+    "profileAvatar"
+  ).src =
+    selectedAvatar;
 
 
-  document
-    .getElementById(
-      "headerAvatar"
-    )
-    .src =
-      selectedAvatar;
-
-
-  document
-    .getElementById(
-      "selectedAvatarPreview"
-    )
-    .src =
-      selectedAvatar;
+  document.getElementById(
+    "headerAvatar"
+  ).src =
+    selectedAvatar;
 
 
   alert(
-    "Профиль успешно сохранён!"
+    "Профиль сохранён!"
   );
 
 }
 
 
 /* =========================
-   LISTINGS
+RATING
+========================= */
+
+async function loadProfileRating(userId){
+
+  const {
+    data,
+    error
+  } =
+    await sb
+      .from("reviews")
+      .select("rating")
+      .eq(
+        "seller_id",
+        userId
+      );
+
+
+  if(error){
+
+    console.error(error);
+
+    return;
+
+  }
+
+
+  const reviews =
+    data || [];
+
+
+  const count =
+    reviews.length;
+
+
+  let average = 0;
+
+
+  if(count){
+
+    average =
+      reviews.reduce(
+        (sum,item)=>
+          sum + Number(item.rating),
+        0
+      ) / count;
+
+  }
+
+
+  average =
+    Math.round(
+      average * 10
+    ) / 10;
+
+
+  const rounded =
+    Math.round(average);
+
+
+  const stars =
+    "★".repeat(rounded) +
+    "☆".repeat(
+      5 - rounded
+    );
+
+
+  document.getElementById(
+    "profileRating"
+  ).textContent =
+    average.toFixed(1);
+
+
+  document.getElementById(
+    "profileStars"
+  ).textContent =
+    stars;
+
+
+  document.getElementById(
+    "profileReviewCount"
+  ).textContent =
+    count === 0
+      ? "0 отзывов"
+      : count === 1
+        ? "1 отзыв"
+        : `${count} отзывов`;
+
+}
+
+
+/* =========================
+PRODUCT IMAGE
+========================= */
+
+function previewProductImage(){
+
+  const input =
+    document.getElementById(
+      "sellImageFile"
+    );
+
+
+  const file =
+    input.files[0];
+
+
+  if(!file){
+
+    selectedProductImage =
+      null;
+
+    return;
+
+  }
+
+
+  if(!file.type.startsWith("image/")){
+
+    alert(
+      "Можно выбрать только изображение."
+    );
+
+    input.value = "";
+
+    return;
+
+  }
+
+
+  if(file.size > 5 * 1024 * 1024){
+
+    alert(
+      "Картинка должна быть меньше 5 МБ."
+    );
+
+    input.value = "";
+
+    return;
+
+  }
+
+
+  const reader =
+    new FileReader();
+
+
+  reader.onload = function(){
+
+    selectedProductImage =
+      reader.result;
+
+
+    const preview =
+      document.getElementById(
+        "productImagePreview"
+      );
+
+
+    preview.src =
+      selectedProductImage;
+
+
+    preview.classList.remove(
+      "hidden"
+    );
+
+  };
+
+
+  reader.readAsDataURL(file);
+
+}
+
+
+/* =========================
+LOAD LISTINGS
 ========================= */
 
 async function loadListings(){
@@ -1571,6 +1881,10 @@ async function loadListings(){
 }
 
 
+/* =========================
+RENDER LISTINGS
+========================= */
+
 function renderListings(items){
 
   const container =
@@ -1608,7 +1922,61 @@ function renderListings(items){
 
     const image =
       listing.image_url ||
-      "https://placehold.co/600x400/130d1f/c084fc?text=Delyvex";
+      "https://placehold.co/600x400/130d1f/c084fc?text=Нет+фото";
+
+
+    let actions = "";
+
+
+    if(
+      currentUser &&
+      listing.seller_id !== currentUser.id
+    ){
+
+      actions = `
+
+        <div class="listing-actions">
+
+          <button
+            class="primary-btn"
+            onclick="buyListing('${listing.id}')"
+          >
+            🛒 Купить
+          </button>
+
+          <button
+            class="chat-btn"
+            onclick="
+              openChat(
+                '${listing.id}',
+                '${listing.seller_id}',
+                '${escapeJs(listing.title || "Чат")}'
+              )
+            "
+          >
+            💬 Чат
+          </button>
+
+        </div>
+
+      `;
+
+    }else{
+
+      actions = `
+
+        <div
+          style="
+            margin-top:14px;
+            color:#888;
+          "
+        >
+          Это твоё объявление
+        </div>
+
+      `;
+
+    }
 
 
     card.innerHTML = `
@@ -1616,7 +1984,7 @@ function renderListings(items){
       <img
         class="listing-image"
         src="${escapeHtml(image)}"
-        alt=""
+        alt="Товар"
       >
 
       <div class="listing-info">
@@ -1641,30 +2009,13 @@ function renderListings(items){
 
         <div class="price">
           ${escapeHtml(
-            String(listing.price ?? "")
+            String(
+              listing.price ?? ""
+            )
           )} ₽
         </div>
 
-        ${
-          listing.seller_id &&
-          listing.seller_id !== currentUser?.id
-          ?
-          `<button
-            class="primary-btn"
-            style="margin-top:12px;"
-            onclick="openChat(
-              '${listing.id}',
-              '${listing.seller_id}',
-              '${escapeJs(
-                listing.title || ""
-              )}'
-            )"
-          >
-            Написать продавцу
-          </button>`
-          :
-          ""
-        }
+        ${actions}
 
       </div>
 
@@ -1681,7 +2032,7 @@ function renderListings(items){
 
 
 /* =========================
-   SEARCH
+SEARCH
 ========================= */
 
 function searchListings(){
@@ -1745,7 +2096,7 @@ function searchListings(){
 
 
 /* =========================
-   CREATE LISTING
+CREATE LISTING
 ========================= */
 
 async function createListing(){
@@ -1760,47 +2111,27 @@ async function createListing(){
 
 
   const game =
-    document
-      .getElementById(
-        "sellGame"
-      )
-      .value
-      .trim();
+    document.getElementById(
+      "sellGame"
+    ).value.trim();
 
 
   const title =
-    document
-      .getElementById(
-        "sellTitle"
-      )
-      .value
-      .trim();
+    document.getElementById(
+      "sellTitle"
+    ).value.trim();
 
 
   const description =
-    document
-      .getElementById(
-        "sellDescription"
-      )
-      .value
-      .trim();
+    document.getElementById(
+      "sellDescription"
+    ).value.trim();
 
 
   const price =
-    document
-      .getElementById(
-        "sellPrice"
-      )
-      .value;
-
-
-  const image =
-    document
-      .getElementById(
-        "sellImage"
-      )
-      .value
-      .trim();
+    document.getElementById(
+      "sellPrice"
+    ).value;
 
 
   if(
@@ -1841,7 +2172,7 @@ async function createListing(){
           Number(price),
 
         image_url:
-          image || null
+          selectedProductImage
 
       });
 
@@ -1881,8 +2212,19 @@ async function createListing(){
 
 
   document.getElementById(
-    "sellImage"
+    "sellImageFile"
   ).value = "";
+
+
+  document.getElementById(
+    "productImagePreview"
+  ).classList.add(
+    "hidden"
+  );
+
+
+  selectedProductImage =
+    null;
 
 
   alert(
@@ -1892,15 +2234,263 @@ async function createListing(){
 
   await loadListings();
 
-  showSection(
-    "home"
+  showSection("home");
+
+}
+
+
+/* =========================
+BUY
+========================= */
+
+async function buyListing(listingId){
+
+  if(!currentUser){
+
+    showAuthGate();
+
+    return;
+
+  }
+
+
+  const listing =
+    listings.find(
+      item =>
+        String(item.id) ===
+        String(listingId)
+    );
+
+
+  if(!listing){
+
+    alert(
+      "Объявление не найдено."
+    );
+
+    return;
+
+  }
+
+
+  if(
+    listing.seller_id ===
+    currentUser.id
+  ){
+
+    alert(
+      "Нельзя купить собственное объявление."
+    );
+
+    return;
+
+  }
+
+
+  const confirmed =
+    confirm(
+      `Купить "${listing.title}" за ${listing.price} ₽?`
+    );
+
+
+  if(!confirmed){
+
+    return;
+
+  }
+
+
+  const {
+    data:existing
+  } =
+    await sb
+      .from("purchases")
+      .select("id")
+      .eq(
+        "listing_id",
+        listing.id
+      )
+      .eq(
+        "buyer_id",
+        currentUser.id
+      )
+      .maybeSingle();
+
+
+  if(existing){
+
+    alert(
+      "Ты уже покупал этот товар."
+    );
+
+    return;
+
+  }
+
+
+  const {
+    data:purchase,
+    error
+  } =
+    await sb
+      .from("purchases")
+      .insert({
+
+        listing_id:
+          listing.id,
+
+        buyer_id:
+          currentUser.id,
+
+        seller_id:
+          listing.seller_id,
+
+        price:
+          Number(
+            listing.price
+          )
+
+      })
+      .select()
+      .single();
+
+
+  if(error){
+
+    console.error(error);
+
+    alert(
+      "Ошибка покупки:\n\n" +
+      error.message
+    );
+
+    return;
+
+  }
+
+
+  alert(
+    "Покупка оформлена!"
+  );
+
+
+  await writeReview(
+    purchase,
+    listing
   );
 
 }
 
 
 /* =========================
-   CHATS
+WRITE REVIEW
+========================= */
+
+async function writeReview(
+  purchase,
+  listing
+){
+
+  const ratingText =
+    prompt(
+      "Оцени продавца от 1 до 5:"
+    );
+
+
+  if(
+    ratingText === null
+  ){
+
+    return;
+
+  }
+
+
+  const rating =
+    Number(
+      ratingText
+    );
+
+
+  if(
+    !Number.isInteger(rating) ||
+    rating < 1 ||
+    rating > 5
+  ){
+
+    alert(
+      "Оценка должна быть от 1 до 5."
+    );
+
+    return;
+
+  }
+
+
+  const review =
+    prompt(
+      "Напиши отзыв о продавце:"
+    );
+
+
+  if(review === null){
+
+    return;
+
+  }
+
+
+  const {
+    error
+  } =
+    await sb
+      .from("reviews")
+      .insert({
+
+        purchase_id:
+          purchase.id,
+
+        listing_id:
+          listing.id,
+
+        buyer_id:
+          currentUser.id,
+
+        seller_id:
+          listing.seller_id,
+
+        rating:
+          rating,
+
+        review:
+          review.trim()
+
+      });
+
+
+  if(error){
+
+    console.error(error);
+
+    alert(
+      "Ошибка сохранения отзыва:\n\n" +
+      error.message
+    );
+
+    return;
+
+  }
+
+
+  alert(
+    "⭐ Спасибо! Отзыв сохранён."
+  );
+
+}
+
+
+/* =========================
+CHATS
 ========================= */
 
 async function loadChats(){
@@ -1948,7 +2538,7 @@ async function loadChats(){
 
     container.innerHTML =
       `<div class="empty">
-        Не удалось загрузить чаты.
+        Ошибка загрузки чатов.
       </div>`;
 
     return;
@@ -1960,7 +2550,7 @@ async function loadChats(){
 
     container.innerHTML =
       `<div class="empty">
-        У тебя пока нет сообщений.
+        У тебя пока нет чатов.
       </div>`;
 
     return;
@@ -2012,13 +2602,15 @@ async function loadChats(){
       item.innerHTML = `
 
         <strong>
-          Чат
+          💬 Чат
         </strong>
 
-        <div style="
-          color:#999;
-          margin-top:6px;
-        ">
+        <div
+          style="
+            color:#999;
+            margin-top:6px;
+          "
+        >
           ${escapeHtml(
             message.message
           )}
@@ -2049,7 +2641,7 @@ async function loadChats(){
 
 
 /* =========================
-   OPEN CHAT
+OPEN CHAT
 ========================= */
 
 async function openChat(
@@ -2068,12 +2660,10 @@ async function openChat(
     listingId;
 
 
-  document
-    .getElementById(
-      "chatTitle"
-    )
-    .textContent =
-      title || "Чат";
+  document.getElementById(
+    "chatTitle"
+  ).textContent =
+    title || "Чат";
 
 
   showSection(
@@ -2087,7 +2677,7 @@ async function openChat(
 
 
 /* =========================
-   LOAD MESSAGES
+LOAD MESSAGES
 ========================= */
 
 async function loadMessages(){
@@ -2191,7 +2781,7 @@ async function loadMessages(){
 
 
 /* =========================
-   SEND MESSAGE
+SEND MESSAGE
 ========================= */
 
 async function sendMessage(){
@@ -2267,7 +2857,7 @@ async function sendMessage(){
 
 
 /* =========================
-   LOGOUT
+LOGOUT
 ========================= */
 
 async function logout(){
@@ -2283,7 +2873,7 @@ async function logout(){
 
 
 /* =========================
-   HELPERS
+HELPERS
 ========================= */
 
 function escapeHtml(value){
@@ -2309,7 +2899,7 @@ function escapeJs(value){
 
 
 /* =========================
-   START
+START
 ========================= */
 
 initialize();
