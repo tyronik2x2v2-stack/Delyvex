@@ -90,8 +90,20 @@ footer{text-align:center;color:#737e9f;padding:25px}
     <p class="muted">Создай объявление — оно будет видно другим пользователям.</p>
     <div class="field"><label>Название</label><input id="sellTitle" maxlength="80"></div>
     <div class="field"><label>Описание</label><textarea id="sellDescription" rows="4" maxlength="1000"></textarea></div>
-    <div class="field"><label>Категория</label><select id="sellCategory"><option>Roblox</option><option>Minecraft</option><option>GTA</option><option>CS2</option><option>Другое</option></select></div>
+    <div class="field"><label>Игра</label>
+      <select id="sellCategory">
+        <option value="Roblox">Roblox</option>
+        <option value="Minecraft">Minecraft</option>
+        <option value="GTA">GTA</option>
+        <option value="CS2">CS2</option>
+        <option value="Другое">Другое</option>
+      </select>
+    </div>
     <div class="field"><label>Цена (₽)</label><input id="sellPrice" type="number" min="0" step="1"></div>
+    <label style="display:flex;gap:8px;align-items:flex-start;margin:12px 0;color:#b9c3e5;font-size:13px">
+      <input id="sellPolicy" type="checkbox" style="margin-top:3px">
+      <span>Я согласен с правилами публикации объявления и подтверждаю, что информация в объявлении не нарушает правила Delyvex.</span>
+    </label>
     <button class="primary" id="publishBtn">Опубликовать</button>
     <button class="secondary" id="cancelSellBtn">Отмена</button>
     <div id="sellMessage" class="message"></div>
@@ -186,7 +198,7 @@ function renderListings(){
   if(!items.length){ $("listingsGrid").innerHTML='<div class="empty">Объявлений пока нет.</div>'; return; }
   $("listingsGrid").innerHTML=items.map(x=>`
     <article class="card">
-      <div class="muted">${escapeHtml(x.category||"Другое")}</div>
+      <div class="muted">Игра: ${escapeHtml(x.category||"Другое")}</div>
       <h3>${escapeHtml(x.title||"Без названия")}</h3>
       <p class="muted">${escapeHtml(x.description||"")}</p>
       <div class="price">${escapeHtml(String(x.price??"0"))} ₽</div>
@@ -196,7 +208,7 @@ function renderListings(){
 }
 
 function contactSeller(name){
-  alert("Кнопка «Купить» работает как заявка на связь с продавцом. Реальные платежи и вывод денег пока отключены. Продавец: "+name);
+  alert("Заявка на покупку: продавец — "+name+". Реальные платежи и перевод денег пока отключены.");
 }
 
 function escapeHtml(v){
@@ -343,16 +355,28 @@ $("sellBtn").onclick=()=>{
   if(!currentUser){openAuth("login");return;}
   show($("sellSection")); hide($("editProfileSection")); $("sellTitle").focus();
 };
-$("cancelSellBtn").onclick=()=>hide($("sellSection"));
+$("cancelSellBtn").onclick=()=>{
+  hide($("sellSection"));
+  $("sellPolicy").checked=false;
+};
 $("publishBtn").onclick=async()=>{
   if(!currentUser){setMessage("sellMessage","Сначала войдите.","error");return;}
   const title=$("sellTitle").value.trim(), description=$("sellDescription").value.trim();
   const category=$("sellCategory").value, price=Number($("sellPrice").value);
+  const agreed=$("sellPolicy").checked;
+  const allowed=["Roblox","Minecraft","GTA","CS2","Другое"];
+  if(!allowed.includes(category)){setMessage("sellMessage","Выбери игру.","error");return;}
   if(!title||!description||!Number.isFinite(price)||price<0){setMessage("sellMessage","Заполни все поля корректно.","error");return;}
+  if(!agreed){setMessage("sellMessage","Перед публикацией нужно согласиться с правилами.","error");return;}
   $("publishBtn").disabled=true;
   const {error}=await sb.from("listings").insert({seller_id:currentUser.id,title,description,category,price,is_active:true});
   if(error)setMessage("sellMessage",error.message,"error");
-  else{setMessage("sellMessage","Объявление опубликовано и видно другим пользователям.","ok"); $("sellTitle").value=""; $("sellDescription").value=""; $("sellPrice").value=""; await loadListings();}
+  else{
+    setMessage("sellMessage","Объявление опубликовано и видно другим пользователям.","ok");
+    $("sellTitle").value=""; $("sellDescription").value=""; $("sellPrice").value="";
+    $("sellPolicy").checked=false;
+    await loadListings();
+  }
   $("publishBtn").disabled=false;
 };
 $("editProfileBtn").onclick=openProfileEditor;
