@@ -361,6 +361,11 @@ function googleNickname(user){
   ).trim().slice(0, 30);
 }
 
+/*
+  Описание профиля хранится в Supabase Auth user_metadata.bio.
+  Это сделано специально, потому что в текущей таблице profiles
+  нет колонки bio.
+*/
 /* =========================
    PROFILE
 ========================= */
@@ -388,10 +393,9 @@ async function ensureProfileFromGoogle(user){
         .insert({
           id: user.id,
           username: nickname,
-          bio: "",
           avatar_url: ""
         })
-        .select("id,username,bio,avatar_url")
+        .select("id,username,avatar_url")
         .single();
 
       if(insertError){
@@ -461,7 +465,6 @@ function renderProfile(){
     googleNickname(currentUser);
 
   const bio =
-    currentProfile?.bio ||
     currentUser.user_metadata?.bio ||
     "";
 
@@ -505,20 +508,21 @@ async function saveProfile(){
       .from("profiles")
       .upsert({
         id: currentUser.id,
-        username,
-        bio
+        username
       }, {
         onConflict: "id"
       });
 
     if(error) throw error;
 
-    await sb.auth.updateUser({
+    const { error: authError } = await sb.auth.updateUser({
       data: {
         username,
         bio
       }
     });
+
+    if(authError) throw authError;
 
     await loadCurrentProfile();
     renderProfile();
@@ -558,7 +562,6 @@ async function saveModalProfile(){
       .upsert({
         id: currentUser.id,
         username,
-        bio,
         avatar_url: avatar
       }, {
         onConflict: "id"
@@ -803,39 +806,55 @@ async function loadListings(){
   grid.innerHTML = '<div class="empty">Загрузка объявлений…</div>';
 
   try{
-    const { data, error } = await sb
+    // Сначала получаем сами объявления без JOIN.
+    // Это важно: ошибка в profiles не должна ломать каталог.
+    const { data: listings, error: listingsError } = await sb
       .from("listings")
-      .select(`
-        id,
-        seller_id,
-        title,
-        description,
-        category,
-        price,
-        is_active,
-        created_at,
-        profiles:seller_id (
-          username,
-          avatar_url
-        )
-      `)
+      .select("id,seller_id,title,description,category,price,is_active,created_at")
       .eq("is_active", true)
       .order("created_at", { ascending: false });
 
-    if(error) throw error;
+    if(listingsError) throw listingsError;
 
-    allListings = data || [];
+    allListings = listings || [];
+
+    // Получаем продавцов отдельным запросом.
+    const sellerIds = [
+      ...new Set(
+        allListings
+          .map(item => item.seller_id)
+          .filter(Boolean)
+      )
+    ];
+
+    if(sellerIds.length){
+      const { data: profiles, error: profilesError } = await sb
+        .from("profiles")
+        .select("id,username,avatar_url")
+        .in("id", sellerIds);
+
+      if(!profilesError){
+        const profileMap = new Map(
+          (profiles || []).map(profile => [profile.id, profile])
+        );
+
+        allListings = allListings.map(item => ({
+          ...item,
+          profiles: profileMap.get(item.seller_id) || null
+        }));
+      }else{
+        console.warn("Профили продавцов не загрузились:", profilesError);
+      }
+    }
+
     renderListings();
 
   }catch(error){
     console.error("loadListings:", error);
 
-    /*
-      Если RLS/foreign key настроены иначе, каталог всё равно
-      показывает понятную ошибку вместо падения страницы.
-    */
     grid.innerHTML =
-      '<div class="empty">Не удалось загрузить объявления.<br>' +
+      '<div class="empty">' +
+      '<strong>Не удалось загрузить объявления.</strong><br>' +
       escapeHtml(error?.message || "Ошибка Supabase") +
       '</div>';
   }
@@ -1041,7 +1060,6 @@ function openProfileEditor(){
     googleNickname(currentUser);
 
   $("editBio").value =
-    currentProfile?.bio ||
     currentUser.user_metadata?.bio ||
     "";
 
@@ -1129,7 +1147,6 @@ $("editProfileBtn").addEventListener("click", () => {
     googleNickname(currentUser);
 
   $("profileBioInput").value =
-    currentProfile?.bio ||
     currentUser.user_metadata?.bio ||
     "";
 
@@ -1207,4 +1224,4 @@ $("marketBtn").addEventListener("click", () => {
 })();
 </script>
 </body>
-</html> 
+</html>
