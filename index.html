@@ -2,17 +2,14 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
 
 <title>Delyvex</title>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
-
-*{
-  box-sizing:border-box;
-}
+*{box-sizing:border-box}
 
 body{
   margin:0;
@@ -21,23 +18,9 @@ body{
   font-family:Arial,sans-serif;
 }
 
-button,
-input,
-textarea{
-  font:inherit;
-}
-
-button{
-  cursor:pointer;
-}
-
-.hidden{
-  display:none!important;
-}
-
-/* =========================
-AUTH
-========================= */
+button,input,textarea{font:inherit}
+button{cursor:pointer}
+.hidden{display:none!important}
 
 #authGate{
   position:fixed;
@@ -83,10 +66,6 @@ AUTH
   font-weight:700;
 }
 
-/* =========================
-HEADER
-========================= */
-
 header{
   height:70px;
   background:#100b1a;
@@ -123,9 +102,7 @@ header{
   background:#21152e;
 }
 
-.header-profile{
-  margin-left:10px;
-}
+.header-profile{margin-left:10px}
 
 .header-avatar{
   width:40px;
@@ -135,32 +112,19 @@ header{
   border:2px solid #8b5cf6;
 }
 
-/* =========================
-MAIN
-========================= */
-
 main{
   max-width:1100px;
   margin:auto;
   padding:25px 18px 100px;
 }
 
-.section{
-  display:none;
-}
-
-.section.active{
-  display:block;
-}
+.section{display:none}
+.section.active{display:block}
 
 .page-title{
   font-size:28px;
   margin:0 0 20px;
 }
-
-/* =========================
-SEARCH
-========================= */
 
 .search-box{
   display:flex;
@@ -179,10 +143,6 @@ SEARCH
   outline:none;
 }
 
-/* =========================
-BUTTONS
-========================= */
-
 .primary-btn{
   border:0;
   background:#8b5cf6;
@@ -192,9 +152,7 @@ BUTTONS
   font-weight:700;
 }
 
-.primary-btn:hover{
-  background:#7c3aed;
-}
+.primary-btn:hover{background:#7c3aed}
 
 .chat-btn{
   border:1px solid #8b5cf6;
@@ -205,13 +163,7 @@ BUTTONS
   font-weight:700;
 }
 
-.chat-btn:hover{
-  background:#35204d;
-}
-
-/* =========================
-CARDS
-========================= */
+.chat-btn:hover{background:#35204d}
 
 .card{
   background:#130d1f;
@@ -235,9 +187,7 @@ CARDS
   flex-shrink:0;
 }
 
-.listing-info{
-  flex:1;
-}
+.listing-info{flex:1}
 
 .listing-title{
   font-size:20px;
@@ -267,10 +217,6 @@ CARDS
   margin-top:10px;
 }
 
-/* =========================
-SELLER
-========================= */
-
 .seller-info{
   display:flex;
   align-items:center;
@@ -289,6 +235,7 @@ SELLER
 .seller-rating{
   color:#fbbf24;
   font-size:14px;
+  margin-top:3px;
 }
 
 .listing-actions{
@@ -298,18 +245,12 @@ SELLER
   flex-wrap:wrap;
 }
 
-/* =========================
-FORMS
-========================= */
-
 .form-card{
   max-width:650px;
   margin:auto;
 }
 
-.form-group{
-  margin-bottom:17px;
-}
+.form-group{margin-bottom:17px}
 
 .form-group label{
   display:block;
@@ -344,10 +285,6 @@ FORMS
   border:1px solid #30203f;
 }
 
-/* =========================
-PROFILE
-========================= */
-
 .profile-card{
   max-width:700px;
   margin:auto;
@@ -378,10 +315,6 @@ PROFILE
   margin-top:5px;
 }
 
-/* =========================
-RATING
-========================= */
-
 .rating-box{
   background:#100b1a;
   border:1px solid #2b1b3d;
@@ -404,13 +337,7 @@ RATING
   margin:5px 0;
 }
 
-.rating-count{
-  color:#999;
-}
-
-/* =========================
-AVATARS
-========================= */
+.rating-count{color:#999}
 
 .avatar-grid{
   display:grid;
@@ -461,10 +388,6 @@ AVATARS
   border:3px solid #8b5cf6;
 }
 
-/* =========================
-CHATS
-========================= */
-
 .chat-item{
   background:#130d1f;
   border:1px solid #241733;
@@ -474,9 +397,7 @@ CHATS
   margin-bottom:10px;
 }
 
-.chat-item:hover{
-  border-color:#8b5cf6;
-}
+.chat-item:hover{border-color:#8b5cf6}
 
 .chat-window{
   max-width:750px;
@@ -507,9 +428,7 @@ CHATS
   background:#6d3cc7;
 }
 
-.message.theirs{
-  background:#241733;
-}
+.message.theirs{background:#241733}
 
 .chat-send{
   display:flex;
@@ -531,13 +450,7 @@ CHATS
   padding:50px 20px;
 }
 
-/* =========================
-MOBILE
-========================= */
-
-.mobile-nav{
-  display:none;
-}
+.mobile-nav{display:none}
 
 @media(max-width:700px){
 
@@ -546,17 +459,9 @@ MOBILE
     padding:0 15px;
   }
 
-  .header-logo{
-    font-size:21px;
-  }
-
-  .header-nav{
-    display:none;
-  }
-
-  .header-profile{
-    margin-left:auto;
-  }
+  .header-logo{font-size:21px}
+  .header-nav{display:none}
+  .header-profile{margin-left:auto}
 
   main{
     padding:20px 13px 90px;
@@ -605,23 +510,17 @@ MOBILE
   .search-box{
     flex-direction:column;
   }
-
 }
-
 </style>
 </head>
 
 <body>
 
-<!-- AUTH -->
-
 <div id="authGate">
 
   <div class="auth-box">
 
-    <div class="logo">
-      Delyvex
-    </div>
+    <div class="logo">Delyvex</div>
 
     <p>
       Войди в аккаунт, чтобы пользоваться Delyvex
@@ -639,13 +538,9 @@ MOBILE
 </div>
 
 
-<!-- HEADER -->
-
 <header>
 
-  <div class="header-logo">
-    Delyvex
-  </div>
+  <div class="header-logo">Delyvex</div>
 
   <div class="header-nav">
 
@@ -695,8 +590,6 @@ MOBILE
 
 <main>
 
-<!-- HOME -->
-
 <section id="home" class="section active">
 
   <h1 class="page-title">
@@ -726,8 +619,6 @@ MOBILE
 </section>
 
 
-<!-- SELL -->
-
 <section id="sell" class="section">
 
   <h1 class="page-title">
@@ -738,9 +629,7 @@ MOBILE
 
     <div class="form-group">
 
-      <label>
-        Игра
-      </label>
+      <label>Игра</label>
 
       <input
         id="sellGame"
@@ -752,9 +641,7 @@ MOBILE
 
     <div class="form-group">
 
-      <label>
-        Название товара
-      </label>
+      <label>Название товара</label>
 
       <input
         id="sellTitle"
@@ -766,9 +653,7 @@ MOBILE
 
     <div class="form-group">
 
-      <label>
-        Описание
-      </label>
+      <label>Описание</label>
 
       <textarea
         id="sellDescription"
@@ -779,9 +664,7 @@ MOBILE
 
     <div class="form-group">
 
-      <label>
-        Цена
-      </label>
+      <label>Цена</label>
 
       <input
         id="sellPrice"
@@ -794,9 +677,7 @@ MOBILE
 
     <div class="form-group">
 
-      <label>
-        Картинка товара
-      </label>
+      <label>Картинка товара</label>
 
       <input
         id="sellImageFile"
@@ -825,8 +706,6 @@ MOBILE
 </section>
 
 
-<!-- CHATS -->
-
 <section id="chats" class="section">
 
   <h1 class="page-title">
@@ -837,8 +716,6 @@ MOBILE
 
 </section>
 
-
-<!-- PROFILE -->
 
 <section id="profile" class="section">
 
@@ -902,9 +779,7 @@ MOBILE
 
     <div class="form-group">
 
-      <label>
-        Никнейм
-      </label>
+      <label>Никнейм</label>
 
       <input
         id="nicknameInput"
@@ -917,9 +792,7 @@ MOBILE
 
     <div class="form-group">
 
-      <label>
-        Выбери аватар
-      </label>
+      <label>Выбери аватар</label>
 
       <div
         id="avatarGrid"
@@ -961,8 +834,6 @@ MOBILE
 </section>
 
 
-<!-- CHAT WINDOW -->
-
 <section id="chatWindow" class="section">
 
   <div class="chat-window">
@@ -974,9 +845,7 @@ MOBILE
       ← Назад
     </button>
 
-    <h2 id="chatTitle">
-      Чат
-    </h2>
+    <h2 id="chatTitle">Чат</h2>
 
     <div
       id="chatMessages"
@@ -1011,8 +880,6 @@ MOBILE
 
 </main>
 
-
-<!-- MOBILE NAV -->
 
 <div class="mobile-nav">
 
@@ -1065,19 +932,13 @@ const GITHUB_URL =
 STATE
 ========================= */
 
-let currentUser = null;
-
-let listings = [];
-
-let selectedAvatar = null;
-
-let selectedProductImage = null;
-
-let currentChat = null;
-
-let currentReceiver = null;
-
-let currentListing = null;
+let currentUser=null;
+let listings=[];
+let selectedAvatar=null;
+let selectedProductImage=null;
+let currentChat=null;
+let currentReceiver=null;
+let currentListing=null;
 
 
 /* =========================
@@ -1086,11 +947,8 @@ AVATARS
 
 function makeAvatar(bg,face){
 
-  const svg = `
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    viewBox="0 0 100 100"
-  >
+  const svg=`
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
 
     <circle
       cx="50"
@@ -1107,9 +965,7 @@ function makeAvatar(bg,face){
     />
 
     <path
-      d="M18 88
-      C21 67 34 57 50 57
-      C66 57 79 67 82 88"
+      d="M18 88 C21 67 34 57 50 57 C66 57 79 67 82 88"
       fill="#ffffff"
     />
 
@@ -1137,33 +993,28 @@ function makeAvatar(bg,face){
 
   </svg>`;
 
-  return (
-    "data:image/svg+xml;charset=UTF-8," +
-    encodeURIComponent(svg)
-  );
+  return "data:image/svg+xml;charset=UTF-8,"+
+    encodeURIComponent(svg);
 }
 
 
-const AVATARS = [
+const AVATARS=[
 
   makeAvatar("#8b5cf6","#4c1d95"),
   makeAvatar("#ec4899","#831843"),
   makeAvatar("#3b82f6","#1e3a8a"),
   makeAvatar("#10b981","#064e3b"),
   makeAvatar("#f59e0b","#78350f"),
-
   makeAvatar("#ef4444","#7f1d1d"),
   makeAvatar("#06b6d4","#164e63"),
   makeAvatar("#84cc16","#365314"),
   makeAvatar("#a855f7","#581c87"),
   makeAvatar("#f97316","#7c2d12"),
-
   makeAvatar("#14b8a6","#134e4a"),
   makeAvatar("#e11d48","#881337"),
   makeAvatar("#6366f1","#312e81"),
   makeAvatar("#0ea5e9","#0c4a6e"),
   makeAvatar("#7c3aed","#4c1d95"),
-
   makeAvatar("#db2777","#831843"),
   makeAvatar("#059669","#064e3b"),
   makeAvatar("#ca8a04","#713f12"),
@@ -1172,33 +1023,29 @@ const AVATARS = [
 
 ];
 
-selectedAvatar =
-AVATARS[0];
+selectedAvatar=AVATARS[0];
 
 
 /* =========================
-GOOGLE LOGIN
+AUTH
 ========================= */
 
 async function loginWithGoogle(){
 
   try{
 
-    const result =
+    const result=
       await sb.auth.signInWithOAuth({
 
         provider:"google",
 
         options:{
           redirectTo:GITHUB_URL,
-
           skipBrowserRedirect:false,
-
           queryParams:{
             access_type:"offline",
             prompt:"select_account"
           }
-
         }
 
       });
@@ -1206,7 +1053,7 @@ async function loginWithGoogle(){
     if(result.error){
 
       alert(
-        "Ошибка входа:\n\n" +
+        "Ошибка входа:\n\n"+
         result.error.message
       );
 
@@ -1215,7 +1062,7 @@ async function loginWithGoogle(){
   }catch(error){
 
     alert(
-      "Ошибка входа:\n\n" +
+      "Ошибка входа:\n\n"+
       error.message
     );
 
@@ -1224,10 +1071,6 @@ async function loginWithGoogle(){
 }
 
 
-/* =========================
-AUTH
-========================= */
-
 function showAuthGate(){
 
   document
@@ -1235,6 +1078,7 @@ function showAuthGate(){
     .classList.remove("hidden");
 
 }
+
 
 function hideAuthGate(){
 
@@ -1254,13 +1098,12 @@ async function initialize(){
   const {
     data,
     error
-  } =
+  }=
     await sb.auth.getSession();
 
   if(error){
 
     console.error(error);
-
     return;
 
   }
@@ -1268,12 +1111,11 @@ async function initialize(){
   if(!data.session){
 
     showAuthGate();
-
     return;
 
   }
 
-  currentUser =
+  currentUser=
     data.session.user;
 
   hideAuthGate();
@@ -1292,7 +1134,7 @@ sb.auth.onAuthStateChange(
 
     if(session){
 
-      currentUser =
+      currentUser=
         session.user;
 
       hideAuthGate();
@@ -1305,8 +1147,7 @@ sb.auth.onAuthStateChange(
 
     }else{
 
-      currentUser =
-        null;
+      currentUser=null;
 
       showAuthGate();
 
@@ -1325,7 +1166,6 @@ function showSection(section){
   if(!currentUser){
 
     showAuthGate();
-
     return;
 
   }
@@ -1333,31 +1173,23 @@ function showSection(section){
   document
     .querySelectorAll(".section")
     .forEach(
-      el =>
-        el.classList.remove("active")
+      el=>el.classList.remove("active")
     );
 
-  const target =
+  const target=
     document.getElementById(section);
 
   if(target){
-
     target.classList.add("active");
-
   }
 
-  if(section === "chats"){
-
+  if(section==="chats"){
     loadChats();
-
   }
 
-  if(section === "profile"){
-
+  if(section==="profile"){
     loadProfile();
-
     renderAvatars();
-
   }
 
 }
@@ -1369,16 +1201,12 @@ PROFILE
 
 async function loadProfile(){
 
-  if(!currentUser){
-
-    return;
-
-  }
+  if(!currentUser)return;
 
   const {
     data,
     error
-  } =
+  }=
     await sb
       .from("profiles")
       .select("*")
@@ -1386,62 +1214,51 @@ async function loadProfile(){
       .maybeSingle();
 
   if(error){
-
     console.error(error);
-
   }
 
-  const nickname =
-    data?.nickname ||
-    currentUser.user_metadata?.full_name ||
-    currentUser.user_metadata?.name ||
+  const nickname=
+    data?.nickname||
+    currentUser.user_metadata?.full_name||
+    currentUser.user_metadata?.name||
     "Пользователь";
 
-  let avatar =
+  let avatar=
     data?.avatar_url;
 
   if(
-    !avatar ||
+    !avatar||
     !avatar.startsWith("data:image")
   ){
-
-    avatar =
-      AVATARS[0];
-
+    avatar=AVATARS[0];
   }
 
-  selectedAvatar =
-    avatar;
+  selectedAvatar=avatar;
 
   document.getElementById(
     "nicknameInput"
-  ).value =
-    nickname;
+  ).value=nickname;
 
   document.getElementById(
     "profileNickname"
-  ).textContent =
-    nickname;
+  ).textContent=nickname;
 
   document.getElementById(
     "profileEmail"
-  ).textContent =
-    currentUser.email || "";
+  ).textContent=
+    currentUser.email||"";
 
   document.getElementById(
     "profileAvatar"
-  ).src =
-    avatar;
+  ).src=avatar;
 
   document.getElementById(
     "selectedAvatarPreview"
-  ).src =
-    avatar;
+  ).src=avatar;
 
   document.getElementById(
     "headerAvatar"
-  ).src =
-    avatar;
+  ).src=avatar;
 
   document.getElementById(
     "headerAvatar"
@@ -1457,74 +1274,57 @@ async function loadProfile(){
 
 
 /* =========================
-AVATAR GRID
+AVATARS
 ========================= */
 
 function renderAvatars(){
 
-  const grid =
+  const grid=
     document.getElementById(
       "avatarGrid"
     );
 
-  if(!grid){
+  if(!grid)return;
 
-    return;
-
-  }
-
-  grid.innerHTML = "";
+  grid.innerHTML="";
 
   AVATARS.forEach(
     (avatar,index)=>{
 
-      const button =
-        document.createElement(
-          "button"
-        );
+      const button=
+        document.createElement("button");
 
-      button.type =
-        "button";
+      button.type="button";
 
-      button.className =
-        "avatar-option" +
+      button.className=
+        "avatar-option"+
         (
-          selectedAvatar === avatar
-            ? " selected"
-            : ""
+          selectedAvatar===avatar
+            ?" selected"
+            :""
         );
 
-      const img =
-        document.createElement(
-          "img"
-        );
+      const img=
+        document.createElement("img");
 
-      img.src =
-        avatar;
-
-      img.alt =
-        "Аватар " +
-        (index + 1);
+      img.src=avatar;
+      img.alt="Аватар "+(index+1);
 
       button.appendChild(img);
 
-      button.onclick = ()=>{
+      button.onclick=()=>{
 
-        selectedAvatar =
-          avatar;
+        selectedAvatar=avatar;
 
         document.getElementById(
           "selectedAvatarPreview"
-        ).src =
-          avatar;
+        ).src=avatar;
 
         renderAvatars();
 
       };
 
-      grid.appendChild(
-        button
-      );
+      grid.appendChild(button);
 
     }
   );
@@ -1532,53 +1332,36 @@ function renderAvatars(){
 }
 
 
-/* =========================
-SAVE PROFILE
-========================= */
-
 async function saveProfile(){
 
   if(!currentUser){
-
     showAuthGate();
-
     return;
-
   }
 
-  const nickname =
+  const nickname=
     document
-      .getElementById(
-        "nicknameInput"
-      )
+      .getElementById("nicknameInput")
       .value
       .trim();
 
   if(!nickname){
 
-    alert(
-      "Введите никнейм."
-    );
-
+    alert("Введите никнейм.");
     return;
 
   }
 
   const {
     error
-  } =
+  }=
     await sb
       .from("profiles")
       .upsert({
 
-        id:
-          currentUser.id,
-
-        nickname:
-          nickname,
-
-        avatar_url:
-          selectedAvatar
+        id:currentUser.id,
+        nickname:nickname,
+        avatar_url:selectedAvatar
 
       });
 
@@ -1587,7 +1370,7 @@ async function saveProfile(){
     console.error(error);
 
     alert(
-      "Ошибка сохранения:\n\n" +
+      "Ошибка сохранения:\n\n"+
       error.message
     );
 
@@ -1597,28 +1380,23 @@ async function saveProfile(){
 
   document.getElementById(
     "profileNickname"
-  ).textContent =
-    nickname;
+  ).textContent=nickname;
 
   document.getElementById(
     "profileAvatar"
-  ).src =
-    selectedAvatar;
+  ).src=selectedAvatar;
 
   document.getElementById(
     "headerAvatar"
-  ).src =
-    selectedAvatar;
+  ).src=selectedAvatar;
 
-  alert(
-    "Профиль сохранён!"
-  );
+  alert("Профиль сохранён!");
 
 }
 
 
 /* =========================
-PROFILE RATING
+RATING
 ========================= */
 
 async function loadProfileRating(userId){
@@ -1626,102 +1404,70 @@ async function loadProfileRating(userId){
   const {
     data,
     error
-  } =
+  }=
     await sb
       .from("reviews")
       .select("rating")
-      .eq(
-        "seller_id",
-        userId
-      );
+      .eq("seller_id",userId);
 
   if(error){
 
     console.error(error);
-
     return;
 
   }
 
-  const reviews =
-    data || [];
+  const reviews=data||[];
 
-  const count =
-    reviews.length;
+  const count=reviews.length;
 
-  let average = 0;
+  let average=0;
 
   if(count){
 
-    average =
+    average=
       reviews.reduce(
         (sum,item)=>
-          sum + Number(item.rating),
+          sum+Number(item.rating),
         0
-      ) / count;
+      )/count;
 
   }
 
-  average =
-    Math.round(
-      average * 10
-    ) / 10;
+  average=
+    Math.round(average*10)/10;
 
-  const rounded =
-    Math.round(average);
+  const rounded=Math.round(average);
 
-  const stars =
-    "★".repeat(rounded) +
-    "☆".repeat(
-      5 - rounded
-    );
+  const stars=
+    "★".repeat(rounded)+
+    "☆".repeat(5-rounded);
 
   document.getElementById(
     "profileRating"
-  ).textContent =
+  ).textContent=
     average.toFixed(1);
 
   document.getElementById(
     "profileStars"
-  ).textContent =
-    stars;
+  ).textContent=stars;
 
   document.getElementById(
     "profileReviewCount"
-  ).textContent =
+  ).textContent=
     getReviewText(count);
 
 }
 
 
-/* =========================
-REVIEW TEXT
-========================= */
-
 function getReviewText(count){
 
-  if(count === 0){
+  if(count===0)return"0 отзывов";
+  if(count===1)return"1 отзыв";
+  if(count>=2&&count<=4)
+    return`${count} отзыва`;
 
-    return "0 отзывов";
-
-  }
-
-  if(count === 1){
-
-    return "1 отзыв";
-
-  }
-
-  if(
-    count >= 2 &&
-    count <= 4
-  ){
-
-    return `${count} отзыва`;
-
-  }
-
-  return `${count} отзывов`;
+  return`${count} отзывов`;
 
 }
 
@@ -1732,19 +1478,16 @@ PRODUCT IMAGE
 
 function previewProductImage(){
 
-  const input =
+  const input=
     document.getElementById(
       "sellImageFile"
     );
 
-  const file =
-    input.files[0];
+  const file=input.files[0];
 
   if(!file){
 
-    selectedProductImage =
-      null;
-
+    selectedProductImage=null;
     return;
 
   }
@@ -1755,38 +1498,35 @@ function previewProductImage(){
       "Можно выбрать только изображение."
     );
 
-    input.value = "";
-
+    input.value="";
     return;
 
   }
 
-  if(file.size > 5 * 1024 * 1024){
+  if(file.size>5*1024*1024){
 
     alert(
       "Картинка должна быть меньше 5 МБ."
     );
 
-    input.value = "";
-
+    input.value="";
     return;
 
   }
 
-  const reader =
-    new FileReader();
+  const reader=new FileReader();
 
-  reader.onload = function(){
+  reader.onload=function(){
 
-    selectedProductImage =
+    selectedProductImage=
       reader.result;
 
-    const preview =
+    const preview=
       document.getElementById(
         "productImagePreview"
       );
 
-    preview.src =
+    preview.src=
       selectedProductImage;
 
     preview.classList.remove(
@@ -1806,10 +1546,21 @@ LOAD LISTINGS
 
 async function loadListings(){
 
+  const container=
+    document.getElementById(
+      "listingsContainer"
+    );
+
+  container.innerHTML=`
+    <div class="empty">
+      Загрузка объявлений...
+    </div>
+  `;
+
   const {
     data,
     error
-  } =
+  }=
     await sb
       .from("listings")
       .select("*")
@@ -1824,12 +1575,40 @@ async function loadListings(){
 
     console.error(error);
 
+    container.innerHTML=`
+      <div class="empty">
+        Ошибка загрузки объявлений.
+      </div>
+    `;
+
     return;
 
   }
 
-  listings =
-    data || [];
+  /*
+    Удаляем дубликаты по ID.
+  */
+
+  const uniqueListings=[];
+  const seenIds=new Set();
+
+  (data||[]).forEach(listing=>{
+
+    const id=String(listing.id);
+
+    if(seenIds.has(id)){
+      return;
+    }
+
+    seenIds.add(id);
+
+    uniqueListings.push(
+      listing
+    );
+
+  });
+
+  listings=uniqueListings;
 
   await renderListings(
     listings
@@ -1844,19 +1623,26 @@ RENDER LISTINGS
 
 async function renderListings(items){
 
-  const container =
+  const container=
     document.getElementById(
       "listingsContainer"
     );
 
-  container.innerHTML = "";
+  /*
+    Главное исправление:
+    полностью очищаем список.
+  */
 
-  if(!items.length){
+  container.innerHTML="";
 
-    container.innerHTML =
-      `<div class="empty">
+
+  if(!items||!items.length){
+
+    container.innerHTML=`
+      <div class="empty">
         Объявлений пока нет.
-      </div>`;
+      </div>
+    `;
 
     return;
 
@@ -1864,193 +1650,222 @@ async function renderListings(items){
 
 
   /*
-    Загружаем данные продавцов
-    заранее, чтобы не делать
-    запросы внутри каждого
-    объявления.
+    Ещё раз удаляем дубликаты.
   */
 
-  const sellerIds =
-    [
-      ...new Set(
-        items.map(
-          item => item.seller_id
-        )
-      )
-    ];
-
-
-  const {
-    data:profiles,
-    error:profilesError
-  } =
-    await sb
-      .from("profiles")
-      .select(
-        "id,nickname,avatar_url"
-      )
-      .in(
-        "id",
-        sellerIds
-      );
-
-
-  if(profilesError){
-
-    console.error(
-      profilesError
-    );
-
-  }
-
-
-  const {
-    data:reviews,
-    error:reviewsError
-  } =
-    await sb
-      .from("reviews")
-      .select(
-        "seller_id,rating"
-      )
-      .in(
-        "seller_id",
-        sellerIds
-      );
-
-
-  if(reviewsError){
-
-    console.error(
-      reviewsError
-    );
-
-  }
-
-
-  const profileMap =
-    new Map();
-
-  (profiles || [])
-    .forEach(profile=>{
-
-      profileMap.set(
-        profile.id,
-        profile
-      );
-
-    });
-
-
-  const reviewMap =
-    new Map();
-
-
-  (reviews || [])
-    .forEach(review=>{
-
-      if(
-        !reviewMap.has(
-          review.seller_id
-        )
-      ){
-
-        reviewMap.set(
-          review.seller_id,
-          []
-        );
-
-      }
-
-      reviewMap
-        .get(review.seller_id)
-        .push(
-          Number(review.rating)
-        );
-
-    });
-
+  const uniqueItems=[];
+  const seenIds=new Set();
 
   items.forEach(listing=>{
 
-    const card =
-      document.createElement(
-        "div"
+    const id=String(listing.id);
+
+    if(seenIds.has(id)){
+      return;
+    }
+
+    seenIds.add(id);
+
+    uniqueItems.push(
+      listing
+    );
+
+  });
+
+
+  /*
+    ID продавцов.
+  */
+
+  const sellerIds=[
+    ...new Set(
+      uniqueItems.map(
+        item=>item.seller_id
+      )
+    )
+  ];
+
+
+  let profiles=[];
+  let reviews=[];
+
+
+  if(sellerIds.length){
+
+    const {
+      data:profileData,
+      error:profileError
+    }=
+      await sb
+        .from("profiles")
+        .select(
+          "id,nickname,avatar_url"
+        )
+        .in(
+          "id",
+          sellerIds
+        );
+
+    if(profileError){
+
+      console.error(
+        "Ошибка профилей:",
+        profileError
       );
 
-    card.className =
+    }else{
+
+      profiles=
+        profileData||[];
+
+    }
+
+
+    const {
+      data:reviewData,
+      error:reviewError
+    }=
+      await sb
+        .from("reviews")
+        .select(
+          "seller_id,rating"
+        )
+        .in(
+          "seller_id",
+          sellerIds
+        );
+
+    if(reviewError){
+
+      console.error(
+        "Ошибка отзывов:",
+        reviewError
+      );
+
+    }else{
+
+      reviews=
+        reviewData||[];
+
+    }
+
+  }
+
+
+  const profileMap=
+    new Map();
+
+  profiles.forEach(profile=>{
+
+    profileMap.set(
+      profile.id,
+      profile
+    );
+
+  });
+
+
+  const reviewMap=
+    new Map();
+
+  reviews.forEach(review=>{
+
+    if(
+      !reviewMap.has(
+        review.seller_id
+      )
+    ){
+
+      reviewMap.set(
+        review.seller_id,
+        []
+      );
+
+    }
+
+    reviewMap
+      .get(review.seller_id)
+      .push(
+        Number(review.rating)
+      );
+
+  });
+
+
+  /*
+    Создаём КАЖДУЮ карточку только один раз.
+  */
+
+  uniqueItems.forEach(listing=>{
+
+    const card=
+      document.createElement("div");
+
+    card.className=
       "card listing-card";
 
 
-    const image =
-      listing.image_url ||
+    const image=
+      listing.image_url||
       "https://placehold.co/600x400/130d1f/c084fc?text=Нет+фото";
 
 
-    /*
-      Данные продавца
-    */
-
-    const profile =
+    const profile=
       profileMap.get(
         listing.seller_id
       );
 
 
-    const sellerName =
-      profile?.nickname ||
+    const sellerName=
+      profile?.nickname||
       "Продавец";
 
 
-    const sellerReviews =
+    const sellerAvatar=
+      profile?.avatar_url||
+      AVATARS[0];
+
+
+    const sellerReviews=
       reviewMap.get(
         listing.seller_id
-      ) || [];
+      )||[];
 
 
-    const reviewCount =
+    const reviewCount=
       sellerReviews.length;
 
 
-    let sellerRating = 0;
+    let sellerRating=0;
 
 
     if(reviewCount){
 
-      sellerRating =
+      sellerRating=
         sellerReviews.reduce(
           (sum,rating)=>
-            sum + rating,
+            sum+rating,
           0
-        ) / reviewCount;
+        )/reviewCount;
 
     }
 
 
-    sellerRating =
+    sellerRating=
       Math.round(
-        sellerRating * 10
-      ) / 10;
+        sellerRating*10
+      )/10;
 
 
-    const sellerAvatar =
-      profile?.avatar_url ||
-      AVATARS[0];
-
-
-    /*
-      Кнопки
-    */
-
-    let actions = "";
+    let actions="";
 
 
     if(
-      currentUser &&
-      listing.seller_id !== currentUser.id
+      currentUser&&
+      listing.seller_id!==currentUser.id
     ){
 
-      actions = `
+      actions=`
 
         <div class="listing-actions">
 
@@ -2070,7 +1885,7 @@ async function renderListings(items){
                 '${listing.id}',
                 '${listing.seller_id}',
                 '${escapeJs(
-                  listing.title || "Чат"
+                  listing.title||"Чат"
                 )}'
               )
             "
@@ -2084,7 +1899,7 @@ async function renderListings(items){
 
     }else{
 
-      actions = `
+      actions=`
 
         <div
           style="
@@ -2100,11 +1915,7 @@ async function renderListings(items){
     }
 
 
-    /*
-      Карточка товара
-    */
-
-    card.innerHTML = `
+    card.innerHTML=`
 
       <img
         class="listing-image"
@@ -2116,37 +1927,30 @@ async function renderListings(items){
 
         <div class="game-tag">
           ${escapeHtml(
-            listing.game || "Игра"
+            listing.game||"Игра"
           )}
         </div>
 
-
         <div class="listing-title">
           ${escapeHtml(
-            listing.title ||
+            listing.title||
             "Без названия"
           )}
         </div>
 
-
         <div class="description">
           ${escapeHtml(
-            listing.description ||
-            ""
+            listing.description||""
           )}
         </div>
-
 
         <div class="price">
           ${escapeHtml(
             String(
-              listing.price ?? ""
+              listing.price??""
             )
           )} ₽
         </div>
-
-
-        <!-- ПРОДАВЕЦ -->
 
         <div class="seller-info">
 
@@ -2175,9 +1979,7 @@ async function renderListings(items){
             <div class="seller-rating">
 
               ⭐ ${sellerRating.toFixed(1)}
-
               ·
-
               ${getReviewText(
                 reviewCount
               )}
@@ -2188,17 +1990,13 @@ async function renderListings(items){
 
         </div>
 
-
         ${actions}
 
       </div>
-
     `;
 
 
-    container.appendChild(
-      card
-    );
+    container.appendChild(card);
 
   });
 
@@ -2211,7 +2009,7 @@ SEARCH
 
 async function searchListings(){
 
-  const query =
+  const query=
     document
       .getElementById(
         "searchInput"
@@ -2232,30 +2030,27 @@ async function searchListings(){
   }
 
 
-  const result =
+  const result=
     listings.filter(item=>{
 
-      const game =
+      const game=
         String(
-          item.game || ""
+          item.game||""
         ).toLowerCase();
 
-
-      const title =
+      const title=
         String(
-          item.title || ""
+          item.title||""
         ).toLowerCase();
 
-
-      const description =
+      const description=
         String(
-          item.description || ""
+          item.description||""
         ).toLowerCase();
-
 
       return(
-        game.includes(query) ||
-        title.includes(query) ||
+        game.includes(query)||
+        title.includes(query)||
         description.includes(query)
       );
 
@@ -2278,50 +2073,41 @@ async function createListing(){
   if(!currentUser){
 
     showAuthGate();
-
     return;
 
   }
 
 
-  const game =
+  const game=
     document
-      .getElementById(
-        "sellGame"
-      )
+      .getElementById("sellGame")
       .value
       .trim();
 
 
-  const title =
+  const title=
     document
-      .getElementById(
-        "sellTitle"
-      )
+      .getElementById("sellTitle")
       .value
       .trim();
 
 
-  const description =
+  const description=
     document
-      .getElementById(
-        "sellDescription"
-      )
+      .getElementById("sellDescription")
       .value
       .trim();
 
 
-  const price =
+  const price=
     document
-      .getElementById(
-        "sellPrice"
-      )
+      .getElementById("sellPrice")
       .value;
 
 
   if(
-    !game ||
-    !title ||
+    !game||
+    !title||
     !price
   ){
 
@@ -2336,7 +2122,7 @@ async function createListing(){
 
   const {
     error
-  } =
+  }=
     await sb
       .from("listings")
       .insert({
@@ -2367,7 +2153,7 @@ async function createListing(){
     console.error(error);
 
     alert(
-      "Ошибка публикации:\n\n" +
+      "Ошибка публикации:\n\n"+
       error.message
     );
 
@@ -2378,28 +2164,23 @@ async function createListing(){
 
   document.getElementById(
     "sellGame"
-  ).value = "";
-
+  ).value="";
 
   document.getElementById(
     "sellTitle"
-  ).value = "";
-
+  ).value="";
 
   document.getElementById(
     "sellDescription"
-  ).value = "";
-
+  ).value="";
 
   document.getElementById(
     "sellPrice"
-  ).value = "";
-
+  ).value="";
 
   document.getElementById(
     "sellImageFile"
-  ).value = "";
-
+  ).value="";
 
   document.getElementById(
     "productImagePreview"
@@ -2407,15 +2188,11 @@ async function createListing(){
     "hidden"
   );
 
-
-  selectedProductImage =
-    null;
-
+  selectedProductImage=null;
 
   alert(
     "Объявление опубликовано!"
   );
-
 
   await loadListings();
 
@@ -2433,16 +2210,15 @@ async function buyListing(listingId){
   if(!currentUser){
 
     showAuthGate();
-
     return;
 
   }
 
 
-  const listing =
+  const listing=
     listings.find(
-      item =>
-        String(item.id) ===
+      item=>
+        String(item.id)===
         String(listingId)
     );
 
@@ -2459,7 +2235,7 @@ async function buyListing(listingId){
 
 
   if(
-    listing.seller_id ===
+    listing.seller_id===
     currentUser.id
   ){
 
@@ -2472,22 +2248,18 @@ async function buyListing(listingId){
   }
 
 
-  const confirmed =
+  const confirmed=
     confirm(
       `Купить "${listing.title}" за ${listing.price} ₽?`
     );
 
 
-  if(!confirmed){
-
-    return;
-
-  }
+  if(!confirmed)return;
 
 
   const {
     data:existing
-  } =
+  }=
     await sb
       .from("purchases")
       .select("id")
@@ -2516,7 +2288,7 @@ async function buyListing(listingId){
   const {
     data:purchase,
     error
-  } =
+  }=
     await sb
       .from("purchases")
       .insert({
@@ -2545,7 +2317,7 @@ async function buyListing(listingId){
     console.error(error);
 
     alert(
-      "Ошибка покупки:\n\n" +
+      "Ошибка покупки:\n\n"+
       error.message
     );
 
@@ -2576,31 +2348,23 @@ async function writeReview(
   listing
 ){
 
-  const ratingText =
+  const ratingText=
     prompt(
       "Оцени продавца от 1 до 5:"
     );
 
 
-  if(
-    ratingText === null
-  ){
-
-    return;
-
-  }
+  if(ratingText===null)return;
 
 
-  const rating =
-    Number(
-      ratingText
-    );
+  const rating=
+    Number(ratingText);
 
 
   if(
-    !Number.isInteger(rating) ||
-    rating < 1 ||
-    rating > 5
+    !Number.isInteger(rating)||
+    rating<1||
+    rating>5
   ){
 
     alert(
@@ -2612,22 +2376,18 @@ async function writeReview(
   }
 
 
-  const review =
+  const review=
     prompt(
       "Напиши отзыв о продавце:"
     );
 
 
-  if(review === null){
-
-    return;
-
-  }
+  if(review===null)return;
 
 
   const {
     error
-  } =
+  }=
     await sb
       .from("reviews")
       .insert({
@@ -2658,7 +2418,7 @@ async function writeReview(
     console.error(error);
 
     alert(
-      "Ошибка сохранения отзыва:\n\n" +
+      "Ошибка сохранения отзыва:\n\n"+
       error.message
     );
 
@@ -2687,29 +2447,26 @@ CHATS
 
 async function loadChats(){
 
-  if(!currentUser){
-
-    return;
-
-  }
+  if(!currentUser)return;
 
 
-  const container =
+  const container=
     document.getElementById(
       "chatsContainer"
     );
 
 
-  container.innerHTML =
-    `<div class="empty">
+  container.innerHTML=`
+    <div class="empty">
       Загрузка чатов...
-    </div>`;
+    </div>
+  `;
 
 
   const {
     data,
     error
-  } =
+  }=
     await sb
       .from("messages")
       .select("*")
@@ -2728,10 +2485,11 @@ async function loadChats(){
 
     console.error(error);
 
-    container.innerHTML =
-      `<div class="empty">
+    container.innerHTML=`
+      <div class="empty">
         Ошибка загрузки чатов.
-      </div>`;
+      </div>
+    `;
 
     return;
 
@@ -2740,27 +2498,27 @@ async function loadChats(){
 
   if(!data?.length){
 
-    container.innerHTML =
-      `<div class="empty">
+    container.innerHTML=`
+      <div class="empty">
         У тебя пока нет чатов.
-      </div>`;
+      </div>
+    `;
 
     return;
 
   }
 
 
-  const chats =
-    new Map();
+  const chats=new Map();
 
 
   data.forEach(message=>{
 
-    const other =
-      message.sender_id ===
+    const other=
+      message.sender_id===
       currentUser.id
-        ? message.receiver_id
-        : message.sender_id;
+        ?message.receiver_id
+        :message.sender_id;
 
 
     if(!chats.has(other)){
@@ -2775,23 +2533,19 @@ async function loadChats(){
   });
 
 
-  container.innerHTML = "";
+  container.innerHTML="";
 
 
   chats.forEach(
     (message,otherId)=>{
 
-      const item =
-        document.createElement(
-          "div"
-        );
+      const item=
+        document.createElement("div");
 
-
-      item.className =
+      item.className=
         "chat-item";
 
-
-      item.innerHTML = `
+      item.innerHTML=`
 
         <strong>
           💬 Чат
@@ -2810,8 +2564,7 @@ async function loadChats(){
 
       `;
 
-
-      item.onclick = ()=>{
+      item.onclick=()=>{
 
         openChat(
           message.listing_id,
@@ -2821,10 +2574,7 @@ async function loadChats(){
 
       };
 
-
-      container.appendChild(
-        item
-      );
+      container.appendChild(item);
 
     }
   );
@@ -2842,26 +2592,16 @@ async function openChat(
   title
 ){
 
-  currentChat =
-    listingId;
-
-  currentReceiver =
-    receiverId;
-
-  currentListing =
-    listingId;
-
+  currentChat=listingId;
+  currentReceiver=receiverId;
+  currentListing=listingId;
 
   document.getElementById(
     "chatTitle"
-  ).textContent =
-    title || "Чат";
+  ).textContent=
+    title||"Чат";
 
-
-  showSection(
-    "chatWindow"
-  );
-
+  showSection("chatWindow");
 
   await loadMessages();
 
@@ -2874,22 +2614,23 @@ LOAD MESSAGES
 
 async function loadMessages(){
 
-  const container =
+  const container=
     document.getElementById(
       "chatMessages"
     );
 
 
-  container.innerHTML =
-    `<div class="empty">
+  container.innerHTML=`
+    <div class="empty">
       Загрузка...
-    </div>`;
+    </div>
+  `;
 
 
   const {
     data,
     error
-  } =
+  }=
     await sb
       .from("messages")
       .select("*")
@@ -2912,25 +2653,27 @@ async function loadMessages(){
 
     console.error(error);
 
-    container.innerHTML =
-      `<div class="empty">
+    container.innerHTML=`
+      <div class="empty">
         Ошибка загрузки сообщений.
-      </div>`;
+      </div>
+    `;
 
     return;
 
   }
 
 
-  container.innerHTML = "";
+  container.innerHTML="";
 
 
   if(!data?.length){
 
-    container.innerHTML =
-      `<div class="empty">
+    container.innerHTML=`
+      <div class="empty">
         Начни общение.
-      </div>`;
+      </div>
+    `;
 
     return;
 
@@ -2939,34 +2682,27 @@ async function loadMessages(){
 
   data.forEach(message=>{
 
-    const div =
-      document.createElement(
-        "div"
-      );
+    const div=
+      document.createElement("div");
 
-
-    div.className =
-      "message " +
+    div.className=
+      "message "+
       (
-        message.sender_id ===
+        message.sender_id===
         currentUser.id
-          ? "mine"
-          : "theirs"
+          ?"mine"
+          :"theirs"
       );
 
-
-    div.textContent =
+    div.textContent=
       message.message;
 
-
-    container.appendChild(
-      div
-    );
+    container.appendChild(div);
 
   });
 
 
-  container.scrollTop =
+  container.scrollTop=
     container.scrollHeight;
 
 }
@@ -2979,35 +2715,27 @@ SEND MESSAGE
 async function sendMessage(){
 
   if(
-    !currentUser ||
+    !currentUser||
     !currentReceiver
-  ){
-
-    return;
-
-  }
+  )return;
 
 
-  const input =
+  const input=
     document.getElementById(
       "chatInput"
     );
 
 
-  const message =
+  const message=
     input.value.trim();
 
 
-  if(!message){
-
-    return;
-
-  }
+  if(!message)return;
 
 
   const {
     error
-  } =
+  }=
     await sb
       .from("messages")
       .insert({
@@ -3032,7 +2760,7 @@ async function sendMessage(){
     console.error(error);
 
     alert(
-      "Ошибка отправки:\n\n" +
+      "Ошибка отправки:\n\n"+
       error.message
     );
 
@@ -3041,7 +2769,7 @@ async function sendMessage(){
   }
 
 
-  input.value = "";
+  input.value="";
 
   await loadMessages();
 
@@ -3056,8 +2784,7 @@ async function logout(){
 
   await sb.auth.signOut();
 
-  currentUser =
-    null;
+  currentUser=null;
 
   showAuthGate();
 
