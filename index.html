@@ -269,7 +269,8 @@ const sb = window.supabase.createClient(
     auth: {
       persistSession: true,
       autoRefreshToken: true,
-      detectSessionInUrl: true
+      detectSessionInUrl: false,
+      flowType: "pkce"
     }
   }
 );
@@ -598,58 +599,36 @@ async function loginWithGoogle(){
   setMessage("authMessage", "Открываем Google…");
 
   try{
-    /*
-      ВАЖНО:
-      Supabase должен разрешить этот URL в:
-      Authentication -> URL Configuration -> Redirect URLs
-
-      Для локального запуска:
-      http://localhost:5500/
-
-      Для сайта:
-      https://твой-домен.ru/
-    */
-
-    // Возвращаемся именно на текущую страницу без OAuth-параметров.
-    // Это надёжнее работает и на GitHub Pages, и на обычном домене.
-    if (window.location.protocol !== "http:" && window.location.protocol !== "https:") {
-      throw new Error("Открой сайт через https:// или http://, а не как локальный file:// файл.");
+    if(!["http:", "https:"].includes(window.location.protocol)){
+      throw new Error("Открой сайт через HTTPS/HTTP, а не через file://");
     }
 
-    const redirectTo = window.location.href.split("#")[0].split("?")[0];
+    // В callback возвращаемся на ту же страницу сайта.
+    const redirectTo = window.location.origin + window.location.pathname;
 
     const { data, error } = await sb.auth.signInWithOAuth({
       provider: "google",
       options: {
         redirectTo,
         queryParams: {
-          access_type: "offline",
           prompt: "select_account"
         }
       }
     });
 
     if(error) throw error;
+    if(!data?.url) throw new Error("Supabase не вернул ссылку Google для входа.");
 
-    /*
-      Обычно Supabase сам перенаправляет страницу.
-      Этот fallback нужен на случай, если браузер не сделал
-      переход автоматически.
-    */
-    if(data?.url && window.location.href !== data.url){
-      window.location.assign(data.url);
-    }
+    // Явно перенаправляем браузер на Google.
+    window.location.replace(data.url);
 
   }catch(error){
     console.error("Google OAuth error:", error);
-
     setMessage(
       "authMessage",
-      "Ошибка входа через Google: " +
-      (error?.message || "неизвестная ошибка"),
+      "Ошибка входа через Google: " + (error?.message || "неизвестная ошибка"),
       "error"
     );
-
     if(btn1) btn1.disabled = false;
     if(btn2) btn2.disabled = false;
   }
@@ -661,14 +640,22 @@ async function loginWithGoogle(){
 
 async function refreshSession(){
   try{
-    const { data, error } = await sb.auth.getSession();
+    // PKCE callback: Supabase возвращает code в query string.
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get("code");
 
-    if(error){
-      console.error("getSession:", error);
-      currentUser = null;
-      renderAuth();
-      return;
+    if(code){
+      setMessage("authMessage", "Завершаем вход через Google…");
+
+      const { error } = await sb.auth.exchangeCodeForSession(code);
+      if(error) throw error;
+
+      // Убираем code из адресной строки после успешного обмена.
+      window.history.replaceState({}, document.title, window.location.pathname);
     }
+
+    const { data, error } = await sb.auth.getSession();
+    if(error) throw error;
 
     currentUser = data?.session?.user || null;
 
@@ -684,18 +671,16 @@ async function refreshSession(){
     currentUser = null;
     currentProfile = null;
     renderAuth();
+    setMessage(
+      "authMessage",
+      "Не удалось завершить вход через Google: " + (error?.message || "неизвестная ошибка"),
+      "error"
+    );
   }
 }
 
-/*
-  Главный обработчик изменения авторизации.
-  Важно: здесь НЕ выполняются повторные signInWithOAuth.
-*/
 sb.auth.onAuthStateChange((event, session) => {
   console.log("Auth event:", event);
-
-  // Не делаем запросы Supabase прямо внутри onAuthStateChange:
-  // это может блокировать внутренний auth-lock и мешать входу после OAuth.
   currentUser = session?.user || null;
 
   if(!currentUser){
@@ -704,314 +689,10 @@ sb.auth.onAuthStateChange((event, session) => {
     return;
   }
 
+  // Только обновляем интерфейс здесь. Запросы профиля выполняются после
+  // завершения auth-цикла в refreshSession(), чтобы не блокировать auth lock.
   renderAuth();
-  hide($("authSection"));
-
-  setTimeout(async () => {
-    try{
-      await ensureProfileFromGoogle(currentUser);
-      await loadCurrentProfile();
-      renderAuth();
-    }catch(error){
-      console.error("Profile after auth:", error);
-    }
-  }, 0);
 });
-
-/* =========================
-   LOGOUT
-========================= */
-
-async function logout(){
-  const btn = $("logoutBtn");
-  btn.disabled = true;
-
-  try{
-    const { error } = await sb.auth.signOut();
-
-    if(error) throw error;
-
-    currentUser = null;
-    currentProfile = null;
-
-    hide($("profileSection"));
-    hide($("sellSection"));
-    hide($("editProfileSection"));
-    hide($("modal"));
-
-    renderAuth();
-
-  }catch(error){
-    console.error("Logout:", error);
-    alert("Не удалось выйти: " + (error?.message || "ошибка"));
-  }finally{
-    btn.disabled = false;
-  }
-}
-
-/* =========================
-   AUTH OPEN
-========================= */
-
-function openAuth(){
-  show($("authSection"));
-  setMessage("authMessage", "");
-
-  $("authSection").scrollIntoView({
-    behavior: "smooth",
-    block: "center"
-  });
-}
-
-/* =========================
-   LISTINGS
-========================= */
-
-async function loadListings(){
-  const grid = $("listingsGrid");
-
-  grid.innerHTML = '<div class="empty">Загрузка объявлений…</div>';
-
-  try{
-    // Сначала получаем сами объявления без JOIN.
-    // Это важно: ошибка в profiles не должна ломать каталог.
-    const { data: listings, error: listingsError } = await sb
-      .from("listings")
-      .select("id,seller_id,title,description,category,price,is_active,created_at")
-      .eq("is_active", true)
-      .order("created_at", { ascending: false });
-
-    if(listingsError) throw listingsError;
-
-    allListings = listings || [];
-
-    // Получаем продавцов отдельным запросом.
-    const sellerIds = [
-      ...new Set(
-        allListings
-          .map(item => item.seller_id)
-          .filter(Boolean)
-      )
-    ];
-
-    if(sellerIds.length){
-      const { data: profiles, error: profilesError } = await sb
-        .from("profiles")
-        .select("id,username,avatar_url")
-        .in("id", sellerIds);
-
-      if(!profilesError){
-        const profileMap = new Map(
-          (profiles || []).map(profile => [profile.id, profile])
-        );
-
-        allListings = allListings.map(item => ({
-          ...item,
-          profiles: profileMap.get(item.seller_id) || null
-        }));
-      }else{
-        console.warn("Профили продавцов не загрузились:", profilesError);
-      }
-    }
-
-    renderListings();
-
-  }catch(error){
-    console.error("loadListings:", error);
-
-    let msg = error?.message || "Ошибка Supabase";
-    if(/row-level security|RLS|policy/i.test(msg)){
-      msg = "Supabase не разрешает чтение таблицы listings: нужна SELECT-политика.";
-    }
-
-    grid.innerHTML =
-      '<div class="empty">' +
-      '<strong>Не удалось загрузить объявления.</strong><br>' +
-      escapeHtml(msg) +
-      '</div>';
-  }
-}
-
-function renderListings(){
-  const grid = $("listingsGrid");
-
-  const search = $("search").value.trim().toLowerCase();
-
-  let listings = allListings.filter(item => {
-    const categoryOk =
-      activeCategory === "all" ||
-      item.category === activeCategory;
-
-    const text =
-      [
-        item.title,
-        item.description,
-        item.category,
-        item.profiles?.username
-      ]
-      .filter(Boolean)
-      .join(" ")
-      .toLowerCase();
-
-    const searchOk = !search || text.includes(search);
-
-    return categoryOk && searchOk;
-  });
-
-  if(!listings.length){
-    grid.innerHTML =
-      '<div class="empty">Нет объявлений.</div>';
-    return;
-  }
-
-  grid.innerHTML = listings.map(item => {
-    const sellerName =
-      item.profiles?.username ||
-      "Пользователь";
-
-    const sellerAvatar =
-      item.profiles?.avatar_url ||
-      "https://ui-avatars.com/api/?name=" +
-      encodeURIComponent(sellerName) +
-      "&background=26345e&color=ffffff";
-
-    return `
-      <article class="card">
-        <h3>${escapeHtml(item.title)}</h3>
-
-        <div class="muted">
-          ${escapeHtml(item.category || "Другое")}
-        </div>
-
-        <p>${escapeHtml(item.description)}</p>
-
-        <div class="price">
-          ${formatPrice(item.price)}
-        </div>
-
-        <div class="seller">
-          <img
-            src="${escapeHtml(sellerAvatar)}"
-            alt=""
-            onerror="this.src='https://ui-avatars.com/api/?name=User&background=26345e&color=ffffff'"
-          >
-          <span>${escapeHtml(sellerName)}</span>
-        </div>
-
-        <div class="small muted" style="margin-top:8px">
-          ${item.created_at ? new Date(item.created_at).toLocaleString("ru-RU") : ""}
-        </div>
-      </article>
-    `;
-  }).join("");
-}
-
-/* =========================
-   SELLING
-========================= */
-
-async function publishListing(){
-  if(!currentUser){
-    setMessage("sellMessage", "Сначала войдите через Google.", "error");
-    openAuth();
-    return;
-  }
-
-  const title = $("sellTitle").value.trim();
-  const description = $("sellDescription").value.trim();
-  const category = $("sellCategory").value;
-  const price = Number($("sellPrice").value);
-  const agreed = $("sellPolicy").checked;
-
-  const allowed = [
-    "Roblox",
-    "Minecraft",
-    "GTA",
-    "CS2",
-    "Другое"
-  ];
-
-  if(!title || !description || !Number.isFinite(price) || price < 0){
-    setMessage(
-      "sellMessage",
-      "Заполни все поля корректно.",
-      "error"
-    );
-    return;
-  }
-
-  if(!allowed.includes(category)){
-    setMessage(
-      "sellMessage",
-      "Выбери игру.",
-      "error"
-    );
-    return;
-  }
-
-  if(!agreed){
-    setMessage(
-      "sellMessage",
-      "Перед публикацией нужно согласиться с правилами.",
-      "error"
-    );
-    return;
-  }
-
-  const btn = $("publishBtn");
-  btn.disabled = true;
-
-  try{
-    const { error } = await sb
-      .from("listings")
-      .insert({
-        seller_id: currentUser.id,
-        title,
-        description,
-        category,
-        price,
-        is_active: true
-      });
-
-    if(error) throw error;
-
-    setMessage(
-      "sellMessage",
-      "Объявление опубликовано.",
-      "ok"
-    );
-
-    $("sellTitle").value = "";
-    $("sellDescription").value = "";
-    $("sellPrice").value = "";
-    $("sellPolicy").checked = false;
-
-    await loadListings();
-
-  }catch(error){
-    console.error("publishListing:", error);
-
-    let msg = error?.message || "Не удалось опубликовать объявление.";
-
-    if(/row-level security|RLS|policy/i.test(msg)){
-      msg = "Supabase не разрешает публикацию: для таблицы listings нужна INSERT-политика для авторизованных пользователей.";
-    }else if(/column .* does not exist|schema cache/i.test(msg)){
-      msg = "Структура таблицы listings не совпадает с кодом. Нужны колонки: seller_id, title, description, category, price, is_active.";
-    }
-
-    setMessage("sellMessage", msg, "error");
-  }finally{
-    btn.disabled = false;
-  }
-}
-
-/* =========================
-   PROFILE MODAL
-========================= */
-
-function closeProfileModal(){
-  hide($("modal"));
-}
 
 /* =========================
    EVENTS
