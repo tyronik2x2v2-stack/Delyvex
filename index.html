@@ -307,6 +307,71 @@ hr{
   margin:25px 0;
 }
 
+/* =========================
+   ЭКРАН ОБЯЗАТЕЛЬНОГО ВХОДА
+========================= */
+
+#authGate{
+  position:fixed;
+  inset:0;
+  z-index:9999;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:#0b0812;
+  padding:20px;
+}
+
+.auth-box{
+  width:100%;
+  max-width:430px;
+  background:#130d1f;
+  border:1px solid #2a1a3d;
+  border-radius:22px;
+  padding:35px 25px;
+  text-align:center;
+  box-shadow:0 20px 70px rgba(0,0,0,.45);
+}
+
+.auth-logo{
+  color:#c084fc;
+  font-size:38px;
+  font-weight:800;
+  margin-bottom:10px;
+}
+
+.auth-icon{
+  font-size:48px;
+  margin-bottom:10px;
+}
+
+.auth-box h2{
+  margin:10px 0;
+}
+
+.auth-box p{
+  color:#999;
+  line-height:1.5;
+  margin-bottom:25px;
+}
+
+.auth-google{
+  width:100%;
+  padding:14px;
+  font-size:16px;
+  background:#8b5cf6;
+}
+
+.auth-google:hover{
+  background:#a855f7;
+}
+
+body.logged-out header,
+body.logged-out main,
+body.logged-out .bottom-nav{
+  display:none;
+}
+
 @media(max-width:700px){
 
   .nav{
@@ -343,13 +408,60 @@ hr{
   main{
     padding:15px 12px 85px;
   }
+
+  .auth-box{
+    padding:30px 20px;
+  }
 }
 </style>
 </head>
 
-<body>
+<body class="logged-out">
+
+
+<!-- =========================
+     ЭКРАН ВХОДА
+========================= -->
+
+<div id="authGate">
+
+  <div class="auth-box">
+
+    <div class="auth-icon">
+      🔐
+    </div>
+
+    <div class="auth-logo">
+      Delyvex
+    </div>
+
+    <h2>
+      Вход в аккаунт
+    </h2>
+
+    <p>
+      Чтобы пользоваться Delyvex,
+      необходимо войти через Google.
+    </p>
+
+    <button
+      class="auth-google"
+      onclick="loginWithGoogle()"
+    >
+      Войти через Google
+    </button>
+
+  </div>
+
+</div>
+
+
+<!-- =========================
+     HEADER
+========================= -->
 
 <header>
+
   <div class="nav">
 
     <div
@@ -360,6 +472,7 @@ hr{
     </div>
 
     <div class="nav-buttons">
+
       <button onclick="showSection('home')">
         Главная
       </button>
@@ -375,6 +488,7 @@ hr{
       <button onclick="showSection('profile')">
         👤 Профиль
       </button>
+
     </div>
 
     <div class="user-area">
@@ -386,19 +500,12 @@ hr{
       >
 
       <span id="headerUsername">
-        Гость
+        Пользователь
       </span>
 
       <button
-        id="loginBtn"
-        onclick="loginWithGoogle()"
-      >
-        Войти
-      </button>
-
-      <button
         id="logoutBtn"
-        class="secondary hidden"
+        class="secondary"
         onclick="logout()"
       >
         Выйти
@@ -407,12 +514,16 @@ hr{
     </div>
 
   </div>
+
 </header>
 
 
 <main>
 
-<!-- ГЛАВНАЯ -->
+
+<!-- =========================
+     ГЛАВНАЯ
+========================= -->
 
 <section
   id="home"
@@ -421,7 +532,9 @@ hr{
 
   <div class="hero">
 
-    <h1>Delyvex</h1>
+    <h1>
+      Delyvex
+    </h1>
 
     <p>
       Маркетплейс игровых товаров
@@ -454,7 +567,9 @@ hr{
 </section>
 
 
-<!-- ПРОДАЖА -->
+<!-- =========================
+     ПРОДАЖА
+========================= -->
 
 <section
   id="sell"
@@ -542,9 +657,7 @@ hr{
       placeholder="https://..."
     >
 
-    <button
-      onclick="createListing()"
-    >
+    <button onclick="createListing()">
       Опубликовать
     </button>
 
@@ -553,7 +666,9 @@ hr{
 </section>
 
 
-<!-- ЧАТЫ -->
+<!-- =========================
+     ЧАТЫ
+========================= -->
 
 <section
   id="messages"
@@ -572,9 +687,11 @@ hr{
         id="conversations"
         class="chat-list"
       >
+
         <p class="muted">
           Загрузка...
         </p>
+
       </div>
 
     </div>
@@ -629,7 +746,9 @@ hr{
 </section>
 
 
-<!-- ПРОФИЛЬ -->
+<!-- =========================
+     ПРОФИЛЬ
+========================= -->
 
 <section
   id="profile"
@@ -675,9 +794,7 @@ hr{
       accept="image/*"
     >
 
-    <button
-      onclick="uploadAvatar()"
-    >
+    <button onclick="uploadAvatar()">
       Загрузить аватарку
     </button>
 
@@ -695,9 +812,7 @@ hr{
       placeholder="Твой никнейм"
     >
 
-    <button
-      onclick="saveProfile()"
-    >
+    <button onclick="saveProfile()">
       Сохранить профиль
     </button>
 
@@ -716,39 +831,12 @@ hr{
 
 </section>
 
-
-<!-- ВХОД -->
-
-<section
-  id="auth"
-  class="section"
->
-
-  <div class="card">
-
-    <h2>
-      Вход в Delyvex
-    </h2>
-
-    <p class="muted">
-      Войди через Google, чтобы пользоваться
-      продажами и чатами.
-    </p>
-
-    <button
-      onclick="loginWithGoogle()"
-    >
-      Войти через Google
-    </button>
-
-  </div>
-
-</section>
-
 </main>
 
 
-<!-- МОБИЛЬНАЯ НАВИГАЦИЯ -->
+<!-- =========================
+     МОБИЛЬНАЯ НАВИГАЦИЯ
+========================= -->
 
 <div class="bottom-nav">
 
@@ -802,7 +890,35 @@ let currentChatUser = null;
 
 let currentChatListing = null;
 
-let messagesChannel = null;
+
+/* =====================================================
+   ЭКРАН АВТОРИЗАЦИИ
+===================================================== */
+
+function showAuthGate(){
+
+  document.body.classList.add(
+    "logged-out"
+  );
+
+  document
+    .getElementById("authGate")
+    .classList.remove("hidden");
+
+}
+
+
+function hideAuthGate(){
+
+  document.body.classList.remove(
+    "logged-out"
+  );
+
+  document
+    .getElementById("authGate")
+    .classList.add("hidden");
+
+}
 
 
 /* =====================================================
@@ -811,11 +927,22 @@ let messagesChannel = null;
 
 function showSection(id){
 
+  if(!currentUser){
+
+    showAuthGate();
+
+    return;
+
+  }
+
+
   document
     .querySelectorAll(".section")
     .forEach(section => {
 
-      section.classList.remove("active");
+      section.classList.remove(
+        "active"
+      );
 
     });
 
@@ -826,20 +953,14 @@ function showSection(id){
 
   if(section){
 
-    section.classList.add("active");
+    section.classList.add(
+      "active"
+    );
 
   }
 
 
   if(id === "messages"){
-
-    if(!currentUser){
-
-      showSection("auth");
-
-      return;
-
-    }
 
     loadConversations();
 
@@ -847,14 +968,6 @@ function showSection(id){
 
 
   if(id === "profile"){
-
-    if(!currentUser){
-
-      showSection("auth");
-
-      return;
-
-    }
 
     loadProfile();
 
@@ -864,7 +977,7 @@ function showSection(id){
 
 
 /* =====================================================
-   GOOGLE
+   GOOGLE LOGIN
 ===================================================== */
 
 async function loginWithGoogle(){
@@ -894,14 +1007,21 @@ async function loginWithGoogle(){
 
     if(result.error){
 
+      console.error(
+        "Google OAuth error:",
+        result.error
+      );
+
       alert(
-        "Ошибка входа:\n\n" +
+        "Ошибка входа через Google:\n\n" +
         result.error.message
       );
 
     }
 
   }catch(error){
+
+    console.error(error);
 
     alert(
       "Ошибка входа:\n\n" +
@@ -919,19 +1039,31 @@ async function loginWithGoogle(){
 
 async function logout(){
 
-  await sb.auth.signOut();
+  try{
+
+    await sb.auth.signOut();
+
+  }catch(error){
+
+    console.error(
+      "Logout error:",
+      error
+    );
+
+  }
+
 
   currentUser = null;
 
   updateAuthUI();
 
-  showSection("home");
+  showAuthGate();
 
 }
 
 
 /* =====================================================
-   AUTH
+   AUTH STATE
 ===================================================== */
 
 sb.auth.onAuthStateChange(
@@ -940,14 +1072,26 @@ sb.auth.onAuthStateChange(
     currentUser =
       session?.user || null;
 
-    updateAuthUI();
-
 
     if(currentUser){
+
+      hideAuthGate();
+
+      updateAuthUI();
 
       await ensureProfile();
 
       await loadProfile();
+
+      await loadListings();
+
+    }else{
+
+      currentUser = null;
+
+      updateAuthUI();
+
+      showAuthGate();
 
     }
 
@@ -955,7 +1099,14 @@ sb.auth.onAuthStateChange(
 );
 
 
+/* =====================================================
+   INITIALIZE
+===================================================== */
+
 async function initialize(){
+
+  showAuthGate();
+
 
   const {
     data:{
@@ -965,38 +1116,42 @@ async function initialize(){
     await sb.auth.getSession();
 
 
-  currentUser =
-    session?.user || null;
+  if(!session){
 
+    currentUser = null;
+
+    updateAuthUI();
+
+    showAuthGate();
+
+    return;
+
+  }
+
+
+  currentUser =
+    session.user;
+
+
+  hideAuthGate();
 
   updateAuthUI();
 
 
+  await ensureProfile();
+
+  await loadProfile();
+
   await loadListings();
-
-
-  if(currentUser){
-
-    await ensureProfile();
-
-    await loadProfile();
-
-  }
 
 }
 
 
+/* =====================================================
+   AUTH UI
+===================================================== */
+
 function updateAuthUI(){
-
-  const loginBtn =
-    document.getElementById(
-      "loginBtn"
-    );
-
-  const logoutBtn =
-    document.getElementById(
-      "logoutBtn"
-    );
 
   const username =
     document.getElementById(
@@ -1010,15 +1165,6 @@ function updateAuthUI(){
 
 
   if(currentUser){
-
-    loginBtn.classList.add(
-      "hidden"
-    );
-
-    logoutBtn.classList.remove(
-      "hidden"
-    );
-
 
     username.textContent =
       currentUser.user_metadata?.name ||
@@ -1044,16 +1190,8 @@ function updateAuthUI(){
 
   }else{
 
-    loginBtn.classList.remove(
-      "hidden"
-    );
-
-    logoutBtn.classList.add(
-      "hidden"
-    );
-
     username.textContent =
-      "Гость";
+      "";
 
     avatar.classList.add(
       "hidden"
@@ -1088,7 +1226,10 @@ async function ensureProfile(){
 
   if(error){
 
-    console.error(error);
+    console.error(
+      "Profile check error:",
+      error
+    );
 
     return;
 
@@ -1180,7 +1321,8 @@ async function loadProfile(){
 
   document.getElementById(
     "profileUsername"
-  ).textContent = nickname;
+  ).textContent =
+    nickname;
 
 
   document.getElementById(
@@ -1191,7 +1333,8 @@ async function loadProfile(){
 
   document.getElementById(
     "profileNickname"
-  ).value = nickname;
+  ).value =
+    nickname;
 
 
   const avatar =
@@ -1203,16 +1346,22 @@ async function loadProfile(){
 
   if(avatar){
 
+    const url =
+      avatar +
+      "?t=" +
+      Date.now();
+
+
     document.getElementById(
       "avatarPreview"
     ).src =
-      avatar + "?t=" + Date.now();
+      url;
 
 
     document.getElementById(
       "headerAvatar"
     ).src =
-      avatar + "?t=" + Date.now();
+      url;
 
 
     document.getElementById(
@@ -1234,9 +1383,7 @@ async function saveProfile(){
 
   if(!currentUser){
 
-    alert(
-      "Сначала войди в аккаунт."
-    );
+    showAuthGate();
 
     return;
 
@@ -1324,9 +1471,7 @@ async function uploadAvatar(){
 
     if(!currentUser){
 
-      alert(
-        "Сначала войди в аккаунт."
-      );
+      showAuthGate();
 
       return;
 
@@ -1380,18 +1525,9 @@ async function uploadAvatar(){
       file.name
         .split(".")
         .pop()
-        .toLowerCase() || "jpg";
+        .toLowerCase() ||
+      "jpg";
 
-
-    /*
-      ВАЖНО:
-
-      Путь:
-
-      USER_ID/avatar.extension
-
-      соответствует RLS Storage.
-    */
 
     const filePath =
       `${currentUser.id}/avatar.${extension}`;
@@ -1466,6 +1602,11 @@ async function uploadAvatar(){
 
     if(profileError){
 
+      console.error(
+        profileError
+      );
+
+
       alert(
         "Аватарка загружена, но профиль не обновился:\n\n" +
         profileError.message
@@ -1484,12 +1625,14 @@ async function uploadAvatar(){
 
     document.getElementById(
       "avatarPreview"
-    ).src = url;
+    ).src =
+      url;
 
 
     document.getElementById(
       "headerAvatar"
-    ).src = url;
+    ).src =
+      url;
 
 
     document.getElementById(
@@ -1527,6 +1670,11 @@ async function uploadAvatar(){
 
 async function loadListings(){
 
+  if(!currentUser){
+    return;
+  }
+
+
   const {
     data,
     error
@@ -1545,6 +1693,7 @@ async function loadListings(){
   if(error){
 
     console.error(error);
+
 
     document.getElementById(
       "listingsContainer"
@@ -1571,10 +1720,17 @@ async function loadListings(){
 
 function filterListings(){
 
+  if(!currentUser){
+    return;
+  }
+
+
   const query =
-    document.getElementById(
-      "gameSearch"
-    ).value
+    document
+      .getElementById(
+        "gameSearch"
+      )
+      .value
       .trim()
       .toLowerCase();
 
@@ -1615,7 +1771,9 @@ function filterListings(){
     });
 
 
-  renderListings(filtered);
+  renderListings(
+    filtered
+  );
 
 }
 
@@ -1632,7 +1790,10 @@ function renderListings(items){
 
     container.innerHTML = `
       <div class="card">
-        <h3>Ничего не найдено</h3>
+        <h3>
+          Ничего не найдено
+        </h3>
+
         <p class="muted">
           Попробуй другое название игры.
         </p>
@@ -1666,32 +1827,40 @@ function renderListings(items){
             <div class="listing-content">
 
               <div class="listing-game">
-                🎮 ${escapeHTML(
-                  listing.game ||
-                  "Игра не указана"
-                )}
+                🎮 ${
+                  escapeHTML(
+                    listing.game ||
+                    "Игра не указана"
+                  )
+                }
               </div>
 
               <div class="listing-title">
-                ${escapeHTML(
-                  listing.title ||
-                  "Без названия"
-                )}
+                ${
+                  escapeHTML(
+                    listing.title ||
+                    "Без названия"
+                  )
+                }
               </div>
 
               <p class="muted">
-                ${escapeHTML(
-                  listing.description ||
-                  "Нет описания"
-                )}
+                ${
+                  escapeHTML(
+                    listing.description ||
+                    "Нет описания"
+                  )
+                }
               </p>
 
               <div class="price">
-                ${escapeHTML(
-                  String(
-                    listing.price ?? "—"
+                ${
+                  escapeHTML(
+                    String(
+                      listing.price ?? "—"
+                    )
                   )
-                )} €
+                } €
               </div>
 
             </div>
@@ -1713,11 +1882,7 @@ async function createListing(){
 
   if(!currentUser){
 
-    alert(
-      "Чтобы продавать, сначала войди."
-    );
-
-    showSection("auth");
+    showAuthGate();
 
     return;
 
@@ -1933,7 +2098,9 @@ async function loadConversations(){
     container.innerHTML =
       `<p>
         Ошибка загрузки чатов:<br><br>
-        ${escapeHTML(error.message)}
+        ${escapeHTML(
+          error.message
+        )}
       </p>`;
 
     return;
@@ -2018,24 +2185,30 @@ async function loadConversations(){
                   >
 
                   <strong>
-                    ${escapeHTML(
-                      profile?.nickname ||
-                      "Пользователь"
-                    )}
+                    ${
+                      escapeHTML(
+                        profile?.nickname ||
+                        "Пользователь"
+                      )
+                    }
                   </strong>
 
                 </div>
 
                 <div class="chat-message">
-                  ${escapeHTML(
-                    message.message
-                  )}
+                  ${
+                    escapeHTML(
+                      message.message
+                    )
+                  }
                 </div>
 
                 <small class="muted">
-                  ${formatDate(
-                    message.created_at
-                  )}
+                  ${
+                    formatDate(
+                      message.created_at
+                    )
+                  }
                 </small>
 
               </div>
@@ -2056,6 +2229,12 @@ async function openChat(
   userId,
   listingId
 ){
+
+  if(!currentUser){
+    showAuthGate();
+    return;
+  }
+
 
   currentChatUser =
     userId;
@@ -2092,7 +2271,9 @@ async function openChat(
 
   document.getElementById(
     "chatWindow"
-  ).classList.add("active");
+  ).classList.add(
+    "active"
+  );
 
 
   await loadMessages();
@@ -2145,7 +2326,9 @@ async function loadMessages(){
 
   if(error){
 
-    console.error(error);
+    console.error(
+      error
+    );
 
     return;
 
@@ -2171,14 +2354,18 @@ async function loadMessages(){
             mine ? "mine" : ""
           }">
 
-            ${escapeHTML(
-              message.message
-            )}
+            ${
+              escapeHTML(
+                message.message
+              )
+            }
 
             <div class="message-time">
-              ${formatDate(
-                message.created_at
-              )}
+              ${
+                formatDate(
+                  message.created_at
+                )
+              }
             </div>
 
           </div>
@@ -2200,7 +2387,11 @@ async function sendMessage(){
     !currentUser ||
     !currentChatUser
   ){
+
+    showAuthGate();
+
     return;
+
   }
 
 
@@ -2285,7 +2476,7 @@ function closeChat(){
 
 
 /* =====================================================
-   ВСПОМОГАТЕЛЬНЫЕ
+   ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
 ===================================================== */
 
 function escapeHTML(value){
