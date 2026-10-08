@@ -38,6 +38,7 @@ footer{text-align:center;color:#737e9f;padding:25px}
   <div class="spacer"></div>
   <div id="guestActions">
     <button class="primary" id="googleLoginBtn">🔵 Войти через Google</button>
+<div id="authStatus" style="display:none;margin-top:10px;font-size:14px;text-align:center;"></div>
   </div>
   <div id="userActions" class="hidden">
     <span id="userName"></span>
@@ -350,6 +351,39 @@ document.addEventListener("delyvex:listing-created",()=>{
  Delyvex authentication: Google OAuth only.
  Supabase Auth uses the Google provider; this page does not use email/password signup.
 */
+</script>
+<script>
+async function googleLogin(){
+  const btn = document.getElementById("googleLoginBtn");
+  const status = document.getElementById("authStatus");
+  try {
+    if (btn) { btn.disabled = true; btn.textContent = "Подключение к Google…"; }
+    if (status) { status.style.display = "block"; status.textContent = "Открываем Google…"; status.style.color = "#aaa"; }
+
+    const { data, error } = await sb.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: window.location.href.split("#")[0].split("?")[0]
+      }
+    });
+
+    if (error) throw error;
+
+    if (data && data.url) {
+      setTimeout(() => {
+        if (document.visibilityState === "visible") window.location.assign(data.url);
+      }, 800);
+    }
+  } catch (err) {
+    console.error("Google login error:", err);
+    if (status) {
+      status.style.display = "block";
+      status.style.color = "#ff6b6b";
+      status.textContent = "Ошибка входа через Google: " + (err?.message || err);
+    }
+    if (btn) { btn.disabled = false; btn.textContent = "Войти через Google"; }
+  }
+}
 </script>
 </body>
 </html>
