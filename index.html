@@ -114,6 +114,10 @@ h1{
   margin-bottom:15px;
 }
 
+.search-box{
+  margin-bottom:20px;
+}
+
 .listings{
   display:grid;
   grid-template-columns:repeat(auto-fill,minmax(250px,1fr));
@@ -141,6 +145,16 @@ h1{
 .listing-title{
   font-size:18px;
   font-weight:bold;
+  margin-bottom:8px;
+}
+
+.listing-game{
+  display:inline-block;
+  background:#eee;
+  color:#333;
+  padding:5px 9px;
+  border-radius:999px;
+  font-size:12px;
   margin-bottom:8px;
 }
 
@@ -380,6 +394,7 @@ label{
   </div>
 
   <nav>
+
     <button onclick="showSection('home')">
       Главная
     </button>
@@ -395,6 +410,7 @@ label{
     <button onclick="showSection('profile')">
       👤 Профиль
     </button>
+
   </nav>
 
   <div class="user">
@@ -447,6 +463,21 @@ label{
 
     <h1>Объявления</h1>
 
+    <div class="card search-box">
+
+      <label>
+        Поиск по игре
+      </label>
+
+      <input
+        id="gameSearch"
+        type="search"
+        placeholder="Например: Minecraft, Fortnite, GTA V..."
+        oninput="filterListings()"
+      >
+
+    </div>
+
     <div
       id="listings"
       class="listings"
@@ -464,13 +495,23 @@ label{
     <div class="card">
 
       <label>
+        Игра
+      </label>
+
+      <input
+        id="listingGame"
+        type="text"
+        placeholder="Например: Minecraft"
+      >
+
+      <label>
         Название
       </label>
 
       <input
         id="listingTitle"
         type="text"
-        placeholder="Например: iPhone 13"
+        placeholder="Например: аккаунт Minecraft"
       >
 
       <label>
@@ -507,7 +548,7 @@ label{
           <input
             id="listingCategory"
             type="text"
-            placeholder="Электроника"
+            placeholder="Аккаунты"
           >
 
         </div>
@@ -571,14 +612,12 @@ label{
             <div
               id="chatName"
               class="conversation-name"
-            >
-            </div>
+            ></div>
 
             <div
               id="chatListing"
               class="conversation-listing"
-            >
-            </div>
+            ></div>
 
           </div>
 
@@ -587,8 +626,7 @@ label{
         <div
           id="chatMessages"
           class="chat-messages"
-        >
-        </div>
+        ></div>
 
         <div class="chat-input">
 
@@ -723,6 +761,8 @@ const GITHUB_URL =
 let currentUser = null;
 let currentChat = null;
 let chatChannel = null;
+
+let allListings = [];
 
 
 /* =========================
@@ -861,10 +901,14 @@ async function checkAuth(){
   updateAuthUI();
 
   if(currentUser){
+
     loadProfile();
     loadListings();
+
   }else{
+
     loadListings();
+
   }
 
 }
@@ -969,6 +1013,7 @@ async function updateAuthUI(){
 
     headerAvatar.style.display =
       "none";
+
   }
 
 }
@@ -1066,21 +1111,111 @@ async function loadListings(){
   }
 
 
-  if(!data || data.length === 0){
+  allListings =
+    data || [];
+
+
+  renderListings(
+    allListings
+  );
+}
+
+
+/* =========================
+   ФИЛЬТР ПО ИГРЕ
+========================= */
+
+function filterListings(){
+
+  const input =
+    document.getElementById(
+      "gameSearch"
+    );
+
+
+  const query =
+    input
+      ? input.value.trim().toLowerCase()
+      : "";
+
+
+  if(!query){
+
+    renderListings(
+      allListings
+    );
+
+    return;
+  }
+
+
+  const filtered =
+    allListings.filter(item=>{
+
+      const game =
+        String(
+          item.game || ""
+        ).toLowerCase();
+
+
+      const title =
+        String(
+          item.title || ""
+        ).toLowerCase();
+
+
+      const description =
+        String(
+          item.description || ""
+        ).toLowerCase();
+
+
+      return (
+        game.includes(query) ||
+        title.includes(query) ||
+        description.includes(query)
+      );
+
+    });
+
+
+  renderListings(
+    filtered
+  );
+}
+
+
+/* =========================
+   RENDER LISTINGS
+========================= */
+
+function renderListings(items){
+
+  const container =
+    document.getElementById(
+      "listings"
+    );
+
+
+  if(!items || items.length === 0){
 
     container.innerHTML =
-      '<div class="empty">Пока нет объявлений.</div>';
+      '<div class="empty">По этому запросу объявлений нет.</div>';
 
     return;
   }
 
 
   container.innerHTML =
-    data
+    items
       .map(listingHTML)
       .join("");
 }
 
+
+/* =========================
+   LISTING HTML
+========================= */
 
 function listingHTML(item){
 
@@ -1107,6 +1242,16 @@ function listingHTML(item){
       >
 
       <div class="listing-content">
+
+        ${
+          item.game
+          ? `
+            <div class="listing-game">
+              🎮 ${escapeHTML(item.game)}
+            </div>
+          `
+          : ""
+        }
 
         <div class="listing-title">
           ${escapeHTML(item.title || "Без названия")}
@@ -1161,6 +1306,13 @@ async function createListing(){
   }
 
 
+  const game =
+    document
+      .getElementById("listingGame")
+      .value
+      .trim();
+
+
   const title =
     document
       .getElementById("listingTitle")
@@ -1195,6 +1347,16 @@ async function createListing(){
       .trim();
 
 
+  if(!game){
+
+    alert(
+      "Напиши название игры."
+    );
+
+    return;
+  }
+
+
   if(!title){
 
     alert(
@@ -1219,6 +1381,8 @@ async function createListing(){
 
       user_id:
         currentUser.id,
+
+      game,
 
       title,
 
@@ -1248,24 +1412,44 @@ async function createListing(){
 
 
   document
+    .getElementById("listingGame")
+    .value = "";
+
+
+  document
     .getElementById("listingTitle")
     .value = "";
+
 
   document
     .getElementById("listingDescription")
     .value = "";
 
+
   document
     .getElementById("listingPrice")
     .value = "";
+
 
   document
     .getElementById("listingCategory")
     .value = "";
 
+
   document
     .getElementById("listingImage")
     .value = "";
+
+
+  const search =
+    document.getElementById(
+      "gameSearch"
+    );
+
+
+  if(search){
+    search.value = "";
+  }
 
 
   alert(
@@ -2021,8 +2205,6 @@ async function saveProfile(){
     fileInput.files[0];
 
 
-  /* Максимум 10 МБ */
-
   const MAX_SIZE =
     10 * 1024 * 1024;
 
@@ -2068,8 +2250,6 @@ async function saveProfile(){
     oldProfile?.avatar_url ||
     null;
 
-
-  /* Загрузка новой аватарки */
 
   if(file){
 
