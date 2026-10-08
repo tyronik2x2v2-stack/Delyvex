@@ -105,7 +105,7 @@ main{
 .search-box{
   display:flex;
   gap:10px;
-  margin-bottom:25px;
+  margin-bottom:20px;
 }
 .search-box input{
   flex:1;
@@ -127,6 +127,11 @@ main{
   font-weight:700;
 }
 .primary-btn:hover{background:#7c3aed}
+.primary-btn:disabled{
+  background:#332640;
+  color:#777;
+  cursor:not-allowed;
+}
 .chat-btn{
   border:1px solid #8b5cf6;
   background:#241733;
@@ -144,6 +149,29 @@ main{
   padding:18px;
   margin-bottom:15px;
 }
+
+.home-balance{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:15px;
+  background:linear-gradient(135deg,#1b1029,#130d1f);
+  border:1px solid #6d3cc7;
+  border-radius:18px;
+  padding:18px 20px;
+  margin-bottom:20px;
+}
+.home-balance-label{
+  color:#aaa;
+  font-size:14px;
+}
+.home-balance-value{
+  color:#c084fc;
+  font-size:28px;
+  font-weight:900;
+  margin-top:4px;
+}
+
 .listing-card{
   display:flex;
   gap:18px;
@@ -197,6 +225,13 @@ main{
   gap:8px;
   margin-top:14px;
   flex-wrap:wrap;
+}
+
+.insufficient{
+  margin-top:10px;
+  color:#fca5a5;
+  font-size:14px;
+  font-weight:700;
 }
 
 .form-card{max-width:650px;margin:auto}
@@ -426,6 +461,11 @@ main{
     height:220px;
   }
   .avatar-grid{grid-template-columns:repeat(4,1fr)}
+  .search-box{flex-direction:column}
+  .home-balance{
+    align-items:flex-start;
+    flex-direction:column;
+  }
   .mobile-nav{
     position:fixed;
     bottom:0;
@@ -450,7 +490,6 @@ main{
     font-size:20px;
     margin-bottom:2px;
   }
-  .search-box{flex-direction:column}
 }
 </style>
 </head>
@@ -505,14 +544,35 @@ main{
 
 </header>
 
-
 <main>
-
-<!-- HOME -->
 
 <section id="home" class="section active">
 
   <h1 class="page-title">Найти объявление</h1>
+
+  <div class="home-balance">
+
+    <div>
+      <div class="home-balance-label">
+        Твой баланс
+      </div>
+
+      <div
+        id="homeBalance"
+        class="home-balance-value"
+      >
+        0.00 ₽
+      </div>
+    </div>
+
+    <button
+      class="primary-btn"
+      onclick="showSection('balance')"
+    >
+      💰 Пополнить / баланс
+    </button>
+
+  </div>
 
   <div class="search-box">
 
@@ -533,8 +593,6 @@ main{
 
 </section>
 
-
-<!-- SELL -->
 
 <section id="sell" class="section">
 
@@ -588,8 +646,6 @@ main{
 </section>
 
 
-<!-- CHATS -->
-
 <section id="chats" class="section">
 
   <h1 class="page-title">Чаты</h1>
@@ -598,8 +654,6 @@ main{
 
 </section>
 
-
-<!-- ORDERS -->
 
 <section id="orders" class="section">
 
@@ -610,8 +664,6 @@ main{
 </section>
 
 
-<!-- BALANCE -->
-
 <section id="balance" class="section">
 
   <h1 class="page-title">Баланс</h1>
@@ -620,8 +672,6 @@ main{
 
 </section>
 
-
-<!-- PROFILE -->
 
 <section id="profile" class="section">
 
@@ -679,9 +729,7 @@ main{
     </div>
 
     <div class="selected-avatar">
-
       <img id="selectedAvatarPreview" src="" alt="">
-
     </div>
 
     <button class="primary-btn" onclick="saveProfile()">
@@ -700,8 +748,6 @@ main{
 
 </section>
 
-
-<!-- CHAT WINDOW -->
 
 <section id="chatWindow" class="section">
 
@@ -773,9 +819,9 @@ main{
 
 <script>
 
-/* =========================================
+/* ================================
    SUPABASE
-========================================= */
+================================ */
 
 const SUPABASE_URL =
 "https://gisdufgixjfudblxydvm.supabase.co";
@@ -793,12 +839,16 @@ const GITHUB_URL =
 "https://tyronik2x2v2-stack.github.io/Delyvex/";
 
 
-/* =========================================
+/* ================================
    STATE
-========================================= */
+================================ */
 
 let currentUser = null;
+
 let listings = [];
+
+let currentBalance = 0;
+
 let selectedAvatar = null;
 let selectedProductImage = null;
 
@@ -811,35 +861,25 @@ let listingsLoading = false;
 let listingsRenderToken = 0;
 
 
-/* =========================================
+/* ================================
    AVATARS
-========================================= */
+================================ */
 
 function makeAvatar(bg,face){
 
   const svg = `
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-
     <circle cx="50" cy="50" r="48" fill="${bg}"/>
-
     <circle cx="50" cy="39" r="20" fill="#ffffff"/>
-
-    <path
-      d="M18 88 C21 67 34 57 50 57 C66 57 79 67 82 88"
-      fill="#ffffff"
-    />
-
+    <path d="M18 88 C21 67 34 57 50 57 C66 57 79 67 82 88"
+      fill="#ffffff"/>
     <circle cx="43" cy="39" r="3" fill="${face}"/>
     <circle cx="57" cy="39" r="3" fill="${face}"/>
-
-    <path
-      d="M43 48 Q50 53 57 48"
+    <path d="M43 48 Q50 53 57 48"
       stroke="${face}"
       stroke-width="3"
       fill="none"
-      stroke-linecap="round"
-    />
-
+      stroke-linecap="round"/>
   </svg>`;
 
   return "data:image/svg+xml;charset=UTF-8,"+
@@ -874,9 +914,9 @@ const AVATARS = [
 selectedAvatar = AVATARS[0];
 
 
-/* =========================================
+/* ================================
    AUTH
-========================================= */
+================================ */
 
 async function loginWithGoogle(){
 
@@ -935,9 +975,9 @@ function hideAuthGate(){
 }
 
 
-/* =========================================
+/* ================================
    INITIALIZE
-========================================= */
+================================ */
 
 async function initialize(){
 
@@ -968,18 +1008,22 @@ async function initialize(){
 
   hideAuthGate();
 
+  /*
+    Создаём баланс пользователя,
+    если его ещё нет.
+  */
+
+  await ensureBalance();
+
   await loadProfile();
+
+  await loadBalance();
+
   await loadListings();
 
   renderAvatars();
 
   appInitialized = true;
-
-  /*
-    Проверяем заказы.
-    Если покупатель открыл сайт после 4 дней,
-    пытаемся автоматически завершить заказ.
-  */
 
   await checkExpiredOrders();
 
@@ -994,6 +1038,7 @@ sb.auth.onAuthStateChange(
       currentUser = null;
       appInitialized = false;
       listings = [];
+      currentBalance = 0;
 
       showAuthGate();
 
@@ -1013,7 +1058,8 @@ sb.auth.onAuthStateChange(
 
     if(session){
 
-      currentUser = session.user;
+      currentUser =
+        session.user;
 
       hideAuthGate();
 
@@ -1029,9 +1075,103 @@ sb.auth.onAuthStateChange(
 );
 
 
-/* =========================================
+/* ================================
+   BALANCE
+================================ */
+
+async function ensureBalance(){
+
+  if(!currentUser) return;
+
+  const {
+    data,
+    error
+  } =
+    await sb.rpc(
+      "get_my_balance"
+    );
+
+  if(error){
+
+    console.error(
+      "Balance error:",
+      error
+    );
+
+    currentBalance = 0;
+    updateBalanceUI();
+
+    return;
+
+  }
+
+  currentBalance =
+    Number(data || 0);
+
+  updateBalanceUI();
+
+}
+
+
+async function loadBalance(){
+
+  if(!currentUser) return;
+
+  const {
+    data,
+    error
+  } =
+    await sb.rpc(
+      "get_my_balance"
+    );
+
+  if(error){
+
+    console.error(error);
+
+    currentBalance = 0;
+
+    updateBalanceUI();
+
+    return;
+
+  }
+
+  currentBalance =
+    Number(data || 0);
+
+  updateBalanceUI();
+
+}
+
+
+function updateBalanceUI(){
+
+  const home =
+    document.getElementById(
+      "homeBalance"
+    );
+
+  if(home){
+
+    home.textContent =
+      currentBalance.toFixed(2)+" ₽";
+
+  }
+
+}
+
+
+function canAfford(price){
+
+  return currentBalance >= Number(price);
+
+}
+
+
+/* ================================
    NAVIGATION
-========================================= */
+================================ */
 
 function showSection(section){
 
@@ -1058,6 +1198,13 @@ function showSection(section){
 
   }
 
+  if(section==="home"){
+
+    loadBalance();
+    searchListings();
+
+  }
+
   if(section==="chats"){
     loadChats();
   }
@@ -1067,7 +1214,7 @@ function showSection(section){
   }
 
   if(section==="balance"){
-    loadBalance();
+    loadBalancePage();
   }
 
   if(section==="profile"){
@@ -1080,9 +1227,9 @@ function showSection(section){
 }
 
 
-/* =========================================
+/* ================================
    PROFILE
-========================================= */
+================================ */
 
 async function loadProfile(){
 
@@ -1142,7 +1289,8 @@ async function loadProfile(){
   document.getElementById("headerAvatar").src =
     avatar;
 
-  document.getElementById("headerAvatar")
+  document
+    .getElementById("headerAvatar")
     .classList.remove("hidden");
 
   renderAvatars();
@@ -1260,14 +1408,16 @@ async function saveProfile(){
   document.getElementById("headerAvatar").src =
     selectedAvatar;
 
+  await loadListings();
+
   alert("Профиль сохранён!");
 
 }
 
 
-/* =========================================
+/* ================================
    RATING
-========================================= */
+================================ */
 
 async function loadProfileRating(userId){
 
@@ -1324,16 +1474,13 @@ async function loadProfileRating(userId){
 
 }
 
-
 function getReviewText(count){
 
   if(count===0) return "0 отзывов";
   if(count===1) return "1 отзыв";
 
   if(count>=2 && count<=4){
-
     return `${count} отзыва`;
-
   }
 
   return `${count} отзывов`;
@@ -1341,9 +1488,9 @@ function getReviewText(count){
 }
 
 
-/* =========================================
-   IMAGE
-========================================= */
+/* ================================
+   PRODUCT IMAGE
+================================ */
 
 function previewProductImage(){
 
@@ -1402,9 +1549,9 @@ function previewProductImage(){
 }
 
 
-/* =========================================
+/* ================================
    LISTINGS
-========================================= */
+================================ */
 
 async function loadListings(){
 
@@ -1451,7 +1598,8 @@ async function loadListings(){
     (data||[]).forEach(
       listing=>{
 
-        const id = String(listing.id);
+        const id =
+          String(listing.id);
 
         if(seen.has(id)) return;
 
@@ -1488,8 +1636,6 @@ async function renderListings(items){
 
   if(!items?.length){
 
-    if(token !== listingsRenderToken) return;
-
     container.innerHTML =
       `<div class="empty">Объявлений пока нет.</div>`;
 
@@ -1503,7 +1649,8 @@ async function renderListings(items){
   items.forEach(
     listing=>{
 
-      const id = String(listing.id);
+      const id =
+        String(listing.id);
 
       if(seen.has(id)) return;
 
@@ -1535,7 +1682,8 @@ async function renderListings(items){
         .select("id,nickname,avatar_url")
         .in("id",sellerIds);
 
-    profiles = profileData || [];
+    profiles =
+      profileData || [];
 
     const {
       data:reviewData
@@ -1545,30 +1693,31 @@ async function renderListings(items){
         .select("seller_id,rating")
         .in("seller_id",sellerIds);
 
-    reviews = reviewData || [];
+    reviews =
+      reviewData || [];
 
   }
 
   if(token !== listingsRenderToken) return;
 
-  const profileMap = new Map();
+  const profileMap =
+    new Map();
 
   profiles.forEach(
     p=>profileMap.set(p.id,p)
   );
 
-  const reviewMap = new Map();
+  const reviewMap =
+    new Map();
 
   reviews.forEach(
     r=>{
 
       if(!reviewMap.has(r.seller_id)){
-
         reviewMap.set(
           r.seller_id,
           []
         );
-
       }
 
       reviewMap
@@ -1584,7 +1733,9 @@ async function renderListings(items){
       if(token !== listingsRenderToken) return;
 
       const profile =
-        profileMap.get(listing.seller_id);
+        profileMap.get(
+          listing.seller_id
+        );
 
       const sellerName =
         profile?.nickname ||
@@ -1595,7 +1746,9 @@ async function renderListings(items){
         AVATARS[0];
 
       const ratings =
-        reviewMap.get(listing.seller_id) || [];
+        reviewMap.get(
+          listing.seller_id
+        ) || [];
 
       const reviewCount =
         ratings.length;
@@ -1615,6 +1768,9 @@ async function renderListings(items){
       rating =
         Math.round(rating*10)/10;
 
+      const price =
+        Number(listing.price || 0);
+
       const image =
         listing.image_url ||
         "https://placehold.co/600x400/130d1f/c084fc?text=Нет+фото";
@@ -1632,15 +1788,31 @@ async function renderListings(items){
         listing.seller_id !== currentUser.id
       ){
 
+        const affordable =
+          canAfford(price);
+
         actions = `
 
           <div class="listing-actions">
 
             <button
               class="primary-btn"
-              onclick="buyListing('${escapeJs(listing.id)}')"
+              ${
+                affordable
+                  ? ""
+                  : "disabled"
+              }
+              onclick="
+                buyListing(
+                  '${escapeJs(listing.id)}'
+                )
+              "
             >
-              🛒 Купить
+              🛒 ${
+                affordable
+                  ? "Купить"
+                  : "Недостаточно средств"
+              }
             </button>
 
             <button
@@ -1658,14 +1830,30 @@ async function renderListings(items){
 
           </div>
 
+          ${
+            affordable
+              ? ""
+              : `
+                <div class="insufficient">
+                  Баланс: ${currentBalance.toFixed(2)} ₽
+                  · Цена: ${price.toFixed(2)} ₽
+                </div>
+              `
+          }
+
         `;
 
       }else{
 
         actions = `
-          <div style="margin-top:14px;color:#888">
+
+          <div style="
+            margin-top:14px;
+            color:#888;
+          ">
             Это твоё объявление
           </div>
+
         `;
 
       }
@@ -1681,19 +1869,25 @@ async function renderListings(items){
         <div class="listing-info">
 
           <div class="game-tag">
-            ${escapeHtml(listing.game || "Игра")}
+            ${escapeHtml(
+              listing.game || "Игра"
+            )}
           </div>
 
           <div class="listing-title">
-            ${escapeHtml(listing.title || "Без названия")}
+            ${escapeHtml(
+              listing.title || "Без названия"
+            )}
           </div>
 
           <div class="description">
-            ${escapeHtml(listing.description || "")}
+            ${escapeHtml(
+              listing.description || ""
+            )}
           </div>
 
           <div class="price">
-            ${escapeHtml(String(listing.price ?? ""))} ₽
+            ${price.toFixed(2)} ₽
           </div>
 
           <div class="seller-info">
@@ -1764,13 +1958,16 @@ async function searchListings(){
       item=>{
 
         const game =
-          String(item.game||"").toLowerCase();
+          String(item.game||"")
+            .toLowerCase();
 
         const title =
-          String(item.title||"").toLowerCase();
+          String(item.title||"")
+            .toLowerCase();
 
         const description =
-          String(item.description||"").toLowerCase();
+          String(item.description||"")
+            .toLowerCase();
 
         return(
           game.includes(query) ||
@@ -1786,9 +1983,9 @@ async function searchListings(){
 }
 
 
-/* =========================================
+/* ================================
    CREATE LISTING
-========================================= */
+================================ */
 
 async function createListing(){
 
@@ -1800,20 +1997,47 @@ async function createListing(){
   }
 
   const game =
-    document.getElementById("sellGame").value.trim();
+    document
+      .getElementById("sellGame")
+      .value
+      .trim();
 
   const title =
-    document.getElementById("sellTitle").value.trim();
+    document
+      .getElementById("sellTitle")
+      .value
+      .trim();
 
   const description =
-    document.getElementById("sellDescription").value.trim();
+    document
+      .getElementById("sellDescription")
+      .value
+      .trim();
 
   const price =
-    document.getElementById("sellPrice").value;
+    document
+      .getElementById("sellPrice")
+      .value;
 
   if(!game || !title || !price){
 
-    alert("Заполни игру, название и цену.");
+    alert(
+      "Заполни игру, название и цену."
+    );
+
+    return;
+
+  }
+
+  const numericPrice =
+    Number(price);
+
+  if(
+    !Number.isFinite(numericPrice) ||
+    numericPrice < 0
+  ){
+
+    alert("Некорректная цена.");
     return;
 
   }
@@ -1829,7 +2053,7 @@ async function createListing(){
         game:game,
         title:title,
         description:description,
-        price:Number(price),
+        price:numericPrice,
         image_url:selectedProductImage
 
       });
@@ -1866,9 +2090,9 @@ async function createListing(){
 }
 
 
-/* =========================================
-   TEST PURCHASE
-========================================= */
+/* ================================
+   PURCHASE
+================================ */
 
 async function buyListing(listingId){
 
@@ -1882,7 +2106,8 @@ async function buyListing(listingId){
   const listing =
     listings.find(
       item =>
-        String(item.id) === String(listingId)
+        String(item.id) ===
+        String(listingId)
     );
 
   if(!listing){
@@ -1892,97 +2117,104 @@ async function buyListing(listingId){
 
   }
 
+  const price =
+    Number(listing.price || 0);
+
   if(listing.seller_id === currentUser.id){
 
-    alert("Нельзя купить собственное объявление.");
+    alert(
+      "Нельзя купить собственный товар."
+    );
+
+    return;
+
+  }
+
+  /*
+    Быстрая проверка интерфейса.
+    Основная проверка всё равно
+    выполняется серверной функцией.
+  */
+
+  if(currentBalance < price){
+
+    alert(
+      `Недостаточно средств.\n\n`+
+      `Твой баланс: ${currentBalance.toFixed(2)} ₽\n`+
+      `Цена товара: ${price.toFixed(2)} ₽`
+    );
+
+    await loadBalance();
+    await renderListings(listings);
+
     return;
 
   }
 
   const confirmed =
     confirm(
-      `ТЕСТОВАЯ ПОКУПКА\n\nКупить "${listing.title}" за ${listing.price} ₽?\n\nРеальные деньги пока не списываются.`
+      `Купить "${listing.title}" за ${price.toFixed(2)} ₽?\n\n`+
+      `После покупки деньги будут списаны с твоего баланса и переданы продавцу только после подтверждения получения.`
     );
 
   if(!confirmed) return;
 
-  const {
-    data:existing
-  } =
-    await sb
-      .from("purchases")
-      .select("id,status")
-      .eq("listing_id",listing.id)
-      .eq("buyer_id",currentUser.id)
-      .in(
-        "status",
-        [
-          "waiting_payment",
-          "waiting_confirmation",
-          "completed"
-        ]
-      )
-      .maybeSingle();
-
-  if(existing){
-
-    alert("У тебя уже есть заказ на этот товар.");
-    return;
-
-  }
-
   /*
-    Тестовая оплата считается успешной.
-
-    Деньги продавцу НЕ начисляются здесь.
-    Сначала покупатель должен подтвердить получение.
+    Сервер сам проверяет баланс,
+    блокирует строку баланса,
+    списывает деньги и создаёт заказ.
   */
 
-  const autoConfirm =
-    new Date(
-      Date.now() + 4*24*60*60*1000
-    ).toISOString();
-
   const {
-    data:purchase,
+    data,
     error
   } =
-    await sb
-      .from("purchases")
-      .insert({
-
-        listing_id:listing.id,
-        buyer_id:currentUser.id,
-        seller_id:listing.seller_id,
-        price:Number(listing.price),
-
-        status:"waiting_confirmation",
-
-        paid_at:new Date().toISOString(),
-
-        auto_confirm_at:autoConfirm
-
-      })
-      .select()
-      .single();
+    await sb.rpc(
+      "create_test_purchase",
+      {
+        p_listing_id:
+          Number(listingId)
+      }
+    );
 
   if(error){
 
     console.error(error);
 
     alert(
-      "Ошибка создания заказа:\n\n"+
-      error.message
+      error.message ||
+      "Недостаточно средств или ошибка покупки."
+    );
+
+    await loadBalance();
+    await renderListings(listings);
+
+    return;
+
+  }
+
+  if(!data?.success){
+
+    alert(
+      "Не удалось создать заказ."
     );
 
     return;
 
   }
 
+  currentBalance =
+    Number(data.balance || 0);
+
+  updateBalanceUI();
+
+  await renderListings(listings);
+
   alert(
-    "✅ Заказ создан!\n\n"+
-    "Теперь заказ ожидает подтверждения получения.\n"+
-    "Если не подтвердить его в течение 4 дней, система автоматически завершит заказ."
+    "✅ Покупка оформлена!\n\n"+
+    `Списано: ${price.toFixed(2)} ₽\n`+
+    `Остаток: ${currentBalance.toFixed(2)} ₽\n\n`+
+    "Теперь подтверди получение товара в разделе «Заказы»."
   );
 
   showSection("orders");
@@ -1992,9 +2224,9 @@ async function buyListing(listingId){
 }
 
 
-/* =========================================
+/* ================================
    ORDERS
-========================================= */
+================================ */
 
 async function loadOrders(){
 
@@ -2055,18 +2287,19 @@ async function loadOrders(){
     const isSeller =
       order.seller_id === currentUser.id;
 
-    let listing = null;
-
     const {
-      data:listingData
+      data:listing
     } =
       await sb
         .from("listings")
-        .select("title,game,image_url")
-        .eq("id",order.listing_id)
+        .select(
+          "title,game,image_url"
+        )
+        .eq(
+          "id",
+          order.listing_id
+        )
         .maybeSingle();
-
-    listing = listingData;
 
     const card =
       document.createElement("div");
@@ -2074,14 +2307,12 @@ async function loadOrders(){
     card.className =
       "order-card";
 
-    let statusText =
-      getOrderStatusText(order.status);
-
     let buttons = "";
 
     if(
       isBuyer &&
-      order.status === "waiting_confirmation"
+      order.status ===
+        "waiting_confirmation"
     ){
 
       buttons = `
@@ -2089,7 +2320,9 @@ async function loadOrders(){
         <button
           class="primary-btn"
           style="margin-top:13px"
-          onclick="confirmOrder('${order.id}')"
+          onclick="
+            confirmOrder('${order.id}')
+          "
         >
           ✅ Подтвердить получение
         </button>
@@ -2105,13 +2338,11 @@ async function loadOrders(){
 
       buttons = `
 
-        <div
-          style="
-            margin-top:12px;
-            color:#86efac;
-            font-weight:700;
-          "
-        >
+        <div style="
+          margin-top:12px;
+          color:#86efac;
+          font-weight:700;
+        ">
           💰 Деньги начислены на баланс
         </div>
 
@@ -2123,18 +2354,20 @@ async function loadOrders(){
 
     if(
       isBuyer &&
-      order.status === "waiting_confirmation" &&
+      order.status ===
+        "waiting_confirmation" &&
       order.auto_confirm_at
     ){
-
-      const date =
-        new Date(order.auto_confirm_at);
 
       timer = `
 
         <div class="small">
           Автоподтверждение:
-          ${formatDate(date)}
+          ${formatDate(
+            new Date(
+              order.auto_confirm_at
+            )
+          )}
         </div>
 
       `;
@@ -2145,33 +2378,37 @@ async function loadOrders(){
 
       <div class="order-title">
         ${escapeHtml(
-          listing?.title || "Товар"
+          listing?.title ||
+          "Товар"
         )}
       </div>
 
       <div class="small">
         ${escapeHtml(
-          listing?.game || "Игра"
+          listing?.game ||
+          "Игра"
         )}
       </div>
 
-      <div
-        style="
-          color:#c084fc;
-          font-size:20px;
-          font-weight:800;
-          margin-top:9px;
-        "
-      >
+      <div style="
+        color:#c084fc;
+        font-size:20px;
+        font-weight:800;
+        margin-top:9px;
+      ">
         ${Number(order.price).toFixed(2)} ₽
       </div>
 
       <div class="status">
-        ${statusText}
+        ${getOrderStatusText(
+          order.status
+        )}
       </div>
 
       <div class="small">
-        ${isBuyer ? "Покупатель: ты" : "Продавец: ты"}
+        ${isBuyer
+          ? "Покупатель: ты"
+          : "Продавец: ты"}
       </div>
 
       ${timer}
@@ -2229,11 +2466,13 @@ function formatDate(date){
 }
 
 
-/* =========================================
+/* ================================
    CONFIRM ORDER
-========================================= */
+================================ */
 
-async function confirmOrder(purchaseId){
+async function confirmOrder(
+  purchaseId
+){
 
   if(!currentUser){
 
@@ -2244,7 +2483,8 @@ async function confirmOrder(purchaseId){
 
   const ok =
     confirm(
-      "Подтвердить, что ты получил товар?\n\nПосле подтверждения деньги будут начислены продавцу."
+      "Подтвердить получение товара?\n\n"+
+      "После этого деньги будут начислены продавцу."
     );
 
   if(!ok) return;
@@ -2256,7 +2496,8 @@ async function confirmOrder(purchaseId){
     await sb.rpc(
       "complete_purchase",
       {
-        p_purchase_id:Number(purchaseId),
+        p_purchase_id:
+          Number(purchaseId),
         p_is_auto:false
       }
     );
@@ -2283,27 +2524,20 @@ async function confirmOrder(purchaseId){
 
   }
 
+  await loadBalance();
+
   await loadOrders();
 
 }
 
 
-/* =========================================
-   AUTO CONFIRM CHECK
-========================================= */
+/* ================================
+   AUTO CONFIRM
+================================ */
 
 async function checkExpiredOrders(){
 
   if(!currentUser) return;
-
-  /*
-    Это проверяет заказы при открытии сайта.
-
-    ВАЖНО:
-    Для настоящего фонового автоматического
-    подтверждения, когда никто не открывает сайт,
-    позже подключим серверный scheduler.
-  */
 
   const {
     data,
@@ -2311,7 +2545,9 @@ async function checkExpiredOrders(){
   } =
     await sb
       .from("purchases")
-      .select("id,auto_confirm_at,status")
+      .select(
+        "id,auto_confirm_at,status"
+      )
       .eq(
         "buyer_id",
         currentUser.id
@@ -2333,9 +2569,12 @@ async function checkExpiredOrders(){
 
   }
 
-  const now = Date.now();
+  const now =
+    Date.now();
 
-  for(const order of data || []){
+  for(
+    const order of data || []
+  ){
 
     const deadline =
       new Date(
@@ -2350,7 +2589,8 @@ async function checkExpiredOrders(){
         await sb.rpc(
           "complete_purchase",
           {
-            p_purchase_id:Number(order.id),
+            p_purchase_id:
+              Number(order.id),
             p_is_auto:true
           }
         );
@@ -2358,7 +2598,7 @@ async function checkExpiredOrders(){
       if(completeError){
 
         console.error(
-          "Auto confirm error:",
+          "Auto confirm:",
           completeError
         );
 
@@ -2371,13 +2611,13 @@ async function checkExpiredOrders(){
 }
 
 
-/* =========================================
-   BALANCE
-========================================= */
+/* ================================
+   BALANCE PAGE
+================================ */
 
-async function loadBalance(){
+async function loadBalancePage(){
 
-  if(!currentUser) return;
+  await loadBalance();
 
   const container =
     document.getElementById(
@@ -2388,34 +2628,8 @@ async function loadBalance(){
     `<div class="empty">Загрузка баланса...</div>`;
 
   const {
-    data,
+    data:transactions,
     error
-  } =
-    await sb
-      .from("seller_balances")
-      .select("balance,updated_at")
-      .eq(
-        "user_id",
-        currentUser.id
-      )
-      .maybeSingle();
-
-  if(error){
-
-    console.error(error);
-
-    container.innerHTML =
-      `<div class="empty">Ошибка загрузки баланса.</div>`;
-
-    return;
-
-  }
-
-  const balance =
-    Number(data?.balance || 0);
-
-  const {
-    data:transactions
   } =
     await sb
       .from("balance_transactions")
@@ -2428,7 +2642,18 @@ async function loadBalance(){
         "created_at",
         {ascending:false}
       )
-      .limit(20);
+      .limit(30);
+
+  if(error){
+
+    console.error(error);
+
+    container.innerHTML =
+      `<div class="empty">Ошибка загрузки истории.</div>`;
+
+    return;
+
+  }
 
   container.innerHTML = `
 
@@ -2439,7 +2664,7 @@ async function loadBalance(){
       </div>
 
       <div class="balance-value">
-        ${balance.toFixed(2)} ₽
+        ${currentBalance.toFixed(2)} ₽
       </div>
 
       <button
@@ -2471,7 +2696,9 @@ async function loadBalance(){
   if(!transactions?.length){
 
     list.innerHTML =
-      `<div class="empty">Операций пока нет.</div>`;
+      `<div class="empty">
+        Операций пока нет.
+      </div>`;
 
     return;
 
@@ -2504,18 +2731,22 @@ async function loadBalance(){
           )}
         </div>
 
-        <div
-          style="
-            color:${amount >= 0 ? "#86efac" : "#fca5a5"};
-            margin-top:5px;
-          "
-        >
+        <div style="
+          color:${
+            amount >= 0
+              ? "#86efac"
+              : "#fca5a5"
+          };
+          margin-top:5px;
+        ">
           ${sign}${amount.toFixed(2)} ₽
         </div>
 
         <div class="small">
           ${formatDate(
-            new Date(transaction.created_at)
+            new Date(
+              transaction.created_at
+            )
           )}
         </div>
 
@@ -2623,7 +2854,7 @@ function calculateWithdraw(){
     <b>${amount.toFixed(2)} ₽</b>
     <br>
 
-    Комиссия Delyvex:
+    Комиссия:
     <b>20.00 ₽</b>
     <br>
 
@@ -2649,7 +2880,10 @@ async function createWithdrawal(){
   const amount =
     Number(input.value);
 
-  if(!amount || amount <= 20){
+  if(
+    !amount ||
+    amount <= 20
+  ){
 
     alert(
       "Сумма вывода должна быть больше 20 ₽."
@@ -2661,7 +2895,9 @@ async function createWithdrawal(){
 
   const ok =
     confirm(
-      `Создать заявку на вывод ${amount.toFixed(2)} ₽?\n\nКомиссия: 20 ₽\nК выплате: ${(amount-20).toFixed(2)} ₽`
+      `Создать заявку на вывод ${amount.toFixed(2)} ₽?\n\n`+
+      `Комиссия: 20 ₽\n`+
+      `К выплате: ${(amount-20).toFixed(2)} ₽`
     );
 
   if(!ok) return;
@@ -2679,8 +2915,6 @@ async function createWithdrawal(){
 
   if(error){
 
-    console.error(error);
-
     alert(
       "Ошибка создания заявки:\n\n"+
       error.message
@@ -2694,19 +2928,20 @@ async function createWithdrawal(){
     "✅ Заявка создана!\n\n"+
     "К выплате: "+
     Number(
-      data?.payout_amount || amount-20
+      data?.payout_amount ||
+      amount-20
     ).toFixed(2)+
     " ₽"
   );
 
-  await loadBalance();
+  await loadBalancePage();
 
 }
 
 
-/* =========================================
+/* ================================
    CHATS
-========================================= */
+================================ */
 
 async function loadChats(){
 
@@ -2755,19 +2990,24 @@ async function loadChats(){
 
   }
 
-  const chats = new Map();
+  const chats =
+    new Map();
 
   data.forEach(
     message=>{
 
       const other =
-        message.sender_id === currentUser.id
+        message.sender_id ===
+        currentUser.id
           ? message.receiver_id
           : message.sender_id;
 
       if(!chats.has(other)){
 
-        chats.set(other,message);
+        chats.set(
+          other,
+          message
+        );
 
       }
 
@@ -2782,19 +3022,20 @@ async function loadChats(){
       const item =
         document.createElement("div");
 
-      item.className = "chat-item";
+      item.className =
+        "chat-item";
 
       item.innerHTML = `
 
         <strong>💬 Чат</strong>
 
-        <div
-          style="
-            color:#999;
-            margin-top:6px;
-          "
-        >
-          ${escapeHtml(message.message)}
+        <div style="
+          color:#999;
+          margin-top:6px;
+        ">
+          ${escapeHtml(
+            message.message
+          )}
         </div>
 
       `;
@@ -2823,11 +3064,18 @@ async function openChat(
   title
 ){
 
-  currentChat = listingId;
-  currentReceiver = receiverId;
-  currentListing = listingId;
+  currentChat =
+    listingId;
 
-  document.getElementById("chatTitle").textContent =
+  currentReceiver =
+    receiverId;
+
+  currentListing =
+    listingId;
+
+  document.getElementById(
+    "chatTitle"
+  ).textContent =
     title || "Чат";
 
   showSection("chatWindow");
@@ -2854,7 +3102,10 @@ async function loadMessages(){
     await sb
       .from("messages")
       .select("*")
-      .eq("listing_id",currentChat)
+      .eq(
+        "listing_id",
+        currentChat
+      )
       .or(
         `and(sender_id.eq.${currentUser.id},receiver_id.eq.${currentReceiver}),and(sender_id.eq.${currentReceiver},receiver_id.eq.${currentUser.id})`
       )
@@ -2894,7 +3145,8 @@ async function loadMessages(){
       div.className =
         "message "+
         (
-          message.sender_id === currentUser.id
+          message.sender_id ===
+          currentUser.id
             ? "mine"
             : "theirs"
         );
@@ -2941,10 +3193,17 @@ async function sendMessage(){
       .from("messages")
       .insert({
 
-        listing_id:currentListing,
-        sender_id:currentUser.id,
-        receiver_id:currentReceiver,
-        message:message
+        listing_id:
+          currentListing,
+
+        sender_id:
+          currentUser.id,
+
+        receiver_id:
+          currentReceiver,
+
+        message:
+          message
 
       });
 
@@ -2966,9 +3225,9 @@ async function sendMessage(){
 }
 
 
-/* =========================================
+/* ================================
    REVIEW
-========================================= */
+================================ */
 
 async function writeReview(
   purchase,
@@ -2976,11 +3235,14 @@ async function writeReview(
 ){
 
   const ratingText =
-    prompt("Оцени продавца от 1 до 5:");
+    prompt(
+      "Оцени продавца от 1 до 5:"
+    );
 
   if(ratingText === null) return;
 
-  const rating = Number(ratingText);
+  const rating =
+    Number(ratingText);
 
   if(
     !Number.isInteger(rating) ||
@@ -2988,13 +3250,18 @@ async function writeReview(
     rating > 5
   ){
 
-    alert("Оценка должна быть от 1 до 5.");
+    alert(
+      "Оценка должна быть от 1 до 5."
+    );
+
     return;
 
   }
 
   const review =
-    prompt("Напиши отзыв о продавце:");
+    prompt(
+      "Напиши отзыв о продавце:"
+    );
 
   if(review === null) return;
 
@@ -3005,12 +3272,23 @@ async function writeReview(
       .from("reviews")
       .insert({
 
-        purchase_id:purchase.id,
-        listing_id:listing.id,
-        buyer_id:currentUser.id,
-        seller_id:listing.seller_id,
-        rating:rating,
-        review:review.trim()
+        purchase_id:
+          purchase.id,
+
+        listing_id:
+          listing.id,
+
+        buyer_id:
+          currentUser.id,
+
+        seller_id:
+          listing.seller_id,
+
+        rating:
+          rating,
+
+        review:
+          review.trim()
 
       });
 
@@ -3025,14 +3303,16 @@ async function writeReview(
 
   }
 
-  alert("⭐ Спасибо! Отзыв сохранён.");
+  alert(
+    "⭐ Спасибо! Отзыв сохранён."
+  );
 
 }
 
 
-/* =========================================
+/* ================================
    LOGOUT
-========================================= */
+================================ */
 
 async function logout(){
 
@@ -3040,6 +3320,7 @@ async function logout(){
 
   currentUser = null;
   listings = [];
+  currentBalance = 0;
   appInitialized = false;
 
   listingsRenderToken++;
@@ -3049,9 +3330,9 @@ async function logout(){
 }
 
 
-/* =========================================
+/* ================================
    HELPERS
-========================================= */
+================================ */
 
 function escapeHtml(value){
 
@@ -3075,9 +3356,9 @@ function escapeJs(value){
 }
 
 
-/* =========================================
+/* ================================
    START
-========================================= */
+================================ */
 
 initialize();
 
