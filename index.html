@@ -37,8 +37,7 @@ footer{text-align:center;color:#737e9f;padding:25px}
   </div>
   <div class="spacer"></div>
   <div id="guestActions">
-    <button class="secondary" id="loginBtn">Войти</button>
-    <button class="primary" id="signupBtn">Регистрация</button>
+    <button class="primary" id="googleLoginBtn">🔵 Войти через Google</button>
   </div>
   <div id="userActions" class="hidden">
     <span id="userName"></span>
@@ -54,11 +53,9 @@ footer{text-align:center;color:#737e9f;padding:25px}
   </section>
 
   <section id="authSection" class="auth-card hidden">
-    <h2 id="authTitle">Вход</h2>
-    <div class="field"><label>Никнейм</label><input id="email" type="text" autocomplete="username" maxlength="30"></div>
-    <div class="field"><label>Пароль</label><input id="password" type="password" autocomplete="current-password"></div>
-    <button class="primary" id="authSubmit">Войти</button>
-    <button class="link" id="switchAuth">Нет аккаунта? Зарегистрироваться</button>
+    <h2>Вход в Delyvex</h2>
+    <p class="muted">Используй свой Google-аккаунт. Отдельный пароль и подтверждение почты Delyvex не нужны.</p>
+    <button class="primary" id="authSubmit" style="width:100%;margin-top:10px;">🔵 Войти через Google</button>
     <div id="authMessage" class="message"></div>
   </section>
 <section id="profileSection" class="profile hidden">
@@ -156,96 +153,57 @@ let allListings = [];
 const $ = id => document.getElementById(id);
 const show = el => el.classList.remove("hidden");
 const hide = el => el.classList.add("hidden");
-function authEmailFromNickname(username){
-  const bytes = new TextEncoder().encode(username.trim().toLowerCase());
-  const hex = Array.from(bytes).map(b=>b.toString(16).padStart(2,"0")).join("");
-  return "u"+hex+"@delyvex.local";
+function googleNickname(user){
+  return (
+    user.user_metadata?.user_name ||
+    user.user_metadata?.preferred_username ||
+    user.user_metadata?.name ||
+    (user.email ? user.email.split("@")[0] : "Пользователь")
+  ).trim().slice(0,30);
 }
 
+async function ensureProfileFromGoogle(user){
+  const nickname = googleNickname(user);
+  const {data: existing} = await sb.from("profiles")
+    .select("username,bio,avatar_url")
+    .eq("id", user.id)
+    .maybeSingle();
 
-function setMessage(id, text, type=""){
-  const el=$(id); el.textContent=text; el.className="message "+type;
-}
-
-function renderAuth(){
-  if(currentUser){
-    hide($("guestActions")); show($("userActions")); hide($("authSection"));
-    loadCurrentProfileName();
-    loadCurrentProfileName();
-    hide($("hero"));
-  }else{
-    show($("guestActions")); hide($("userActions")); hide($("profileSection"));
-    $("userName").textContent="";
-    show($("hero"));
+  if(!existing){
+    await sb.from("profiles").insert({
+      id: user.id,
+      username: nickname
+    });
+  } else if(!existing.username){
+    await sb.from("profiles").update({username:nickname}).eq("id",user.id);
   }
 }
 
-
-async function loadCurrentProfileName(){
-  if(!currentUser) return;
-  if(currentUser){
-    const {data:p}=await sb.from("profiles").select("username,bio,avatar_url").eq("id",currentUser.id).maybeSingle();
-    $("modalUsername").textContent=p?.username || "не указано";
-    $("profileEmail").textContent=p?.username ? "@"+p.username+" · "+(currentUser.email||"") : (currentUser.email||"");
-    $("profileBio").textContent=p?.bio||"";
-    $("profileAvatar").src=p?.avatar_url||"";
-    $("modalEmail").textContent=currentUser.email||"";
-  }
+async function refreshSession(){
+  const {data:{session}} = await sb.auth.getSession();
+  currentUser = session?.user || null;
+  if(currentUser) await ensureProfileFromGoogle(currentUser);
+  renderAuth();
+  if(currentUser) await loadCurrentProfileName();
 }
 
-$("loginBtn").onclick=()=>openAuth("login");
-$("signupBtn").onclick=()=>openAuth("signup");
-$("switchAuth").onclick=()=>openAuth(mode==="login"?"signup":"login");
+async function loginWithGoogle(){
+  setMessage("authMessage","Открываем Google…");
+  const redirectTo = window.location.origin + window.location.pathname;
+  const {error} = await sb.auth.signInWithOAuth({
+    provider:"google",
+    options:{redirectTo}
+  });
+  if(error) setMessage("authMessage",error.message,"error");
+}
 
-function openAuth(newMode){
-  mode=newMode;
+$("googleLoginBtn").onclick=()=>loginWithGoogle();
+$("authSubmit").onclick=()=>loginWithGoogle();
+
+function openAuth(){
   show($("authSection"));
-  $("authTitle").textContent=mode==="login"?"Вход":"Регистрация";
-  $("authSubmit").textContent=mode==="login"?"Войти":"Зарегистрироваться";
-  $("switchAuth").textContent=mode==="login"?"Нет аккаунта? Зарегистрироваться":"Уже есть аккаунт? Войти";
   setMessage("authMessage","");
 }
-
-$("authSubmit").onclick=async()=>{
-  const username=$("email").value.trim();
-  const password=$("password").value;
-  if(!username || !password){
-    setMessage("authMessage","Заполни никнейм и пароль.","error");
-    return;
-  }
-
-  $("authSubmit").disabled=true;
-  const authEmail=authEmailFromNickname(username);
-
-  if(mode==="login"){
-    const {data,error}=await sb.auth.signInWithPassword({email:authEmail,password});
-    if(error){
-      setMessage("authMessage",error.message,"error");
-    }else{
-      currentUser=data.user;
-      await refreshSession();
-    }
-  }else{
-    const {data,error}=await sb.auth.signUp({
-      email:authEmail,
-      password,
-      options:{data:{username}}
-    });
-
-    if(error){
-      setMessage("authMessage",error.message,"error");
-    }else if(data.session){
-      currentUser=data.user;
-      await ensureProfile(username);
-      await refreshSession();
-      setMessage("authMessage","Аккаунт создан.","ok");
-    }else{
-      setMessage("authMessage","В Supabase отключи Confirm Email — тогда регистрация будет сразу входить без почты.","error");
-    }
-  }
-
-  $("authSubmit").disabled=false;
-};
 
 $("logoutBtn").onclick=async()=>{
   await sb.auth.signOut();
@@ -308,8 +266,9 @@ $("editProfileBtn").onclick=openProfileEditor;
 $("cancelProfileBtn").onclick=()=>hide($("editProfileSection"));
 $("saveProfileBtn").onclick=saveProfile;
 
-sb.auth.onAuthStateChange((_event,session)=>{
+sb.auth.onAuthStateChange(async (_event,session)=>{
   currentUser=session?.user||null;
+  if(currentUser) await ensureProfileFromGoogle(currentUser);
   renderAuth();
 });
 
@@ -388,9 +347,8 @@ document.addEventListener("delyvex:listing-created",()=>{
 
 <script>
 /*
- Delyvex registration: nickname + password only.
- Supabase Auth must have "Confirm Email" disabled.
- The page does not request, send, or verify an email.
+ Delyvex authentication: Google OAuth only.
+ Supabase Auth uses the Google provider; this page does not use email/password signup.
 */
 </script>
 </body>
