@@ -610,7 +610,13 @@ async function loginWithGoogle(){
       https://твой-домен.ru/
     */
 
-    const redirectTo = window.location.origin + window.location.pathname;
+    // Возвращаемся именно на текущую страницу без OAuth-параметров.
+    // Это надёжнее работает и на GitHub Pages, и на обычном домене.
+    if (window.location.protocol !== "http:" && window.location.protocol !== "https:") {
+      throw new Error("Открой сайт через https:// или http://, а не как локальный file:// файл.");
+    }
+
+    const redirectTo = window.location.href.split("#")[0].split("?")[0];
 
     const { data, error } = await sb.auth.signInWithOAuth({
       provider: "google",
@@ -685,23 +691,31 @@ async function refreshSession(){
   Главный обработчик изменения авторизации.
   Важно: здесь НЕ выполняются повторные signInWithOAuth.
 */
-sb.auth.onAuthStateChange(async (event, session) => {
+sb.auth.onAuthStateChange((event, session) => {
   console.log("Auth event:", event);
 
+  // Не делаем запросы Supabase прямо внутри onAuthStateChange:
+  // это может блокировать внутренний auth-lock и мешать входу после OAuth.
   currentUser = session?.user || null;
 
-  if(currentUser){
-    await ensureProfileFromGoogle(currentUser);
-    await loadCurrentProfile();
-  }else{
+  if(!currentUser){
     currentProfile = null;
+    renderAuth();
+    return;
   }
 
   renderAuth();
+  hide($("authSection"));
 
-  if(currentUser){
-    hide($("authSection"));
-  }
+  setTimeout(async () => {
+    try{
+      await ensureProfileFromGoogle(currentUser);
+      await loadCurrentProfile();
+      renderAuth();
+    }catch(error){
+      console.error("Profile after auth:", error);
+    }
+  }, 0);
 });
 
 /* =========================
