@@ -3,7 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>Delyvex</title>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -35,7 +34,7 @@ header{
 
 .logo{
   font-size:25px;
-  font-weight:800;
+  font-weight:bold;
   cursor:pointer;
 }
 
@@ -44,25 +43,17 @@ nav{
   gap:8px;
 }
 
-nav button,
-.btn{
+nav button{
   border:0;
-  background:#111;
-  color:#fff;
-  padding:10px 15px;
-  border-radius:10px;
+  background:transparent;
+  padding:10px 13px;
+  border-radius:8px;
   cursor:pointer;
-  font-weight:600;
+  font-size:14px;
 }
 
-.btn.secondary{
-  background:#eee;
-  color:#111;
-}
-
-.btn:hover,
 nav button:hover{
-  opacity:.85;
+  background:#eee;
 }
 
 .user{
@@ -71,8 +62,22 @@ nav button:hover{
   gap:8px;
 }
 
-#userName{
-  font-weight:600;
+.btn{
+  border:0;
+  background:#111;
+  color:#fff;
+  padding:10px 15px;
+  border-radius:8px;
+  cursor:pointer;
+}
+
+.btn:hover{
+  opacity:.9;
+}
+
+.btn.secondary{
+  background:#eee;
+  color:#111;
 }
 
 .avatar{
@@ -80,13 +85,13 @@ nav button:hover{
   height:38px;
   border-radius:50%;
   object-fit:cover;
-  background:#ddd;
+  border:1px solid #ddd;
 }
 
-main{
+.container{
   max-width:1100px;
   margin:30px auto;
-  padding:0 15px;
+  padding:0 20px 80px;
 }
 
 .section{
@@ -97,151 +102,113 @@ main{
   display:block;
 }
 
-.hero{
-  background:#fff;
-  padding:35px;
-  border-radius:20px;
-  margin-bottom:25px;
-}
-
-.hero h1{
+h1{
   margin-top:0;
-  font-size:36px;
-}
-
-.search{
-  display:flex;
-  gap:10px;
-  margin:20px 0;
-}
-
-.search input{
-  flex:1;
-  padding:14px;
-  border:1px solid #ddd;
-  border-radius:10px;
-  font-size:16px;
-}
-
-.grid{
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:18px;
 }
 
 .card{
   background:#fff;
-  border-radius:15px;
-  overflow:hidden;
   border:1px solid #ddd;
+  border-radius:12px;
+  padding:18px;
+  margin-bottom:15px;
 }
 
-.card img{
+.listings{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(250px,1fr));
+  gap:16px;
+}
+
+.listing{
+  background:#fff;
+  border:1px solid #ddd;
+  border-radius:12px;
+  overflow:hidden;
+}
+
+.listing img{
   width:100%;
-  height:200px;
+  height:190px;
   object-fit:cover;
   background:#eee;
 }
 
-.card-body{
+.listing-content{
   padding:15px;
 }
 
-.card h3{
-  margin:0 0 8px;
+.listing-title{
+  font-size:18px;
+  font-weight:bold;
+  margin-bottom:8px;
 }
 
 .price{
-  font-size:20px;
-  font-weight:800;
+  font-size:18px;
+  font-weight:bold;
   margin:10px 0;
 }
 
-.form{
-  background:#fff;
-  padding:25px;
-  border-radius:18px;
-  max-width:600px;
-}
-
-.form input,
-.form textarea,
-.form select{
+input,
+textarea,
+select{
   width:100%;
   padding:12px;
-  margin:7px 0 15px;
-  border:1px solid #ddd;
-  border-radius:10px;
+  border:1px solid #ccc;
+  border-radius:8px;
   font-size:15px;
+  margin-top:6px;
+  margin-bottom:15px;
+  background:#fff;
 }
 
-.form textarea{
-  min-height:120px;
+textarea{
+  min-height:110px;
   resize:vertical;
 }
 
-.profile-box{
-  background:#fff;
-  padding:25px;
-  border-radius:18px;
+label{
+  display:block;
+  font-weight:bold;
+  margin-top:10px;
 }
 
-.profile-header{
-  display:flex;
-  align-items:center;
+.form-row{
+  display:grid;
+  grid-template-columns:1fr 1fr;
   gap:15px;
-  margin-bottom:20px;
 }
 
-.profile-header img{
-  width:80px;
-  height:80px;
+.profile-box{
+  max-width:600px;
+}
+
+.profile-avatar-preview{
+  width:90px;
+  height:90px;
   border-radius:50%;
   object-fit:cover;
-  background:#ddd;
-}
-
-/* =========================
-   ЧАТЫ
-========================= */
-
-.chat-layout{
-  display:grid;
-  grid-template-columns:330px 1fr;
-  gap:15px;
-  min-height:620px;
-}
-
-.conversations{
-  background:#fff;
-  border-radius:15px;
-  padding:15px;
   border:1px solid #ddd;
-  overflow-y:auto;
-}
-
-.conversations h3{
-  margin-top:0;
+  display:block;
+  margin-bottom:15px;
+  background:#eee;
 }
 
 .conversation{
-  padding:12px;
+  background:#fff;
+  border:1px solid #ddd;
   border-radius:12px;
+  padding:14px;
+  margin-bottom:10px;
   cursor:pointer;
   display:flex;
-  gap:10px;
+  gap:12px;
   align-items:center;
-  margin-bottom:7px;
-  border:1px solid transparent;
 }
 
 .conversation:hover{
-  background:#f1f1f1;
-}
-
-.conversation.active{
-  background:#eee;
-  border-color:#ddd;
+  background:#f8f8f8;
 }
 
 .conversation-avatar{
@@ -249,43 +216,42 @@ main{
   height:48px;
   border-radius:50%;
   object-fit:cover;
-  background:#ddd;
+  background:#eee;
   flex-shrink:0;
 }
 
 .conversation-info{
-  min-width:0;
   flex:1;
+  min-width:0;
 }
 
 .conversation-name{
-  font-weight:700;
-  margin-bottom:3px;
+  font-weight:bold;
+  margin-bottom:4px;
 }
 
-.conversation-title{
+.conversation-listing{
   font-size:13px;
-  color:#666;
+  color:#777;
+  margin-bottom:4px;
+}
+
+.conversation-message{
   white-space:nowrap;
   overflow:hidden;
   text-overflow:ellipsis;
+  color:#555;
 }
 
-.conversation-last{
-  font-size:13px;
-  color:#888;
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
-  margin-top:3px;
+.conversation-date{
+  font-size:12px;
+  color:#999;
 }
 
 .chat{
   background:#fff;
-  border-radius:15px;
   border:1px solid #ddd;
-  display:flex;
-  flex-direction:column;
+  border-radius:12px;
   overflow:hidden;
 }
 
@@ -295,81 +261,41 @@ main{
   display:flex;
   align-items:center;
   gap:12px;
-  min-height:75px;
 }
 
-.chat-header img{
-  width:45px;
-  height:45px;
-  border-radius:50%;
-  object-fit:cover;
-  background:#ddd;
-}
-
-.chat-header-name{
-  font-weight:800;
-}
-
-.chat-header-title{
-  color:#777;
-  font-size:13px;
-  margin-top:3px;
-}
-
-.messages{
-  flex:1;
-  padding:20px;
+.chat-messages{
+  height:450px;
   overflow-y:auto;
-  min-height:400px;
-  max-height:500px;
+  padding:15px;
+  background:#f7f7f7;
 }
 
 .message{
-  display:flex;
-  gap:8px;
-  margin-bottom:14px;
-  align-items:flex-end;
+  max-width:75%;
+  padding:10px 13px;
+  border-radius:12px;
+  margin-bottom:8px;
+  word-wrap:break-word;
 }
 
 .message.mine{
-  justify-content:flex-end;
-}
-
-.message.mine .message-content{
+  margin-left:auto;
   background:#111;
   color:#fff;
+  border-bottom-right-radius:3px;
 }
 
-.message-content{
-  max-width:70%;
-  background:#eee;
-  padding:10px 13px;
-  border-radius:14px;
-}
-
-.message-name{
-  font-size:12px;
-  font-weight:700;
-  margin-bottom:4px;
-  opacity:.75;
-}
-
-.message-text{
-  word-break:break-word;
+.message.theirs{
+  margin-right:auto;
+  background:#fff;
+  border:1px solid #ddd;
+  border-bottom-left-radius:3px;
 }
 
 .message-time{
   font-size:10px;
-  opacity:.55;
-  margin-top:5px;
-}
-
-.message-avatar{
-  width:32px;
-  height:32px;
-  border-radius:50%;
-  object-fit:cover;
-  background:#ddd;
+  opacity:.6;
+  margin-top:4px;
 }
 
 .chat-input{
@@ -379,98 +305,41 @@ main{
   border-top:1px solid #ddd;
 }
 
-.chat-input input{
-  flex:1;
-  padding:12px;
-  border:1px solid #ddd;
-  border-radius:10px;
+.chat-input textarea{
+  margin:0;
+  min-height:45px;
+  max-height:120px;
 }
 
 .empty{
-  color:#777;
   text-align:center;
-  padding:40px 10px;
-}
-
-.notice{
-  padding:15px;
-  background:#fff4d6;
-  border-radius:12px;
-  margin-bottom:15px;
+  color:#777;
+  padding:30px;
 }
 
 .mobile-nav{
   display:none;
 }
 
-/* =========================
-   MOBILE
-========================= */
-
-@media(max-width:850px){
-
+@media(max-width:800px){
   header{
-    padding:0 10px;
+    padding:0 12px;
   }
 
-  nav{
+  header nav{
     display:none;
   }
 
-  .logo{
-    font-size:21px;
-  }
-
-  #userName{
+  .user #userName{
     display:none;
   }
 
-  .user{
-    gap:5px;
+  .container{
+    margin-top:20px;
   }
 
-  #messagesBtn{
-    display:block;
-    padding:8px 10px;
-    font-size:13px;
-  }
-
-  #loginBtn,
-  #logoutBtn{
-    padding:8px 10px;
-    font-size:13px;
-  }
-
-  main{
-    margin:15px auto 80px;
-  }
-
-  .hero{
-    padding:20px;
-  }
-
-  .hero h1{
-    font-size:28px;
-  }
-
-  .grid{
+  .form-row{
     grid-template-columns:1fr;
-  }
-
-  .chat-layout{
-    grid-template-columns:1fr;
-  }
-
-  .conversations{
-    max-height:280px;
-  }
-
-  .messages{
-    min-height:350px;
-  }
-
-  .message-content{
-    max-width:78%;
   }
 
   .mobile-nav{
@@ -478,40 +347,25 @@ main{
     bottom:0;
     left:0;
     right:0;
-    height:65px;
+    height:62px;
     background:#fff;
     border-top:1px solid #ddd;
     display:flex;
     justify-content:space-around;
     align-items:center;
-    z-index:999;
+    z-index:200;
   }
 
   .mobile-nav button{
     border:0;
-    background:none;
+    background:transparent;
     font-size:12px;
-    font-weight:600;
+    padding:7px;
     cursor:pointer;
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    gap:3px;
-  }
-}
-
-@media(max-width:500px){
-
-  #messagesBtn{
-    font-size:0;
-    width:40px;
-    height:38px;
-    padding:8px;
   }
 
-  #messagesBtn::before{
-    content:"💬";
-    font-size:18px;
+  .message{
+    max-width:88%;
   }
 }
 </style>
@@ -521,18 +375,11 @@ main{
 
 <header>
 
-  <!-- ЛОГО -->
-  <div
-    class="logo"
-    onclick="showSection('home')"
-  >
+  <div class="logo" onclick="showSection('home')">
     Delyvex
   </div>
 
-
-  <!-- ВСЕ КНОПКИ -->
   <nav>
-
     <button onclick="showSection('home')">
       Главная
     </button>
@@ -548,11 +395,8 @@ main{
     <button onclick="showSection('profile')">
       👤 Профиль
     </button>
-
   </nav>
 
-
-  <!-- ПОЛЬЗОВАТЕЛЬ -->
   <div class="user">
 
     <span id="userName"></span>
@@ -564,7 +408,6 @@ main{
       alt="avatar"
     >
 
-    <!-- КНОПКА ЧАТОВ ВСЕГДА ДОСТУПНА -->
     <button
       id="messagesBtn"
       class="btn secondary"
@@ -596,330 +439,263 @@ main{
 </header>
 
 
-<main>
+<div class="container">
+
+  <!-- ГЛАВНАЯ -->
+
+  <section id="home" class="section active">
+
+    <h1>Объявления</h1>
+
+    <div
+      id="listings"
+      class="listings"
+    ></div>
+
+  </section>
 
 
-<!-- =========================
-     ГЛАВНАЯ
-========================= -->
+  <!-- ПРОДАЖА -->
 
-<section
-  id="home"
-  class="section active"
->
+  <section id="sell" class="section">
 
-  <div class="hero">
+    <h1>Продать товар</h1>
 
-    <h1>
-      Покупай и продавай на Delyvex
-    </h1>
+    <div class="card">
 
-    <p>
-      Простая площадка для покупки и продажи товаров.
-    </p>
-
-    <div class="search">
+      <label>
+        Название
+      </label>
 
       <input
-        id="searchInput"
-        placeholder="Поиск товаров..."
-        oninput="loadListings()"
+        id="listingTitle"
+        type="text"
+        placeholder="Например: iPhone 13"
+      >
+
+      <label>
+        Описание
+      </label>
+
+      <textarea
+        id="listingDescription"
+        placeholder="Расскажи о товаре..."
+      ></textarea>
+
+      <div class="form-row">
+
+        <div>
+
+          <label>
+            Цена
+          </label>
+
+          <input
+            id="listingPrice"
+            type="number"
+            placeholder="0"
+          >
+
+        </div>
+
+        <div>
+
+          <label>
+            Категория
+          </label>
+
+          <input
+            id="listingCategory"
+            type="text"
+            placeholder="Электроника"
+          >
+
+        </div>
+
+      </div>
+
+      <label>
+        Ссылка на изображение товара
+      </label>
+
+      <input
+        id="listingImage"
+        type="text"
+        placeholder="https://..."
       >
 
       <button
         class="btn"
-        onclick="showSection('sell')"
+        onclick="createListing()"
       >
-        ➕ Продать
+        Опубликовать
       </button>
 
     </div>
 
-  </div>
+  </section>
 
 
-  <div
-    id="listingsGrid"
-    class="grid"
-  ></div>
+  <!-- ЧАТЫ -->
 
-</section>
+  <section id="messages" class="section">
 
+    <h1>Чаты</h1>
 
-<!-- =========================
-     ПРОДАТЬ
-========================= -->
+    <div id="conversations"></div>
 
-<section
-  id="sell"
-  class="section"
->
-
-  <h2>
-    ➕ Продать товар
-  </h2>
-
-  <div class="form">
-
-    <label>
-      Название товара
-    </label>
-
-    <input
-      id="listingTitle"
-      placeholder="Например: iPhone 13"
+    <div
+      id="chatContainer"
+      style="display:none"
     >
 
+      <div class="chat">
 
-    <label>
-      Описание
-    </label>
+        <div class="chat-header">
 
-    <textarea
-      id="listingDescription"
-      placeholder="Опишите товар..."
-    ></textarea>
+          <button
+            class="btn secondary"
+            onclick="closeChat()"
+          >
+            ←
+          </button>
 
+          <img
+            id="chatAvatar"
+            class="conversation-avatar"
+            alt="avatar"
+          >
 
-    <label>
-      Цена
-    </label>
+          <div>
 
-    <input
-      id="listingPrice"
-      type="number"
-      step="0.01"
-      placeholder="100"
-    >
+            <div
+              id="chatName"
+              class="conversation-name"
+            >
+            </div>
 
+            <div
+              id="chatListing"
+              class="conversation-listing"
+            >
+            </div>
 
-    <label>
-      Ссылка на изображение
-    </label>
+          </div>
 
-    <input
-      id="listingImage"
-      placeholder="https://..."
-    >
-
-
-    <button
-      class="btn"
-      onclick="createListing()"
-    >
-      Опубликовать товар
-    </button>
-
-  </div>
-
-</section>
-
-
-<!-- =========================
-     ЧАТЫ
-========================= -->
-
-<section
-  id="messages"
-  class="section"
->
-
-  <h2>
-    💬 Чаты
-  </h2>
-
-  <div
-    id="loginNotice"
-    class="notice"
-    style="display:none"
-  >
-    Войдите в аккаунт, чтобы увидеть сообщения пользователей.
-  </div>
-
-
-  <div
-    id="chatLayout"
-    class="chat-layout"
-  >
-
-    <!-- СПИСОК ПОЛЬЗОВАТЕЛЕЙ -->
-    <div class="conversations">
-
-      <h3>
-        Сообщения от пользователей
-      </h3>
-
-      <div
-        id="conversationsList"
-      ></div>
-
-    </div>
-
-
-    <!-- ОТКРЫТЫЙ ЧАТ -->
-    <div class="chat">
-
-      <div
-        id="chatHeader"
-        class="chat-header"
-      >
-
-        <div class="empty">
-          Выберите пользователя
         </div>
 
-      </div>
-
-
-      <div
-        id="messagesList"
-        class="messages"
-      >
-
-        <div class="empty">
-          Здесь появится переписка
+        <div
+          id="chatMessages"
+          class="chat-messages"
+        >
         </div>
 
-      </div>
+        <div class="chat-input">
 
+          <textarea
+            id="messageInput"
+            placeholder="Написать сообщение..."
+            onkeydown="handleMessageKey(event)"
+          ></textarea>
 
-      <div class="chat-input">
+          <button
+            class="btn"
+            onclick="sendMessage()"
+          >
+            Отправить
+          </button>
 
-        <input
-          id="messageInput"
-          placeholder="Напишите сообщение..."
-          onkeydown="
-            if(event.key==='Enter'){
-              sendMessage();
-            }
-          "
-        >
-
-        <button
-          class="btn"
-          onclick="sendMessage()"
-        >
-          Отправить
-        </button>
+        </div>
 
       </div>
 
     </div>
 
-  </div>
-
-</section>
+  </section>
 
 
-<!-- =========================
-     ПРОФИЛЬ
-========================= -->
+  <!-- ПРОФИЛЬ -->
 
-<section
-  id="profile"
-  class="section"
->
+  <section id="profile" class="section">
 
-  <h2>
-    👤 Профиль
-  </h2>
+    <h1>Профиль</h1>
 
-  <div class="profile-box">
-
-    <div class="profile-header">
+    <div class="card profile-box">
 
       <img
-        id="profileAvatar"
-        src="https://via.placeholder.com/100"
+        id="profileAvatarPreview"
+        class="profile-avatar-preview"
         alt="avatar"
+        style="display:none"
       >
 
-      <div>
+      <label>
+        Аватарка
+      </label>
 
-        <h3 id="profileName">
-          Гость
-        </h3>
+      <input
+        id="profileAvatarFile"
+        type="file"
+        accept="image/*"
+      >
 
-        <div id="profileEmail"></div>
-
+      <div
+        style="
+          font-size:13px;
+          color:#777;
+          margin-top:-8px;
+          margin-bottom:15px;
+        "
+      >
+        Максимальный размер: 10 МБ
       </div>
-
-    </div>
-
-
-    <div class="form">
 
       <label>
         Никнейм
       </label>
 
       <input
-        id="profileNickname"
-        placeholder="Ваш никнейм"
+        id="profileNameInput"
+        type="text"
+        placeholder="Твой никнейм"
       >
-
-
-      <label>
-        Ссылка на аватар
-      </label>
-
-      <input
-        id="profileAvatarInput"
-        placeholder="https://..."
-      >
-
 
       <button
         class="btn"
         onclick="saveProfile()"
       >
-        Сохранить профиль
+        Сохранить
       </button>
 
     </div>
 
-  </div>
+  </section>
 
-</section>
-
-</main>
+</div>
 
 
-<!-- =========================
-     МОБИЛЬНОЕ МЕНЮ
-========================= -->
+<!-- МОБИЛЬНАЯ НАВИГАЦИЯ -->
 
 <div class="mobile-nav">
 
-  <button
-    onclick="showSection('home')"
-  >
-    🏠
-    <span>Главная</span>
+  <button onclick="showSection('home')">
+    🏠<br>
+    Главная
   </button>
 
-
-  <button
-    onclick="showSection('sell')"
-  >
-    ➕
-    <span>Продать</span>
+  <button onclick="showSection('sell')">
+    ➕<br>
+    Продать
   </button>
 
-
-  <button
-    onclick="showSection('messages')"
-  >
-    💬
-    <span>Чаты</span>
+  <button onclick="showSection('messages')">
+    💬<br>
+    Чаты
   </button>
 
-
-  <button
-    onclick="showSection('profile')"
-  >
-    👤
-    <span>Профиль</span>
+  <button onclick="showSection('profile')">
+    👤<br>
+    Профиль
   </button>
 
 </div>
@@ -927,77 +703,58 @@ main{
 
 <script>
 
-/* =========================
-   SUPABASE
-========================= */
-
 const SUPABASE_URL =
-"https://gisdufgixjfudblxydvm.supabase.co";
+  "https://gisdufgixjfudblxydvm.supabase.co";
 
 const SUPABASE_KEY =
-"sb_publishable_irNKt_PStZrQ2NCEdaD5sg_quCmigAn";
+  "sb_publishable_irNKt_PStZrQ2NCEdaD5sg_quCmigAn";
 
 const sb =
-supabase.createClient(
-  SUPABASE_URL,
-  SUPABASE_KEY
-);
+  window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+  );
 
-
-/* =========================
-   GOOGLE REDIRECT
-========================= */
 
 const GITHUB_URL =
-"https://tyronik2x2v2-stack.github.io/Delyvex/";
+  "https://tyronik2x2v2-stack.github.io/Delyvex/";
 
 
 let currentUser = null;
-
-let currentChat = {
-  listingId:null,
-  otherUserId:null
-};
-
-let chatSubscription = null;
+let currentChat = null;
+let chatChannel = null;
 
 
 /* =========================
    НАВИГАЦИЯ
 ========================= */
 
-function showSection(id){
+function showSection(section){
 
   document
     .querySelectorAll(".section")
-    .forEach(section=>{
-      section.classList.remove("active");
+    .forEach(el=>{
+      el.classList.remove("active");
     });
 
+  const target =
+    document.getElementById(section);
 
-  const section =
-    document.getElementById(id);
-
-
-  if(section){
-    section.classList.add("active");
+  if(target){
+    target.classList.add("active");
   }
 
-
-  if(id === "home"){
+  if(section === "home"){
     loadListings();
   }
 
-
-  if(id === "messages"){
+  if(section === "messages"){
     loadConversations();
   }
 
-
-  if(id === "profile"){
+  if(section === "profile"){
     loadProfile();
   }
-
 
   window.scrollTo({
     top:0,
@@ -1020,7 +777,6 @@ async function loginWithGoogle(){
         provider:"google",
 
         options:{
-
           redirectTo:GITHUB_URL,
 
           skipBrowserRedirect:false,
@@ -1029,11 +785,9 @@ async function loginWithGoogle(){
             access_type:"offline",
             prompt:"select_account"
           }
-
         }
 
       });
-
 
     if(result.error){
 
@@ -1043,7 +797,7 @@ async function loginWithGoogle(){
       );
 
       alert(
-        "Ошибка входа:\n\n"+
+        "Ошибка входа через Google:\n\n" +
         result.error.message
       );
     }
@@ -1053,10 +807,9 @@ async function loginWithGoogle(){
     console.error(error);
 
     alert(
-      "Ошибка входа:\n\n"+
+      "Ошибка входа:\n\n" +
       error.message
     );
-
   }
 }
 
@@ -1069,7 +822,14 @@ async function logout(){
 
   await sb.auth.signOut();
 
-  currentUser=null;
+  currentUser = null;
+
+  currentChat = null;
+
+  if(chatChannel){
+    await sb.removeChannel(chatChannel);
+    chatChannel = null;
+  }
 
   updateAuthUI();
 
@@ -1084,31 +844,52 @@ async function logout(){
 async function checkAuth(){
 
   const {
-    data:{
-      session
-    }
-  } =
-    await sb.auth.getSession();
+    data,
+    error
+  } = await sb.auth.getSession();
 
+  if(error){
+    console.error(error);
+    return;
+  }
 
   currentUser =
-    session?.user || null;
+    data.session
+      ? data.session.user
+      : null;
+
+  updateAuthUI();
+
+  if(currentUser){
+    loadProfile();
+    loadListings();
+  }else{
+    loadListings();
+  }
+
+}
 
 
-  await updateAuthUI();
+sb.auth.onAuthStateChange(
+  async(event, session)=>{
 
+    currentUser =
+      session
+        ? session.user
+        : null;
 
-  sb.auth.onAuthStateChange(
-    async(event,session)=>{
+    updateAuthUI();
 
-      currentUser =
-        session?.user || null;
+    if(currentUser){
 
-      await updateAuthUI();
+      await loadProfile();
+
+      await loadListings();
 
     }
-  );
-}
+
+  }
+);
 
 
 /* =========================
@@ -1118,52 +899,49 @@ async function checkAuth(){
 async function updateAuthUI(){
 
   const loginBtn =
-    document.getElementById(
-      "loginBtn"
-    );
+    document.getElementById("loginBtn");
 
   const logoutBtn =
-    document.getElementById(
-      "logoutBtn"
-    );
-
-  const messagesBtn =
-    document.getElementById(
-      "messagesBtn"
-    );
+    document.getElementById("logoutBtn");
 
   const userName =
-    document.getElementById(
-      "userName"
-    );
+    document.getElementById("userName");
 
   const headerAvatar =
-    document.getElementById(
-      "headerAvatar"
-    );
+    document.getElementById("headerAvatar");
+
+  const messagesBtn =
+    document.getElementById("messagesBtn");
 
 
   if(!currentUser){
 
-    loginBtn.style.display="block";
+    loginBtn.style.display =
+      "inline-block";
 
-    logoutBtn.style.display="none";
+    logoutBtn.style.display =
+      "none";
 
-    messagesBtn.style.display="none";
+    messagesBtn.style.display =
+      "none";
 
-    userName.textContent="";
+    userName.textContent = "";
 
-    headerAvatar.style.display="none";
+    headerAvatar.style.display =
+      "none";
 
     return;
   }
 
 
-  loginBtn.style.display="none";
+  loginBtn.style.display =
+    "none";
 
-  logoutBtn.style.display="block";
+  logoutBtn.style.display =
+    "inline-block";
 
-  messagesBtn.style.display="block";
+  messagesBtn.style.display =
+    "inline-block";
 
 
   const profile =
@@ -1173,35 +951,31 @@ async function updateAuthUI(){
 
 
   userName.textContent =
-    getProfileName(
-      profile,
-      currentUser
-    );
+    profile?.username ||
+    currentUser.user_metadata?.full_name ||
+    currentUser.email ||
+    "";
 
 
-  const avatar =
-    getProfileAvatar(
-      profile,
-      currentUser
-    );
+  if(profile?.avatar_url){
 
+    headerAvatar.src =
+      profile.avatar_url;
 
-  if(avatar){
-
-    headerAvatar.src=avatar;
-
-    headerAvatar.style.display="block";
+    headerAvatar.style.display =
+      "block";
 
   }else{
 
-    headerAvatar.style.display="none";
-
+    headerAvatar.style.display =
+      "none";
   }
+
 }
 
 
 /* =========================
-   ПРОФИЛЬ
+   PROFILE
 ========================= */
 
 async function getProfile(userId){
@@ -1209,13 +983,11 @@ async function getProfile(userId){
   const {
     data,
     error
-  } =
-    await sb
-      .from("profiles")
-      .select("*")
-      .eq("id",userId)
-      .maybeSingle();
-
+  } = await sb
+    .from("profiles")
+    .select("*")
+    .eq("id",userId)
+    .maybeSingle();
 
   if(error){
 
@@ -1227,136 +999,85 @@ async function getProfile(userId){
     return null;
   }
 
-
   return data;
 }
 
 
-function getProfileName(
-  profile,
-  user
-){
+async function getProfileName(userId){
 
-  return (
-    profile?.nickname ||
-    profile?.username ||
-    profile?.name ||
-    profile?.full_name ||
-    user?.user_metadata?.full_name ||
-    user?.email?.split("@")[0] ||
-    "Пользователь"
-  );
+  const profile =
+    await getProfile(userId);
+
+  if(profile?.username){
+    return profile.username;
+  }
+
+  return "Пользователь";
 }
 
 
-function getProfileAvatar(
-  profile,
-  user
-){
+async function getProfileAvatar(userId){
 
-  return (
-    profile?.avatar_url ||
-    profile?.avatar ||
-    user?.user_metadata?.avatar_url ||
-    user?.user_metadata?.picture ||
-    ""
-  );
+  const profile =
+    await getProfile(userId);
+
+  return profile?.avatar_url || "";
 }
 
 
 /* =========================
-   ТОВАРЫ
+   LISTINGS
 ========================= */
 
 async function loadListings(){
 
-  const grid =
-    document.getElementById(
-      "listingsGrid"
-    );
+  const container =
+    document.getElementById("listings");
+
+  if(!container){
+    return;
+  }
 
 
-  const input =
-    document.getElementById(
-      "searchInput"
-    );
-
-
-  const search =
-    input?.value
-      ?.trim()
-      ?.toLowerCase() || "";
+  container.innerHTML =
+    '<div class="empty">Загрузка...</div>';
 
 
   const {
     data,
     error
-  } =
-    await sb
-      .from("listings")
-      .select("*")
-      .order(
-        "created_at",
-        {
-          ascending:false
-        }
-      );
+  } = await sb
+    .from("listings")
+    .select("*")
+    .order(
+      "created_at",
+      {ascending:false}
+    );
 
 
   if(error){
 
     console.error(error);
 
-    grid.innerHTML =
-      `<div class="empty">
-        Ошибка загрузки товаров.
-      </div>`;
+    container.innerHTML =
+      '<div class="empty">Ошибка загрузки объявлений.</div>';
 
     return;
   }
 
 
-  const filtered =
-    (data || []).filter(item=>{
+  if(!data || data.length === 0){
 
-      if(!search){
-        return true;
-      }
-
-
-      return (
-
-        String(item.title || "")
-          .toLowerCase()
-          .includes(search)
-
-        ||
-
-        String(item.description || "")
-          .toLowerCase()
-          .includes(search)
-
-      );
-
-    });
-
-
-  if(filtered.length===0){
-
-    grid.innerHTML =
-      `<div class="empty">
-        Товаров пока нет.
-      </div>`;
+    container.innerHTML =
+      '<div class="empty">Пока нет объявлений.</div>';
 
     return;
   }
 
 
-  grid.innerHTML =
-    filtered
-      .map(
-        item=>listingHTML(item)
-      )
+  container.innerHTML =
+    data
+      .map(listingHTML)
       .join("");
 }
 
@@ -1365,7 +1086,6 @@ function listingHTML(item){
 
   const image =
     item.image_url ||
-    item.image ||
     "https://via.placeholder.com/600x400?text=Delyvex";
 
 
@@ -1376,50 +1096,57 @@ function listingHTML(item){
 
 
   return `
-
-    <div class="card">
+    <div class="listing">
 
       <img
         src="${escapeHTML(image)}"
         alt=""
+        onerror="
+          this.src='https://via.placeholder.com/600x400?text=Delyvex'
+        "
       >
 
-      <div class="card-body">
+      <div class="listing-content">
 
-        <h3>
-          ${escapeHTML(
-            item.title ||
-            "Без названия"
-          )}
-        </h3>
+        <div class="listing-title">
+          ${escapeHTML(item.title || "Без названия")}
+        </div>
 
         <div>
-          ${escapeHTML(
-            item.description || ""
-          )}
+          ${escapeHTML(item.description || "")}
         </div>
 
         <div class="price">
           ${escapeHTML(price)}
         </div>
 
-        <button
-          class="btn"
-          onclick="openChat(${Number(item.id)})"
-        >
-          💬 Написать продавцу
-        </button>
+        ${
+          currentUser &&
+          currentUser.id !== item.user_id
+          ? `
+            <button
+              class="btn"
+              onclick="openChat(
+                '${item.id}',
+                '${item.user_id}',
+                '${escapeJS(item.title || "")}'
+              )"
+            >
+              💬 Написать продавцу
+            </button>
+          `
+          : ""
+        }
 
       </div>
 
     </div>
-
   `;
 }
 
 
 /* =========================
-   СОЗДАНИЕ ТОВАРА
+   CREATE LISTING
 ========================= */
 
 async function createListing(){
@@ -1427,7 +1154,7 @@ async function createListing(){
   if(!currentUser){
 
     alert(
-      "Сначала войдите в аккаунт."
+      "Сначала войди в аккаунт."
     );
 
     return;
@@ -1435,27 +1162,37 @@ async function createListing(){
 
 
   const title =
-    document.getElementById(
-      "listingTitle"
-    ).value.trim();
+    document
+      .getElementById("listingTitle")
+      .value
+      .trim();
 
 
   const description =
-    document.getElementById(
-      "listingDescription"
-    ).value.trim();
+    document
+      .getElementById("listingDescription")
+      .value
+      .trim();
 
 
-  const price =
-    document.getElementById(
-      "listingPrice"
-    ).value;
+  const priceValue =
+    document
+      .getElementById("listingPrice")
+      .value;
+
+
+  const category =
+    document
+      .getElementById("listingCategory")
+      .value
+      .trim();
 
 
   const image =
-    document.getElementById(
-      "listingImage"
-    ).value.trim();
+    document
+      .getElementById("listingImage")
+      .value
+      .trim();
 
 
   if(!title){
@@ -1468,28 +1205,33 @@ async function createListing(){
   }
 
 
+  const price =
+    priceValue
+      ? Number(priceValue)
+      : null;
+
+
   const {
     error
-  } =
-    await sb
-      .from("listings")
-      .insert({
+  } = await sb
+    .from("listings")
+    .insert({
 
-        title:title,
+      user_id:
+        currentUser.id,
 
-        description:description,
+      title,
 
-        price:
-          price
-            ? Number(price)
-            : null,
+      description,
 
-        image_url:image,
+      price,
 
-        seller_id:
-          currentUser.id
+      category,
 
-      });
+      image_url:
+        image || null
+
+    });
 
 
   if(error){
@@ -1497,7 +1239,7 @@ async function createListing(){
     console.error(error);
 
     alert(
-      "Ошибка публикации:\n\n"+
+      "Ошибка создания объявления:\n\n" +
       error.message
     );
 
@@ -1505,29 +1247,30 @@ async function createListing(){
   }
 
 
+  document
+    .getElementById("listingTitle")
+    .value = "";
+
+  document
+    .getElementById("listingDescription")
+    .value = "";
+
+  document
+    .getElementById("listingPrice")
+    .value = "";
+
+  document
+    .getElementById("listingCategory")
+    .value = "";
+
+  document
+    .getElementById("listingImage")
+    .value = "";
+
+
   alert(
-    "Товар опубликован!"
+    "Объявление опубликовано!"
   );
-
-
-  document.getElementById(
-    "listingTitle"
-  ).value="";
-
-
-  document.getElementById(
-    "listingDescription"
-  ).value="";
-
-
-  document.getElementById(
-    "listingPrice"
-  ).value="";
-
-
-  document.getElementById(
-    "listingImage"
-  ).value="";
 
 
   showSection("home");
@@ -1535,52 +1278,20 @@ async function createListing(){
 
 
 /* =========================
-   ОТКРЫТЬ ЧАТ С ПРОДАВЦОМ
+   OPEN CHAT
 ========================= */
 
-async function openChat(listingId){
+async function openChat(
+  listingId,
+  receiverId,
+  listingTitle
+){
 
   if(!currentUser){
 
     alert(
-      "Чтобы написать продавцу, сначала войдите."
+      "Сначала войди в аккаунт."
     );
-
-    return;
-  }
-
-
-  const {
-    data:listing,
-    error
-  } =
-    await sb
-      .from("listings")
-      .select("*")
-      .eq("id",listingId)
-      .single();
-
-
-  if(error){
-
-    alert(
-      "Не удалось открыть товар."
-    );
-
-    return;
-  }
-
-
-  if(
-    listing.seller_id ===
-    currentUser.id
-  ){
-
-    alert(
-      "Это ваш товар. Откройте «Чаты», чтобы посмотреть сообщения от покупателей."
-    );
-
-    showSection("messages");
 
     return;
   }
@@ -1591,39 +1302,49 @@ async function openChat(listingId){
     listingId:
       Number(listingId),
 
-    otherUserId:
-      listing.seller_id
+    receiverId,
+
+    listingTitle,
+
+    partnerId:
+      receiverId
 
   };
 
 
   showSection("messages");
 
-  await openCurrentChat();
+  openCurrentChat();
 }
 
 
-/* =========================
-   ОТКРЫТЬ ЧАТ
-========================= */
-
 async function openConversation(
   listingId,
-  otherUserId
+  partnerId,
+  listingTitle
 ){
+
+  if(!currentUser){
+    return;
+  }
+
 
   currentChat = {
 
     listingId:
       Number(listingId),
 
-    otherUserId:
-      otherUserId
+    receiverId:
+      partnerId,
+
+    listingTitle,
+
+    partnerId
 
   };
 
 
-  await openCurrentChat();
+  openCurrentChat();
 }
 
 
@@ -1634,95 +1355,83 @@ async function openConversationFromElement(
   const listingId =
     element.dataset.listingId;
 
+  const partnerId =
+    element.dataset.partnerId;
 
-  const userId =
-    element.dataset.userId;
+  const listingTitle =
+    element.dataset.listingTitle;
 
 
-  await openConversation(
+  openConversation(
     listingId,
-    userId
+    partnerId,
+    listingTitle
   );
 }
 
 
 /* =========================
-   ОТКРЫТЫЙ ЧАТ
+   OPEN CURRENT CHAT
 ========================= */
 
 async function openCurrentChat(){
 
-  if(
-    !currentUser ||
-    !currentChat.listingId ||
-    !currentChat.otherUserId
-  ){
-
+  if(!currentChat){
     return;
   }
 
 
-  const other =
-    await getProfile(
-      currentChat.otherUserId
+  const conversations =
+    document.getElementById(
+      "conversations"
+    );
+
+  const chatContainer =
+    document.getElementById(
+      "chatContainer"
     );
 
 
-  const otherUser = {
-    id:
-      currentChat.otherUserId
-  };
+  conversations.style.display =
+    "none";
+
+  chatContainer.style.display =
+    "block";
 
 
   const name =
-    getProfileName(
-      other,
-      otherUser
+    await getProfileName(
+      currentChat.partnerId
     );
 
 
   const avatar =
-    getProfileAvatar(
-      other,
-      otherUser
+    await getProfileAvatar(
+      currentChat.partnerId
     );
 
 
-  const header =
+  document.getElementById(
+    "chatName"
+  ).textContent = name;
+
+
+  document.getElementById(
+    "chatListing"
+  ).textContent =
+    currentChat.listingTitle ||
+    "";
+
+
+  const chatAvatar =
     document.getElementById(
-      "chatHeader"
+      "chatAvatar"
     );
 
 
-  header.innerHTML = `
-
-    ${
-      avatar
-      ?
-      `<img
-        src="${escapeHTML(avatar)}"
-        alt=""
-      >`
-      :
-      `<img
-        src="https://via.placeholder.com/80"
-        alt=""
-      >`
-    }
-
-    <div>
-
-      <div class="chat-header-name">
-        ${escapeHTML(name)}
-      </div>
-
-      <div class="chat-header-title">
-        Переписка по объявлению
-      </div>
-
-    </div>
-
-  `;
+  chatAvatar.src =
+    avatar ||
+    "https://via.placeholder.com/100";
 
 
   await loadChat();
@@ -1731,28 +1440,44 @@ async function openCurrentChat(){
 }
 
 
+function closeChat(){
+
+  currentChat = null;
+
+  if(chatChannel){
+
+    sb.removeChannel(
+      chatChannel
+    );
+
+    chatChannel = null;
+  }
+
+
+  document.getElementById(
+    "chatContainer"
+  ).style.display =
+    "none";
+
+
+  document.getElementById(
+    "conversations"
+  ).style.display =
+    "block";
+
+
+  loadConversations();
+}
+
+
 /* =========================
-   ЗАГРУЗКА СООБЩЕНИЙ
+   LOAD CHAT
 ========================= */
 
 async function loadChat(){
 
-  const box =
-    document.getElementById(
-      "messagesList"
-    );
-
-
-  if(
-    !currentUser ||
-    !currentChat.listingId ||
-    !currentChat.otherUserId
-  ){
-
-    box.innerHTML =
-      `<div class="empty">
-        Выберите чат слева.
-      </div>`;
+  if(!currentChat ||
+     !currentUser){
 
     return;
   }
@@ -1761,144 +1486,64 @@ async function loadChat(){
   const {
     data,
     error
-  } =
-    await sb
-      .from("messages")
-      .select("*")
-      .eq(
-        "listing_id",
-        currentChat.listingId
-      )
-      .or(
-        `and(sender_id.eq.${currentUser.id},receiver_id.eq.${currentChat.otherUserId}),and(sender_id.eq.${currentChat.otherUserId},receiver_id.eq.${currentUser.id})`
-      )
-      .order(
-        "created_at",
-        {
-          ascending:true
-        }
-      );
+  } = await sb
+    .from("messages")
+    .select("*")
+    .eq(
+      "listing_id",
+      currentChat.listingId
+    )
+    .or(
+      `and(sender_id.eq.${currentUser.id},receiver_id.eq.${currentChat.partnerId}),and(sender_id.eq.${currentChat.partnerId},receiver_id.eq.${currentUser.id})`
+    )
+    .order(
+      "created_at",
+      {ascending:true}
+    );
 
 
   if(error){
 
     console.error(error);
 
-    box.innerHTML =
-      `<div class="empty">
-        Ошибка загрузки сообщений.
-      </div>`;
+    return;
+  }
+
+
+  const container =
+    document.getElementById(
+      "chatMessages"
+    );
+
+
+  if(!data || data.length === 0){
+
+    container.innerHTML =
+      '<div class="empty">Начни диалог 👋</div>';
 
     return;
   }
 
 
-  if(!data || data.length===0){
-
-    box.innerHTML =
-      `<div class="empty">
-        Сообщений пока нет.
-        Напишите первым!
-      </div>`;
-
-    return;
-  }
-
-
-  const ids =
-    [
-      ...new Set(
-        data.map(
-          message=>
-            message.sender_id
-        )
-      )
-    ];
-
-
-  const {
-    data:profiles
-  } =
-    await sb
-      .from("profiles")
-      .select("*")
-      .in(
-        "id",
-        ids
-      );
-
-
-  const profileMap={};
-
-
-  (profiles || [])
-    .forEach(profile=>{
-
-      profileMap[
-        profile.id
-      ]=profile;
-
-    });
-
-
-  box.innerHTML =
+  container.innerHTML =
     data
-      .map(
-        message=>
-          messageHTML(
-            message,
-            profileMap
-          )
-      )
+      .map(messageHTML)
       .join("");
 
 
-  box.scrollTop =
-    box.scrollHeight;
+  container.scrollTop =
+    container.scrollHeight;
 }
 
 
-/* =========================
-   MESSAGE HTML
-========================= */
-
-function messageHTML(
-  message,
-  profileMap
-){
+function messageHTML(message){
 
   const mine =
     message.sender_id ===
     currentUser.id;
 
 
-  const profile =
-    profileMap[
-      message.sender_id
-    ];
-
-
-  const user = {
-    id:
-      message.sender_id
-  };
-
-
-  const name =
-    getProfileName(
-      profile,
-      user
-    );
-
-
-  const avatar =
-    getProfileAvatar(
-      profile,
-      user
-    );
-
-
-  const time =
+  const date =
     new Date(
       message.created_at
     ).toLocaleTimeString(
@@ -1911,76 +1556,29 @@ function messageHTML(
 
 
   return `
+    <div class="message ${mine ? "mine" : "theirs"}">
 
-    <div
-      class="message ${mine ? "mine" : ""}"
-    >
+      <div>
+        ${escapeHTML(message.message)}
+      </div>
 
-      ${
-        avatar
-        ?
-        `<img
-          class="message-avatar"
-          src="${escapeHTML(avatar)}"
-          alt=""
-        >`
-        :
-        `<img
-          class="message-avatar"
-          src="https://via.placeholder.com/50"
-          alt=""
-        >`
-      }
-
-
-      <div class="message-content">
-
-        <div class="message-name">
-          ${escapeHTML(name)}
-        </div>
-
-        <div class="message-text">
-          ${escapeHTML(
-            message.message
-          )}
-        </div>
-
-        <div class="message-time">
-          ${time}
-        </div>
-
+      <div class="message-time">
+        ${date}
       </div>
 
     </div>
-
   `;
 }
 
 
 /* =========================
-   ОТПРАВИТЬ СООБЩЕНИЕ
+   SEND MESSAGE
 ========================= */
 
 async function sendMessage(){
 
-  if(!currentUser){
-
-    alert(
-      "Сначала войдите в аккаунт."
-    );
-
-    return;
-  }
-
-
-  if(
-    !currentChat.listingId ||
-    !currentChat.otherUserId
-  ){
-
-    alert(
-      "Сначала выберите чат."
-    );
+  if(!currentUser ||
+     !currentChat){
 
     return;
   }
@@ -2001,31 +1599,24 @@ async function sendMessage(){
   }
 
 
-  input.disabled=true;
-
-
   const {
     error
-  } =
-    await sb
-      .from("messages")
-      .insert({
+  } = await sb
+    .from("messages")
+    .insert({
 
-        listing_id:
-          currentChat.listingId,
+      listing_id:
+        currentChat.listingId,
 
-        sender_id:
-          currentUser.id,
+      sender_id:
+        currentUser.id,
 
-        receiver_id:
-          currentChat.otherUserId,
+      receiver_id:
+        currentChat.partnerId,
 
-        message:text
+      message:text
 
-      });
-
-
-  input.disabled=false;
+    });
 
 
   if(error){
@@ -2033,7 +1624,7 @@ async function sendMessage(){
     console.error(error);
 
     alert(
-      "Ошибка отправки:\n\n"+
+      "Не удалось отправить сообщение:\n\n" +
       error.message
     );
 
@@ -2041,485 +1632,306 @@ async function sendMessage(){
   }
 
 
-  input.value="";
+  input.value = "";
 
   await loadChat();
+}
 
-  await loadConversations();
+
+function handleMessageKey(event){
+
+  if(
+    event.key === "Enter" &&
+    !event.shiftKey
+  ){
+
+    event.preventDefault();
+
+    sendMessage();
+  }
 }
 
 
 /* =========================
-   REALTIME
+   REALTIME CHAT
 ========================= */
 
 function subscribeChat(){
 
-  if(chatSubscription){
+  if(chatChannel){
 
     sb.removeChannel(
-      chatSubscription
+      chatChannel
     );
 
-    chatSubscription=null;
+    chatChannel = null;
   }
 
 
-  if(
-    !currentUser ||
-    !currentChat.listingId
-  ){
-
+  if(!currentChat){
     return;
   }
 
 
-  chatSubscription =
+  chatChannel =
     sb
       .channel(
         "chat-" +
         currentChat.listingId +
         "-" +
-        currentUser.id
+        currentUser.id +
+        "-" +
+        currentChat.partnerId
       )
       .on(
+
         "postgres_changes",
+
         {
           event:"INSERT",
           schema:"public",
-          table:"messages",
-          filter:
-            `listing_id=eq.${currentChat.listingId}`
+          table:"messages"
         },
-        async payload=>{
+
+        payload=>{
 
           const message =
             payload.new;
 
 
           if(
+            message.listing_id ===
+            currentChat.listingId &&
 
             (
-              message.sender_id ===
-              currentUser.id &&
+              (
+                message.sender_id ===
+                currentUser.id &&
 
-              message.receiver_id ===
-              currentChat.otherUserId
+                message.receiver_id ===
+                currentChat.partnerId
+              )
+              ||
+              (
+                message.sender_id ===
+                currentChat.partnerId &&
+
+                message.receiver_id ===
+                currentUser.id
+              )
             )
-
-            ||
-
-            (
-              message.sender_id ===
-              currentChat.otherUserId &&
-
-              message.receiver_id ===
-              currentUser.id
-            )
-
           ){
 
-            await loadChat();
-
-            await loadConversations();
-
+            loadChat();
           }
 
         }
+
       )
       .subscribe();
 }
 
 
 /* =========================
-   СПИСОК ЧАТОВ
+   CONVERSATIONS
 ========================= */
 
 async function loadConversations(){
 
-  const list =
-    document.getElementById(
-      "conversationsList"
-    );
-
-
   if(!currentUser){
 
     document.getElementById(
-      "loginNotice"
-    ).style.display="block";
-
-
-    list.innerHTML =
-      `<div class="empty">
-        Войдите в аккаунт,
-        чтобы увидеть сообщения.
-      </div>`;
+      "conversations"
+    ).innerHTML =
+      `
+        <div class="card empty">
+          Войди в аккаунт, чтобы увидеть чаты.
+        </div>
+      `;
 
     return;
   }
 
 
-  document.getElementById(
-    "loginNotice"
-  ).style.display="none";
-
-
   const {
-    data:messages,
+    data,
     error
-  } =
-    await sb
-      .from("messages")
-      .select("*")
-      .or(
-        `sender_id.eq.${currentUser.id},receiver_id.eq.${currentUser.id}`
-      )
-      .order(
-        "created_at",
-        {
-          ascending:false
-        }
-      );
+  } = await sb
+    .from("messages")
+    .select("*")
+    .or(
+      `sender_id.eq.${currentUser.id},receiver_id.eq.${currentUser.id}`
+    )
+    .order(
+      "created_at",
+      {ascending:false}
+    );
 
 
   if(error){
 
     console.error(error);
 
-    list.innerHTML =
-      `<div class="empty">
-        Ошибка загрузки чатов.
-      </div>`;
+    document.getElementById(
+      "conversations"
+    ).innerHTML =
+      `
+        <div class="empty">
+          Ошибка загрузки чатов.
+        </div>
+      `;
 
     return;
   }
 
 
-  if(
-    !messages ||
-    messages.length===0
-  ){
-
-    list.innerHTML =
-      `<div class="empty">
-        Пока никто не написал.
-      </div>`;
-
-    return;
-  }
+  const unique = new Map();
 
 
-  /*
-    Создаём уникальные чаты:
-    пользователь + объявление
-  */
+  for(const message of data || []){
 
-  const conversations =
-    new Map();
-
-
-  for(
-    const message of messages
-  ){
-
-    const otherUserId =
-      message.sender_id ===
-      currentUser.id
-
-      ? message.receiver_id
-
-      : message.sender_id;
+    const partnerId =
+      message.sender_id === currentUser.id
+        ? message.receiver_id
+        : message.sender_id;
 
 
     const key =
-      `${message.listing_id}_${otherUserId}`;
+      `${message.listing_id}_${partnerId}`;
 
 
-    /*
-      Так как сообщения
-      отсортированы от новых
-      к старым, первым будет
-      последнее сообщение.
-    */
+    if(!unique.has(key)){
 
-    if(
-      !conversations.has(key)
-    ){
-
-      conversations.set(
+      unique.set(
         key,
-        {
-          listingId:
-            message.listing_id,
-
-          otherUserId:
-            otherUserId,
-
-          message:
-            message.message,
-
-          createdAt:
-            message.created_at,
-
-          fromMe:
-            message.sender_id ===
-            currentUser.id
-        }
+        message
       );
-
     }
-
   }
 
 
-  const items =
-    Array.from(
-      conversations.values()
-    );
+  if(unique.size === 0){
 
-
-  if(items.length===0){
-
-    list.innerHTML =
-      `<div class="empty">
-        Пока никто не написал.
-      </div>`;
+    document.getElementById(
+      "conversations"
+    ).innerHTML =
+      `
+        <div class="card empty">
+          У тебя пока нет сообщений.
+        </div>
+      `;
 
     return;
   }
 
 
-  const userIds =
-    items.map(
-      item=>item.otherUserId
-    );
+  const html = [];
 
 
-  const listingIds =
-    items
-      .map(
-        item=>item.listingId
-      )
-      .filter(Boolean);
+  for(const message of unique.values()){
+
+    const partnerId =
+      message.sender_id === currentUser.id
+        ? message.receiver_id
+        : message.sender_id;
 
 
-  const {
-    data:profiles
-  } =
-    await sb
-      .from("profiles")
-      .select("*")
-      .in(
-        "id",
-        userIds
+    const profile =
+      await getProfile(
+        partnerId
       );
 
 
-  const {
-    data:listings
-  } =
-    listingIds.length
-
-      ?
-
+    const listing =
       await sb
         .from("listings")
-        .select("*")
-        .in(
+        .select("title")
+        .eq(
           "id",
-          listingIds
+          message.listing_id
         )
-
-      :
-
-      {data:[]};
+        .maybeSingle();
 
 
-  const profileMap={};
-
-  (profiles || [])
-    .forEach(profile=>{
-
-      profileMap[
-        profile.id
-      ]=profile;
-
-    });
+    const name =
+      profile?.username ||
+      "Пользователь";
 
 
-  const listingMap={};
-
-  (listings || [])
-    .forEach(listing=>{
-
-      listingMap[
-        listing.id
-      ]=listing;
-
-    });
+    const avatar =
+      profile?.avatar_url ||
+      "https://via.placeholder.com/100";
 
 
-  list.innerHTML =
-    items
-      .map(item=>{
-
-        const profile =
-          profileMap[
-            item.otherUserId
-          ];
+    const date =
+      new Date(
+        message.created_at
+      ).toLocaleDateString(
+        "ru-RU"
+      );
 
 
-        const user = {
-          id:
-            item.otherUserId
-        };
+    html.push(`
 
+      <div
+        class="conversation"
+        data-listing-id="${message.listing_id}"
+        data-partner-id="${partnerId}"
+        data-listing-title="${escapeHTML(listing.data?.title || "")}"
+        onclick="openConversationFromElement(this)"
+      >
 
-        const name =
-          getProfileName(
-            profile,
-            user
-          );
+        <img
+          class="conversation-avatar"
+          src="${escapeHTML(avatar)}"
+          alt="avatar"
+        >
 
+        <div class="conversation-info">
 
-        const avatar =
-          getProfileAvatar(
-            profile,
-            user
-          );
-
-
-        const listing =
-          listingMap[
-            item.listingId
-          ];
-
-
-        const title =
-          listing?.title ||
-          "Объявление";
-
-
-        const date =
-          new Date(
-            item.createdAt
-          ).toLocaleString(
-            "ru-RU",
-            {
-              day:"2-digit",
-              month:"2-digit",
-              hour:"2-digit",
-              minute:"2-digit"
-            }
-          );
-
-
-        /*
-          Показываем:
-          имя пользователя
-          объявление
-          последнее сообщение
-          дату
-        */
-
-        return `
-
-          <div
-            class="conversation"
-            data-listing-id="${Number(item.listingId)}"
-            data-user-id="${escapeHTML(item.otherUserId)}"
-            onclick="openConversationFromElement(this)"
-          >
-
-            ${
-              avatar
-
-              ?
-
-              `<img
-                class="conversation-avatar"
-                src="${escapeHTML(avatar)}"
-                alt=""
-              >`
-
-              :
-
-              `<img
-                class="conversation-avatar"
-                src="https://via.placeholder.com/60"
-                alt=""
-              >`
-            }
-
-
-            <div class="conversation-info">
-
-              <div class="conversation-name">
-
-                ${escapeHTML(name)}
-
-              </div>
-
-
-              <div class="conversation-title">
-
-                📦 ${escapeHTML(title)}
-
-              </div>
-
-
-              <div class="conversation-last">
-
-                ${
-                  item.fromMe
-                    ? "Вы: "
-                    : ""
-                }
-
-                ${escapeHTML(
-                  item.message
-                )}
-
-              </div>
-
-
-              <div class="conversation-last">
-
-                ${date}
-
-              </div>
-
-            </div>
-
+          <div class="conversation-name">
+            ${escapeHTML(name)}
           </div>
 
-        `;
+          <div class="conversation-listing">
+            ${escapeHTML(
+              listing.data?.title ||
+              "Объявление"
+            )}
+          </div>
 
-      })
-      .join("");
+          <div class="conversation-message">
+            ${escapeHTML(
+              message.message
+            )}
+          </div>
+
+        </div>
+
+        <div class="conversation-date">
+          ${date}
+        </div>
+
+      </div>
+
+    `);
+  }
+
+
+  document.getElementById(
+    "conversations"
+  ).innerHTML =
+    html.join("");
 }
 
 
 /* =========================
-   ПРОФИЛЬ
+   PROFILE LOAD
 ========================= */
 
 async function loadProfile(){
 
   if(!currentUser){
-
-    document.getElementById(
-      "profileName"
-    ).textContent="Гость";
-
-
-    document.getElementById(
-      "profileEmail"
-    ).textContent=
-      "Войдите в аккаунт";
-
-
     return;
   }
 
@@ -2530,97 +1942,211 @@ async function loadProfile(){
     );
 
 
-  const name =
-    getProfileName(
-      profile,
-      currentUser
+  const nameInput =
+    document.getElementById(
+      "profileNameInput"
     );
 
 
-  const avatar =
-    getProfileAvatar(
-      profile,
-      currentUser
+  const avatarPreview =
+    document.getElementById(
+      "profileAvatarPreview"
     );
 
 
-  document.getElementById(
-    "profileName"
-  ).textContent=name;
+  if(profile){
+
+    nameInput.value =
+      profile.username ||
+      "";
 
 
-  document.getElementById(
-    "profileEmail"
-  ).textContent=
-    currentUser.email || "";
+    if(profile.avatar_url){
 
+      avatarPreview.src =
+        profile.avatar_url;
 
-  document.getElementById(
-    "profileNickname"
-  ).value =
-    profile?.nickname ||
-    profile?.username ||
-    profile?.name ||
-    "";
+      avatarPreview.style.display =
+        "block";
 
+    }else{
 
-  document.getElementById(
-    "profileAvatarInput"
-  ).value =
-    profile?.avatar_url ||
-    profile?.avatar ||
-    "";
+      avatarPreview.style.display =
+        "none";
+    }
 
+  }else{
 
-  document.getElementById(
-    "profileAvatar"
-  ).src =
-    avatar ||
-    "https://via.placeholder.com/100";
+    nameInput.value = "";
+
+    avatarPreview.style.display =
+      "none";
+  }
 }
 
+
+/* =========================
+   SAVE PROFILE
+========================= */
 
 async function saveProfile(){
 
   if(!currentUser){
 
     alert(
-      "Сначала войдите."
+      "Сначала войди в аккаунт."
     );
 
     return;
   }
 
 
-  const nickname =
+  const nameInput =
     document.getElementById(
-      "profileNickname"
-    ).value.trim();
+      "profileNameInput"
+    );
 
 
-  const avatar =
+  const fileInput =
     document.getElementById(
-      "profileAvatarInput"
-    ).value.trim();
+      "profileAvatarFile"
+    );
+
+
+  const username =
+    nameInput.value.trim();
+
+
+  const file =
+    fileInput.files[0];
+
+
+  /* Максимум 10 МБ */
+
+  const MAX_SIZE =
+    10 * 1024 * 1024;
+
+
+  if(file){
+
+    if(file.size > MAX_SIZE){
+
+      alert(
+        "Аватарка слишком большая.\n\n" +
+        "Максимальный размер — 10 МБ."
+      );
+
+      fileInput.value = "";
+
+      return;
+    }
+
+
+    if(!file.type.startsWith("image/")){
+
+      alert(
+        "Можно загружать только изображения."
+      );
+
+      fileInput.value = "";
+
+      return;
+    }
+  }
+
+
+  let avatarUrl = null;
+
+
+  const oldProfile =
+    await getProfile(
+      currentUser.id
+    );
+
+
+  avatarUrl =
+    oldProfile?.avatar_url ||
+    null;
+
+
+  /* Загрузка новой аватарки */
+
+  if(file){
+
+    const extension =
+      file.name
+        .split(".")
+        .pop()
+        .toLowerCase();
+
+
+    const filePath =
+      `${currentUser.id}/${Date.now()}.${extension}`;
+
+
+    const {
+      error: uploadError
+    } = await sb
+      .storage
+      .from("avatars")
+      .upload(
+        filePath,
+        file,
+        {
+          cacheControl:"3600",
+          upsert:true,
+          contentType:file.type
+        }
+      );
+
+
+    if(uploadError){
+
+      console.error(
+        "Avatar upload error:",
+        uploadError
+      );
+
+      alert(
+        "Ошибка загрузки аватарки:\n\n" +
+        uploadError.message
+      );
+
+      return;
+    }
+
+
+    const {
+      data: publicUrlData
+    } =
+      sb
+        .storage
+        .from("avatars")
+        .getPublicUrl(
+          filePath
+        );
+
+
+    avatarUrl =
+      publicUrlData.publicUrl;
+  }
 
 
   const {
     error
-  } =
-    await sb
-      .from("profiles")
-      .upsert({
+  } = await sb
+    .from("profiles")
+    .upsert({
 
-        id:
-          currentUser.id,
+      id:
+        currentUser.id,
 
-        nickname:
-          nickname,
+      username,
 
-        avatar_url:
-          avatar
+      avatar_url:
+        avatarUrl
 
-      });
+    });
 
 
   if(error){
@@ -2628,7 +2154,7 @@ async function saveProfile(){
     console.error(error);
 
     alert(
-      "Ошибка сохранения:\n\n"+
+      "Ошибка сохранения профиля:\n\n" +
       error.message
     );
 
@@ -2641,6 +2167,9 @@ async function saveProfile(){
   );
 
 
+  fileInput.value = "";
+
+
   await loadProfile();
 
   await updateAuthUI();
@@ -2648,39 +2177,32 @@ async function saveProfile(){
 
 
 /* =========================
-   БЕЗОПАСНЫЙ ТЕКСТ
+   HTML SECURITY
 ========================= */
 
 function escapeHTML(value){
 
-  return String(
-    value ?? ""
-  )
-    .replaceAll(
-      "&",
-      "&amp;"
-    )
-    .replaceAll(
-      "<",
-      "&lt;"
-    )
-    .replaceAll(
-      ">",
-      "&gt;"
-    )
-    .replaceAll(
-      '"',
-      "&quot;"
-    )
-    .replaceAll(
-      "'",
-      "&#039;"
-    );
+  return String(value ?? "")
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+}
+
+
+function escapeJS(value){
+
+  return String(value ?? "")
+    .replaceAll("\\","\\\\")
+    .replaceAll("'","\\'")
+    .replaceAll("\n","\\n")
+    .replaceAll("\r","\\r");
 }
 
 
 /* =========================
-   ЗАПУСК
+   START
 ========================= */
 
 (async function(){
@@ -2690,6 +2212,7 @@ function escapeHTML(value){
   await loadListings();
 
 })();
+
 </script>
 
 </body>
