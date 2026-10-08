@@ -15,14 +15,14 @@
 body{
   margin:0;
   font-family:Arial,Helvetica,sans-serif;
-  background:#f5f6f8;
-  color:#111;
+  background:#0b0812;
+  color:#f5f3ff;
 }
 
 header{
   height:70px;
-  background:#fff;
-  border-bottom:1px solid #ddd;
+  background:#100b1a;
+  border-bottom:1px solid #2a1b3d;
   display:flex;
   align-items:center;
   justify-content:space-between;
@@ -36,6 +36,7 @@ header{
   font-size:25px;
   font-weight:bold;
   cursor:pointer;
+  color:#a855f7;
 }
 
 nav{
@@ -46,6 +47,7 @@ nav{
 nav button{
   border:0;
   background:transparent;
+  color:#ddd6fe;
   padding:10px 13px;
   border-radius:8px;
   cursor:pointer;
@@ -53,7 +55,8 @@ nav button{
 }
 
 nav button:hover{
-  background:#eee;
+  background:#241536;
+  color:#c084fc;
 }
 
 .user{
@@ -64,20 +67,25 @@ nav button:hover{
 
 .btn{
   border:0;
-  background:#111;
+  background:#8b5cf6;
   color:#fff;
   padding:10px 15px;
   border-radius:8px;
   cursor:pointer;
+  font-weight:bold;
 }
 
 .btn:hover{
-  opacity:.9;
+  background:#a855f7;
 }
 
 .btn.secondary{
-  background:#eee;
-  color:#111;
+  background:#241536;
+  color:#ddd6fe;
+}
+
+.btn.secondary:hover{
+  background:#35204d;
 }
 
 .avatar{
@@ -85,7 +93,7 @@ nav button:hover{
   height:38px;
   border-radius:50%;
   object-fit:cover;
-  border:1px solid #ddd;
+  border:2px solid #8b5cf6;
 }
 
 .container{
@@ -104,14 +112,16 @@ nav button:hover{
 
 h1{
   margin-top:0;
+  color:#f5f3ff;
 }
 
 .card{
-  background:#fff;
-  border:1px solid #ddd;
+  background:#130d1f;
+  border:1px solid #2d1b42;
   border-radius:12px;
   padding:18px;
   margin-bottom:15px;
+  box-shadow:0 8px 30px rgba(0,0,0,.25);
 }
 
 .search-box{
@@ -125,17 +135,23 @@ h1{
 }
 
 .listing{
-  background:#fff;
-  border:1px solid #ddd;
+  background:#130d1f;
+  border:1px solid #2d1b42;
   border-radius:12px;
   overflow:hidden;
+  transition:.2s;
+}
+
+.listing:hover{
+  border-color:#7c3aed;
+  transform:translateY(-2px);
 }
 
 .listing img{
   width:100%;
   height:190px;
   object-fit:cover;
-  background:#eee;
+  background:#181020;
 }
 
 .listing-content{
@@ -146,22 +162,25 @@ h1{
   font-size:18px;
   font-weight:bold;
   margin-bottom:8px;
+  color:#fff;
 }
 
 .listing-game{
   display:inline-block;
-  background:#eee;
-  color:#333;
+  background:#2b1745;
+  color:#c084fc;
   padding:5px 9px;
   border-radius:999px;
   font-size:12px;
   margin-bottom:8px;
+  border:1px solid #4c2670;
 }
 
 .price{
   font-size:18px;
   font-weight:bold;
   margin:10px 0;
+  color:#c084fc;
 }
 
 input,
@@ -169,12 +188,26 @@ textarea,
 select{
   width:100%;
   padding:12px;
-  border:1px solid #ccc;
+  border:1px solid #38234f;
   border-radius:8px;
   font-size:15px;
   margin-top:6px;
   margin-bottom:15px;
-  background:#fff;
+  background:#0f0a17;
+  color:#fff;
+  outline:none;
+}
+
+input:focus,
+textarea:focus,
+select:focus{
+  border-color:#8b5cf6;
+  box-shadow:0 0 0 2px rgba(139,92,246,.15);
+}
+
+input::placeholder,
+textarea::placeholder{
+  color:#746582;
 }
 
 textarea{
@@ -186,6 +219,7 @@ label{
   display:block;
   font-weight:bold;
   margin-top:10px;
+  color:#ddd6fe;
 }
 
 .form-row{
@@ -203,15 +237,15 @@ label{
   height:90px;
   border-radius:50%;
   object-fit:cover;
-  border:1px solid #ddd;
+  border:2px solid #8b5cf6;
   display:block;
   margin-bottom:15px;
-  background:#eee;
+  background:#181020;
 }
 
 .conversation{
-  background:#fff;
-  border:1px solid #ddd;
+  background:#130d1f;
+  border:1px solid #2d1b42;
   border-radius:12px;
   padding:14px;
   margin-bottom:10px;
@@ -222,7 +256,8 @@ label{
 }
 
 .conversation:hover{
-  background:#f8f8f8;
+  background:#1b102b;
+  border-color:#6d28d9;
 }
 
 .conversation-avatar{
@@ -230,8 +265,9 @@ label{
   height:48px;
   border-radius:50%;
   object-fit:cover;
-  background:#eee;
+  background:#181020;
   flex-shrink:0;
+  border:1px solid #4c2670;
 }
 
 .conversation-info{
@@ -242,11 +278,12 @@ label{
 .conversation-name{
   font-weight:bold;
   margin-bottom:4px;
+  color:#fff;
 }
 
 .conversation-listing{
   font-size:13px;
-  color:#777;
+  color:#9f8caf;
   margin-bottom:4px;
 }
 
@@ -254,24 +291,24 @@ label{
   white-space:nowrap;
   overflow:hidden;
   text-overflow:ellipsis;
-  color:#555;
+  color:#c4b5fd;
 }
 
 .conversation-date{
   font-size:12px;
-  color:#999;
+  color:#806c91;
 }
 
 .chat{
-  background:#fff;
-  border:1px solid #ddd;
+  background:#130d1f;
+  border:1px solid #2d1b42;
   border-radius:12px;
   overflow:hidden;
 }
 
 .chat-header{
   padding:15px;
-  border-bottom:1px solid #ddd;
+  border-bottom:1px solid #2d1b42;
   display:flex;
   align-items:center;
   gap:12px;
@@ -281,7 +318,7 @@ label{
   height:450px;
   overflow-y:auto;
   padding:15px;
-  background:#f7f7f7;
+  background:#0d0915;
 }
 
 .message{
@@ -294,15 +331,16 @@ label{
 
 .message.mine{
   margin-left:auto;
-  background:#111;
+  background:#7c3aed;
   color:#fff;
   border-bottom-right-radius:3px;
 }
 
 .message.theirs{
   margin-right:auto;
-  background:#fff;
-  border:1px solid #ddd;
+  background:#1b1029;
+  border:1px solid #38234f;
+  color:#eee;
   border-bottom-left-radius:3px;
 }
 
@@ -316,7 +354,8 @@ label{
   display:flex;
   gap:8px;
   padding:12px;
-  border-top:1px solid #ddd;
+  border-top:1px solid #2d1b42;
+  background:#130d1f;
 }
 
 .chat-input textarea{
@@ -327,7 +366,7 @@ label{
 
 .empty{
   text-align:center;
-  color:#777;
+  color:#806c91;
   padding:30px;
 }
 
@@ -336,6 +375,7 @@ label{
 }
 
 @media(max-width:800px){
+
   header{
     padding:0 12px;
   }
@@ -362,8 +402,8 @@ label{
     left:0;
     right:0;
     height:62px;
-    background:#fff;
-    border-top:1px solid #ddd;
+    background:#100b1a;
+    border-top:1px solid #2d1b42;
     display:flex;
     justify-content:space-around;
     align-items:center;
@@ -373,9 +413,14 @@ label{
   .mobile-nav button{
     border:0;
     background:transparent;
+    color:#b8a7c9;
     font-size:12px;
     padding:7px;
     cursor:pointer;
+  }
+
+  .mobile-nav button:hover{
+    color:#c084fc;
   }
 
   .message{
@@ -389,7 +434,10 @@ label{
 
 <header>
 
-  <div class="logo" onclick="showSection('home')">
+  <div
+    class="logo"
+    onclick="showSection('home')"
+  >
     Delyvex
   </div>
 
@@ -459,9 +507,14 @@ label{
 
   <!-- ГЛАВНАЯ -->
 
-  <section id="home" class="section active">
+  <section
+    id="home"
+    class="section active"
+  >
 
-    <h1>Объявления</h1>
+    <h1>
+      Объявления
+    </h1>
 
     <div class="card search-box">
 
@@ -488,9 +541,14 @@ label{
 
   <!-- ПРОДАЖА -->
 
-  <section id="sell" class="section">
+  <section
+    id="sell"
+    class="section"
+  >
 
-    <h1>Продать товар</h1>
+    <h1>
+      Продать товар
+    </h1>
 
     <div class="card">
 
@@ -579,9 +637,14 @@ label{
 
   <!-- ЧАТЫ -->
 
-  <section id="messages" class="section">
+  <section
+    id="messages"
+    class="section"
+  >
 
-    <h1>Чаты</h1>
+    <h1>
+      Чаты
+    </h1>
 
     <div id="conversations"></div>
 
@@ -654,9 +717,14 @@ label{
 
   <!-- ПРОФИЛЬ -->
 
-  <section id="profile" class="section">
+  <section
+    id="profile"
+    class="section"
+  >
 
-    <h1>Профиль</h1>
+    <h1>
+      Профиль
+    </h1>
 
     <div class="card profile-box">
 
@@ -680,7 +748,7 @@ label{
       <div
         style="
           font-size:13px;
-          color:#777;
+          color:#806c91;
           margin-top:-8px;
           margin-bottom:15px;
         "
@@ -761,7 +829,6 @@ const GITHUB_URL =
 let currentUser = null;
 let currentChat = null;
 let chatChannel = null;
-
 let allListings = [];
 
 
@@ -863,11 +930,14 @@ async function logout(){
   await sb.auth.signOut();
 
   currentUser = null;
-
   currentChat = null;
 
   if(chatChannel){
-    await sb.removeChannel(chatChannel);
+
+    await sb.removeChannel(
+      chatChannel
+    );
+
     chatChannel = null;
   }
 
@@ -889,7 +959,9 @@ async function checkAuth(){
   } = await sb.auth.getSession();
 
   if(error){
+
     console.error(error);
+
     return;
   }
 
@@ -910,12 +982,11 @@ async function checkAuth(){
     loadListings();
 
   }
-
 }
 
 
 sb.auth.onAuthStateChange(
-  async(event, session)=>{
+  async(event,session)=>{
 
     currentUser =
       session
@@ -927,7 +998,6 @@ sb.auth.onAuthStateChange(
     if(currentUser){
 
       await loadProfile();
-
       await loadListings();
 
     }
@@ -943,19 +1013,29 @@ sb.auth.onAuthStateChange(
 async function updateAuthUI(){
 
   const loginBtn =
-    document.getElementById("loginBtn");
+    document.getElementById(
+      "loginBtn"
+    );
 
   const logoutBtn =
-    document.getElementById("logoutBtn");
+    document.getElementById(
+      "logoutBtn"
+    );
 
   const userName =
-    document.getElementById("userName");
+    document.getElementById(
+      "userName"
+    );
 
   const headerAvatar =
-    document.getElementById("headerAvatar");
+    document.getElementById(
+      "headerAvatar"
+    );
 
   const messagesBtn =
-    document.getElementById("messagesBtn");
+    document.getElementById(
+      "messagesBtn"
+    );
 
 
   if(!currentUser){
@@ -969,7 +1049,8 @@ async function updateAuthUI(){
     messagesBtn.style.display =
       "none";
 
-    userName.textContent = "";
+    userName.textContent =
+      "";
 
     headerAvatar.style.display =
       "none";
@@ -1031,7 +1112,10 @@ async function getProfile(userId){
   } = await sb
     .from("profiles")
     .select("*")
-    .eq("id",userId)
+    .eq(
+      "id",
+      userId
+    )
     .maybeSingle();
 
   if(error){
@@ -1051,9 +1135,12 @@ async function getProfile(userId){
 async function getProfileName(userId){
 
   const profile =
-    await getProfile(userId);
+    await getProfile(
+      userId
+    );
 
   if(profile?.username){
+
     return profile.username;
   }
 
@@ -1064,7 +1151,9 @@ async function getProfileName(userId){
 async function getProfileAvatar(userId){
 
   const profile =
-    await getProfile(userId);
+    await getProfile(
+      userId
+    );
 
   return profile?.avatar_url || "";
 }
@@ -1077,7 +1166,9 @@ async function getProfileAvatar(userId){
 async function loadListings(){
 
   const container =
-    document.getElementById("listings");
+    document.getElementById(
+      "listings"
+    );
 
   if(!container){
     return;
@@ -1096,7 +1187,9 @@ async function loadListings(){
     .select("*")
     .order(
       "created_at",
-      {ascending:false}
+      {
+        ascending:false
+      }
     );
 
 
@@ -1115,14 +1208,12 @@ async function loadListings(){
     data || [];
 
 
-  renderListings(
-    allListings
-  );
+  filterListings();
 }
 
 
 /* =========================
-   ФИЛЬТР ПО ИГРЕ
+   ПОИСК
 ========================= */
 
 function filterListings(){
@@ -1135,7 +1226,9 @@ function filterListings(){
 
   const query =
     input
-      ? input.value.trim().toLowerCase()
+      ? input.value
+          .trim()
+          .toLowerCase()
       : "";
 
 
@@ -1197,7 +1290,8 @@ function renderListings(items){
     );
 
 
-  if(!items || items.length === 0){
+  if(!items ||
+     items.length === 0){
 
     container.innerHTML =
       '<div class="empty">По этому запросу объявлений нет.</div>';
@@ -1214,7 +1308,7 @@ function renderListings(items){
 
 
 /* =========================
-   LISTING HTML
+   LISTING
 ========================= */
 
 function listingHTML(item){
@@ -1245,20 +1339,26 @@ function listingHTML(item){
 
         ${
           item.game
-          ? `
-            <div class="listing-game">
-              🎮 ${escapeHTML(item.game)}
-            </div>
-          `
-          : ""
+            ? `
+              <div class="listing-game">
+                🎮 ${escapeHTML(item.game)}
+              </div>
+            `
+            : ""
         }
 
         <div class="listing-title">
-          ${escapeHTML(item.title || "Без названия")}
+          ${escapeHTML(
+            item.title ||
+            "Без названия"
+          )}
         </div>
 
         <div>
-          ${escapeHTML(item.description || "")}
+          ${escapeHTML(
+            item.description ||
+            ""
+          )}
         </div>
 
         <div class="price">
@@ -1268,19 +1368,19 @@ function listingHTML(item){
         ${
           currentUser &&
           currentUser.id !== item.user_id
-          ? `
-            <button
-              class="btn"
-              onclick="openChat(
-                '${item.id}',
-                '${item.user_id}',
-                '${escapeJS(item.title || "")}'
-              )"
-            >
-              💬 Написать продавцу
-            </button>
-          `
-          : ""
+            ? `
+              <button
+                class="btn"
+                onclick="openChat(
+                  '${item.id}',
+                  '${item.user_id}',
+                  '${escapeJS(item.title || "")}'
+                )"
+              >
+                💬 Написать продавцу
+              </button>
+            `
+            : ""
         }
 
       </div>
@@ -1308,41 +1408,53 @@ async function createListing(){
 
   const game =
     document
-      .getElementById("listingGame")
+      .getElementById(
+        "listingGame"
+      )
       .value
       .trim();
 
 
   const title =
     document
-      .getElementById("listingTitle")
+      .getElementById(
+        "listingTitle"
+      )
       .value
       .trim();
 
 
   const description =
     document
-      .getElementById("listingDescription")
+      .getElementById(
+        "listingDescription"
+      )
       .value
       .trim();
 
 
   const priceValue =
     document
-      .getElementById("listingPrice")
+      .getElementById(
+        "listingPrice"
+      )
       .value;
 
 
   const category =
     document
-      .getElementById("listingCategory")
+      .getElementById(
+        "listingCategory"
+      )
       .value
       .trim();
 
 
   const image =
     document
-      .getElementById("listingImage")
+      .getElementById(
+        "listingImage"
+      )
       .value
       .trim();
 
@@ -1412,32 +1524,44 @@ async function createListing(){
 
 
   document
-    .getElementById("listingGame")
+    .getElementById(
+      "listingGame"
+    )
     .value = "";
 
 
   document
-    .getElementById("listingTitle")
+    .getElementById(
+      "listingTitle"
+    )
     .value = "";
 
 
   document
-    .getElementById("listingDescription")
+    .getElementById(
+      "listingDescription"
+    )
     .value = "";
 
 
   document
-    .getElementById("listingPrice")
+    .getElementById(
+      "listingPrice"
+    )
     .value = "";
 
 
   document
-    .getElementById("listingCategory")
+    .getElementById(
+      "listingCategory"
+    )
     .value = "";
 
 
   document
-    .getElementById("listingImage")
+    .getElementById(
+      "listingImage"
+    )
     .value = "";
 
 
@@ -1448,6 +1572,7 @@ async function createListing(){
 
 
   if(search){
+
     search.value = "";
   }
 
@@ -1496,7 +1621,9 @@ async function openChat(
   };
 
 
-  showSection("messages");
+  showSection(
+    "messages"
+  );
 
   openCurrentChat();
 }
@@ -1597,7 +1724,8 @@ async function openCurrentChat(){
 
   document.getElementById(
     "chatName"
-  ).textContent = name;
+  ).textContent =
+    name;
 
 
   document.getElementById(
@@ -1660,8 +1788,10 @@ function closeChat(){
 
 async function loadChat(){
 
-  if(!currentChat ||
-     !currentUser){
+  if(
+    !currentChat ||
+    !currentUser
+  ){
 
     return;
   }
@@ -1682,7 +1812,9 @@ async function loadChat(){
     )
     .order(
       "created_at",
-      {ascending:true}
+      {
+        ascending:true
+      }
     );
 
 
@@ -1700,7 +1832,10 @@ async function loadChat(){
     );
 
 
-  if(!data || data.length === 0){
+  if(
+    !data ||
+    data.length === 0
+  ){
 
     container.innerHTML =
       '<div class="empty">Начни диалог 👋</div>';
@@ -1740,10 +1875,18 @@ function messageHTML(message){
 
 
   return `
-    <div class="message ${mine ? "mine" : "theirs"}">
+    <div
+      class="message ${
+        mine
+          ? "mine"
+          : "theirs"
+      }"
+    >
 
       <div>
-        ${escapeHTML(message.message)}
+        ${escapeHTML(
+          message.message
+        )}
       </div>
 
       <div class="message-time">
@@ -1761,8 +1904,10 @@ function messageHTML(message){
 
 async function sendMessage(){
 
-  if(!currentUser ||
-     !currentChat){
+  if(
+    !currentUser ||
+    !currentChat
+  ){
 
     return;
   }
@@ -1868,15 +2013,12 @@ function subscribeChat(){
         currentChat.partnerId
       )
       .on(
-
         "postgres_changes",
-
         {
           event:"INSERT",
           schema:"public",
           table:"messages"
         },
-
         payload=>{
 
           const message =
@@ -1910,7 +2052,6 @@ function subscribeChat(){
           }
 
         }
-
       )
       .subscribe();
 }
@@ -1948,7 +2089,9 @@ async function loadConversations(){
     )
     .order(
       "created_at",
-      {ascending:false}
+      {
+        ascending:false
+      }
     );
 
 
@@ -1969,13 +2112,17 @@ async function loadConversations(){
   }
 
 
-  const unique = new Map();
+  const unique =
+    new Map();
 
 
-  for(const message of data || []){
+  for(
+    const message of data || []
+  ){
 
     const partnerId =
-      message.sender_id === currentUser.id
+      message.sender_id ===
+      currentUser.id
         ? message.receiver_id
         : message.sender_id;
 
@@ -2012,10 +2159,13 @@ async function loadConversations(){
   const html = [];
 
 
-  for(const message of unique.values()){
+  for(
+    const message of unique.values()
+  ){
 
     const partnerId =
-      message.sender_id === currentUser.id
+      message.sender_id ===
+      currentUser.id
         ? message.receiver_id
         : message.sender_id;
 
@@ -2061,7 +2211,9 @@ async function loadConversations(){
         class="conversation"
         data-listing-id="${message.listing_id}"
         data-partner-id="${partnerId}"
-        data-listing-title="${escapeHTML(listing.data?.title || "")}"
+        data-listing-title="${escapeHTML(
+          listing.data?.title || ""
+        )}"
         onclick="openConversationFromElement(this)"
       >
 
@@ -2224,7 +2376,11 @@ async function saveProfile(){
     }
 
 
-    if(!file.type.startsWith("image/")){
+    if(
+      !file.type.startsWith(
+        "image/"
+      )
+    ){
 
       alert(
         "Можно загружать только изображения."
@@ -2265,7 +2421,7 @@ async function saveProfile(){
 
 
     const {
-      error: uploadError
+      error:uploadError
     } = await sb
       .storage
       .from("avatars")
@@ -2297,7 +2453,7 @@ async function saveProfile(){
 
 
     const {
-      data: publicUrlData
+      data:publicUrlData
     } =
       sb
         .storage
@@ -2349,7 +2505,6 @@ async function saveProfile(){
 
   fileInput.value = "";
 
-
   await loadProfile();
 
   await updateAuthUI();
@@ -2357,27 +2512,54 @@ async function saveProfile(){
 
 
 /* =========================
-   HTML SECURITY
+   SECURITY
 ========================= */
 
 function escapeHTML(value){
 
   return String(value ?? "")
-    .replaceAll("&","&amp;")
-    .replaceAll("<","&lt;")
-    .replaceAll(">","&gt;")
-    .replaceAll('"',"&quot;")
-    .replaceAll("'","&#039;");
+    .replaceAll(
+      "&",
+      "&amp;"
+    )
+    .replaceAll(
+      "<",
+      "&lt;"
+    )
+    .replaceAll(
+      ">",
+      "&gt;"
+    )
+    .replaceAll(
+      '"',
+      "&quot;"
+    )
+    .replaceAll(
+      "'",
+      "&#039;"
+    );
 }
 
 
 function escapeJS(value){
 
   return String(value ?? "")
-    .replaceAll("\\","\\\\")
-    .replaceAll("'","\\'")
-    .replaceAll("\n","\\n")
-    .replaceAll("\r","\\r");
+    .replaceAll(
+      "\\",
+      "\\\\"
+    )
+    .replaceAll(
+      "'",
+      "\\'"
+    )
+    .replaceAll(
+      "\n",
+      "\\n"
+    )
+    .replaceAll(
+      "\r",
+      "\\r"
+    );
 }
 
 
@@ -2392,7 +2574,6 @@ function escapeJS(value){
   await loadListings();
 
 })();
-
 </script>
 
 </body>
