@@ -55,23 +55,13 @@ footer{text-align:center;color:#737e9f;padding:25px}
 
   <section id="authSection" class="auth-card hidden">
     <h2 id="authTitle">Вход</h2>
-    <div class="field"><label>Email</label><input id="email" type="email" autocomplete="email"></div>
-    <div class="field"><label>Пароль</label><input id="password" type="password" autocomplete="current-password"></div><div class="field hidden" id="signupNameField"><label>Никнейм</label><input id="signupUsername" maxlength="30"></div>
+    <div class="field"><label>Никнейм</label><input id="email" type="text" autocomplete="username" maxlength="30"></div>
+    <div class="field"><label>Пароль</label><input id="password" type="password" autocomplete="current-password"></div>
     <button class="primary" id="authSubmit">Войти</button>
     <button class="link" id="switchAuth">Нет аккаунта? Зарегистрироваться</button>
     <div id="authMessage" class="message"></div>
   </section>
-
-  <section id="otpSection" class="auth-card hidden">
-    <h2>Подтверждение email</h2>
-    <p class="muted">Введите код, который пришёл на вашу почту.</p>
-    <div class="field"><label>Код</label><input id="otp" class="code" inputmode="numeric" maxlength="8" autocomplete="one-time-code"></div>
-    <button class="primary" id="verifyOtpBtn">Подтвердить</button>
-    <button class="secondary" id="resendBtn">Отправить код ещё раз</button>
-    <div id="otpMessage" class="message"></div>
-  </section>
-
-  <section id="profileSection" class="profile hidden">
+<section id="profileSection" class="profile hidden">
     <div class="profile-row">
       <div class="profile-main">
         <img id="profileAvatar" class="avatar" src="" alt="">
@@ -159,13 +149,19 @@ const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 let mode = "login";
 let currentUser = null;
-let pendingEmail = ""; let pendingUsername = "";
+let pendingUsername = "";
 let activeCategory = "all";
 let allListings = [];
 
 const $ = id => document.getElementById(id);
 const show = el => el.classList.remove("hidden");
 const hide = el => el.classList.add("hidden");
+function authEmailFromNickname(username){
+  const bytes = new TextEncoder().encode(username.trim().toLowerCase());
+  const hex = Array.from(bytes).map(b=>b.toString(16).padStart(2,"0")).join("");
+  return "u"+hex+"@delyvex.local";
+}
+
 
 function setMessage(id, text, type=""){
   const el=$(id); el.textContent=text; el.className="message "+type;
@@ -173,9 +169,9 @@ function setMessage(id, text, type=""){
 
 function renderAuth(){
   if(currentUser){
-    hide($("guestActions")); show($("userActions")); hide($("authSection")); hide($("otpSection"));
-    $("userName").textContent = currentUser.email || "Аккаунт";
-    $("profileEmail").textContent = currentUser.email || "";
+    hide($("guestActions")); show($("userActions")); hide($("authSection"));
+    loadCurrentProfileName();
+    loadCurrentProfileName();
     hide($("hero"));
   }else{
     show($("guestActions")); hide($("userActions")); hide($("profileSection"));
@@ -184,88 +180,9 @@ function renderAuth(){
   }
 }
 
-async function loadListings(){
-  const {data,error}=await sb.from("listings").select("id,title,description,category,price,created_at,seller_id").eq("is_active",true).order("created_at",{ascending:false});
-  if(!error && data?.length){
-    const ids=[...new Set(data.map(x=>x.seller_id).filter(Boolean))];
-    const {data:profiles}=await sb.from("profiles").select("id,username,avatar_url").in("id",ids);
-    const map=Object.fromEntries((profiles||[]).map(p=>[p.id,p]));
-    data.forEach(x=>x.seller=map[x.seller_id]||null);
-  }
-  if(error){ $("listingsGrid").innerHTML='<div class="empty">Не удалось загрузить объявления.</div>'; return; }
-  allListings=data||[];
-  renderListings();
-}
 
-function renderListings(){
-  const q=$("search").value.trim().toLowerCase();
-  const items=allListings.filter(x=>{
-    const cat=activeCategory==="all" || x.category===activeCategory;
-    const text=((x.title||"")+" "+(x.description||"")+" "+(x.category||"")).toLowerCase();
-    return cat && (!q || text.includes(q));
-  });
-  if(!items.length){ $("listingsGrid").innerHTML='<div class="empty">Объявлений пока нет.</div>'; return; }
-  $("listingsGrid").innerHTML=items.map(x=>`
-    <article class="card">
-      <div class="muted">Игра: ${escapeHtml(x.category||"Другое")}</div>
-      <h3>${escapeHtml(x.title||"Без названия")}</h3>
-      <p class="muted">${escapeHtml(x.description||"")}</p>
-      <div class="price">${escapeHtml(String(x.price??"0"))} ₽</div>
-      <div class="seller">${x.seller?.avatar_url?`<img src="${escapeHtml(x.seller.avatar_url)}" alt="">`:`<img src="" alt="">`}<span>${escapeHtml(x.seller?.username||"Продавец")}</span></div>
-      <button class="primary" style="margin-top:10px;width:100%" onclick="contactSeller('${escapeHtml(x.seller?.username||"Продавец")}')">Купить</button>
-    </article>`).join("");
-}
-
-function contactSeller(name){
-  alert("Заявка на покупку: продавец — "+name+". Реальные платежи и перевод денег пока отключены.");
-}
-
-function escapeHtml(v){
-  return v.replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));
-}
-
-async function ensureProfile(username){
-  if(!currentUser)return;
-  const {error}=await sb.from("profiles").upsert({id:currentUser.id,username:username||currentUser.user_metadata?.username||"user"} ,{onConflict:"id"});
-  if(error) console.log(error);
-}
-
-async function openProfileEditor(){
-  if(!currentUser)return;
-  const {data}=await sb.from("profiles").select("username,bio,avatar_url").eq("id",currentUser.id).maybeSingle();
-  $("profileUsername").value=data?.username||currentUser.user_metadata?.username||"";
-  $("profileBioInput").value=data?.bio||"";
-  show($("editProfileSection"));
-}
-
-async function saveProfile(){
-  if(!currentUser)return;
-  const username=$("profileUsername").value.trim();
-  const bio=$("profileBioInput").value.trim();
-  if(!username){setMessage("profileMessage","Никнейм обязателен.","error");return;}
-  let avatar_url=null;
-  const file=$("avatarFile").files[0];
-  if(file){
-    const ext=(file.name.split(".").pop()||"jpg").toLowerCase();
-    const path=currentUser.id+"."+ext;
-    const up=await sb.storage.from("avatars").upload(path,file,{upsert:true,contentType:file.type});
-    if(up.error){setMessage("profileMessage","Не удалось загрузить аватарку. Проверь bucket avatars в Supabase.","error");return;}
-    avatar_url=sb.storage.from("avatars").getPublicUrl(path).data.publicUrl;
-  }
-  const patch={id:currentUser.id,username,bio};
-  if(avatar_url)patch.avatar_url=avatar_url;
-  const {error}=await sb.from("profiles").upsert(patch,{onConflict:"id"});
-  if(error){setMessage("profileMessage",error.message,"error");return;}
-  setMessage("profileMessage","Профиль сохранён.","ok");
-  hide($("editProfileSection"));
-  await refreshSession();
-  await loadListings();
-}
-
-async function refreshSession(){
-  const {data}=await sb.auth.getSession();
-  currentUser=data.session?.user||null;
-  renderAuth();
+async function loadCurrentProfileName(){
+  if(!currentUser) return;
   if(currentUser){
     const {data:p}=await sb.from("profiles").select("username,bio,avatar_url").eq("id",currentUser.id).maybeSingle();
     $("modalUsername").textContent=p?.username || "не указано";
@@ -282,53 +199,52 @@ $("switchAuth").onclick=()=>openAuth(mode==="login"?"signup":"login");
 
 function openAuth(newMode){
   mode=newMode;
-  show($("authSection")); hide($("otpSection"));
-  $("authTitle").textContent=mode==="login"?"Вход":"Регистрация"; show($("signupNameField")); if(mode==="login") hide($("signupNameField"));
+  show($("authSection"));
+  $("authTitle").textContent=mode==="login"?"Вход":"Регистрация";
   $("authSubmit").textContent=mode==="login"?"Войти":"Зарегистрироваться";
   $("switchAuth").textContent=mode==="login"?"Нет аккаунта? Зарегистрироваться":"Уже есть аккаунт? Войти";
   setMessage("authMessage","");
 }
 
 $("authSubmit").onclick=async()=>{
-  const email=$("email").value.trim();
+  const username=$("email").value.trim();
   const password=$("password").value;
-  const username=$("signupUsername").value.trim();
-  if(!email || !password || (mode==="signup" && !username)){setMessage("authMessage",mode==="signup"?"Заполни email, пароль и никнейм.":"Заполни email и пароль.","error");return;}
+  if(!username || !password){
+    setMessage("authMessage","Заполни никнейм и пароль.","error");
+    return;
+  }
+
   $("authSubmit").disabled=true;
+  const authEmail=authEmailFromNickname(username);
+
   if(mode==="login"){
-    const {data,error}=await sb.auth.signInWithPassword({email,password});
-    if(error){setMessage("authMessage",error.message,"error");}
-    else {currentUser=data.user; renderAuth(); await refreshSession();}
-  }else{
-    const {data,error}=await sb.auth.signUp({email,password,options:{data:{username}}});
-    if(error){setMessage("authMessage",error.message,"error");}
-    else if(data.session){
-      currentUser=data.user; await ensureProfile(username); renderAuth(); await refreshSession();
+    const {data,error}=await sb.auth.signInWithPassword({email:authEmail,password});
+    if(error){
+      setMessage("authMessage",error.message,"error");
     }else{
-      pendingEmail=email; pendingUsername=username;
-      hide($("authSection")); show($("otpSection"));
-      setMessage("otpMessage","Код отправлен на вашу почту.","ok");
+      currentUser=data.user;
+      await refreshSession();
+    }
+  }else{
+    const {data,error}=await sb.auth.signUp({
+      email:authEmail,
+      password,
+      options:{data:{username}}
+    });
+
+    if(error){
+      setMessage("authMessage",error.message,"error");
+    }else if(data.session){
+      currentUser=data.user;
+      await ensureProfile(username);
+      await refreshSession();
+      setMessage("authMessage","Аккаунт создан.","ok");
+    }else{
+      setMessage("authMessage","В Supabase отключи Confirm Email — тогда регистрация будет сразу входить без почты.","error");
     }
   }
+
   $("authSubmit").disabled=false;
-};
-
-$("verifyOtpBtn").onclick=async()=>{
-  const token=$("otp").value.trim();
-  if(!pendingEmail || !token){setMessage("otpMessage","Введите код.","error");return;}
-  const {data,error}=await sb.auth.verifyOtp({email:pendingEmail,token,type:"email"});
-  if(error){setMessage("otpMessage",error.message,"error");return;}
-  currentUser=data.user;
-  await ensureProfile(pendingUsername);
-  hide($("otpSection"));
-  await refreshSession();
-  setMessage("authMessage","Email подтверждён.","ok");
-};
-
-$("resendBtn").onclick=async()=>{
-  if(!pendingEmail)return;
-  const {error}=await sb.auth.resend({type:"signup",email:pendingEmail});
-  setMessage("otpMessage",error?error.message:"Новый код отправлен.","ok");
 };
 
 $("logoutBtn").onclick=async()=>{
@@ -468,6 +384,14 @@ document.addEventListener("delyvex:listing-created",()=>{
   await refreshSession();
   await loadListings();
 })();
+</script>
+
+<script>
+/*
+ Delyvex registration: nickname + password only.
+ Supabase Auth must have "Confirm Email" disabled.
+ The page does not request, send, or verify an email.
+*/
 </script>
 </body>
 </html>
