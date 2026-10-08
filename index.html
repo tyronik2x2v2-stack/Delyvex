@@ -3,441 +3,230 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Delyvex</title>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
-*{box-sizing:border-box}
+*{
+  box-sizing:border-box;
+}
 
 body{
   margin:0;
-  font-family:Arial,sans-serif;
-  background:#0b1020;
-  color:white
+  font-family:Arial,Helvetica,sans-serif;
+  background:#f5f6f8;
+  color:#111;
 }
 
 header{
   height:70px;
-  background:#111827;
-  border-bottom:1px solid #293348;
+  background:#fff;
+  border-bottom:1px solid #ddd;
   display:flex;
   align-items:center;
   justify-content:space-between;
   padding:0 25px;
   position:sticky;
   top:0;
-  z-index:20
+  z-index:100;
 }
 
 .logo{
-  font-size:27px;
+  font-size:25px;
   font-weight:800;
-  color:#7c5cff;
-  cursor:pointer
+  cursor:pointer;
 }
 
 nav{
   display:flex;
-  gap:5px
+  gap:8px;
 }
 
-nav button{
-  background:none;
+nav button,
+.btn{
   border:0;
-  color:#cbd5e1;
-  padding:10px 13px;
-  border-radius:9px;
-  cursor:pointer
+  background:#111;
+  color:#fff;
+  padding:10px 15px;
+  border-radius:10px;
+  cursor:pointer;
+  font-weight:600;
 }
 
+.btn.secondary{
+  background:#eee;
+  color:#111;
+}
+
+.btn:hover,
 nav button:hover{
-  background:#1e293b;
-  color:white
+  opacity:.85;
 }
 
 .user{
   display:flex;
   align-items:center;
-  gap:9px
+  gap:8px;
+}
+
+#userName{
+  font-weight:600;
 }
 
 .avatar{
-  width:36px;
-  height:36px;
+  width:38px;
+  height:38px;
   border-radius:50%;
-  object-fit:cover
-}
-
-button{
-  cursor:pointer
-}
-
-.btn{
-  border:0;
-  border-radius:9px;
-  padding:11px 16px;
-  background:#7c5cff;
-  color:white;
-  font-weight:bold
-}
-
-.btn:hover{
-  background:#6848ed
-}
-
-.secondary{
-  background:#1e293b
-}
-
-.green{
-  background:#16a34a
-}
-
-.red{
-  background:#dc2626
+  object-fit:cover;
+  background:#ddd;
 }
 
 main{
-  max-width:1200px;
-  margin:auto;
-  padding:25px
+  max-width:1100px;
+  margin:30px auto;
+  padding:0 15px;
 }
 
 .section{
-  display:none
+  display:none;
 }
 
 .section.active{
-  display:block
+  display:block;
 }
 
 .hero{
-  text-align:center;
-  padding:60px 10px 35px
+  background:#fff;
+  padding:35px;
+  border-radius:20px;
+  margin-bottom:25px;
 }
 
 .hero h1{
-  font-size:clamp(38px,7vw,65px);
-  margin:0 0 15px
-}
-
-.hero h1 span{
-  color:#7c5cff
-}
-
-.hero p{
-  color:#94a3b8;
-  font-size:18px
+  margin-top:0;
+  font-size:36px;
 }
 
 .search{
   display:flex;
   gap:10px;
-  max-width:800px;
-  margin:30px auto
+  margin:20px 0;
 }
 
-input,textarea,select{
-  width:100%;
-  padding:13px;
-  border-radius:9px;
-  border:1px solid #334155;
-  background:#111827;
-  color:white;
-  outline:none
+.search input{
+  flex:1;
+  padding:14px;
+  border:1px solid #ddd;
+  border-radius:10px;
+  font-size:16px;
 }
 
-input:focus,textarea:focus,select:focus{
-  border-color:#7c5cff
-}
-
-textarea{
-  min-height:120px;
-  resize:vertical
-}
-
-.categories{
-  display:flex;
-  flex-wrap:wrap;
-  gap:8px;
-  margin-bottom:25px
-}
-
-.category{
-  border:1px solid #334155;
-  background:#111827;
-  color:#cbd5e1;
-  padding:9px 14px;
-  border-radius:20px
-}
-
-.category.active{
-  background:#7c5cff;
-  color:white;
-  border-color:#7c5cff
-}
-
-.listings{
+.grid{
   display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(270px,1fr));
-  gap:18px
+  grid-template-columns:repeat(3,1fr);
+  gap:18px;
 }
 
 .card{
-  background:#111827;
-  border:1px solid #273244;
+  background:#fff;
   border-radius:15px;
-  overflow:hidden
+  overflow:hidden;
+  border:1px solid #ddd;
 }
 
-.card-image{
+.card img{
   width:100%;
-  height:170px;
+  height:200px;
   object-fit:cover;
-  background:#1e293b
+  background:#eee;
 }
 
 .card-body{
-  padding:17px
+  padding:15px;
 }
 
 .card h3{
-  margin:0 0 8px
-}
-
-.description{
-  color:#94a3b8;
-  min-height:42px;
-  margin:10px 0
-}
-
-.meta{
-  color:#64748b;
-  font-size:13px
+  margin:0 0 8px;
 }
 
 .price{
-  color:#a78bfa;
-  font-size:22px;
-  font-weight:bold;
-  margin:13px 0
-}
-
-.actions{
-  display:flex;
-  gap:7px;
-  flex-wrap:wrap
-}
-
-.actions .btn{
-  flex:1
+  font-size:20px;
+  font-weight:800;
+  margin:10px 0;
 }
 
 .form{
-  max-width:650px;
-  margin:30px auto;
-  background:#111827;
-  border:1px solid #273244;
+  background:#fff;
   padding:25px;
-  border-radius:15px
+  border-radius:18px;
+  max-width:600px;
 }
 
-.group{
-  margin-bottom:15px
+.form input,
+.form textarea,
+.form select{
+  width:100%;
+  padding:12px;
+  margin:7px 0 15px;
+  border:1px solid #ddd;
+  border-radius:10px;
+  font-size:15px;
 }
 
-.group label{
-  display:block;
-  margin-bottom:7px;
-  color:#cbd5e1
+.form textarea{
+  min-height:120px;
+  resize:vertical;
 }
 
-.profile{
-  max-width:700px;
-  margin:auto;
-  background:#111827;
-  border:1px solid #273244;
+.profile-box{
+  background:#fff;
   padding:25px;
-  border-radius:15px
+  border-radius:18px;
 }
 
-.profile-head{
+.profile-header{
   display:flex;
   align-items:center;
   gap:15px;
-  margin-bottom:25px
+  margin-bottom:20px;
 }
 
-.big-avatar{
-  width:70px;
-  height:70px;
-  border-radius:50%;
-  object-fit:cover
-}
-
-.empty{
-  text-align:center;
-  color:#64748b;
-  padding:45px 10px
-}
-
-.loading{
-  text-align:center;
-  color:#94a3b8;
-  padding:40px
-}
-
-.modal{
-  display:none;
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,.75);
-  align-items:center;
-  justify-content:center;
-  padding:15px;
-  z-index:100
-}
-
-.modal.show{
-  display:flex
-}
-
-.modal-box{
-  width:min(600px,100%);
-  max-height:90vh;
-  overflow:auto;
-  background:#111827;
-  border:1px solid #334155;
-  border-radius:15px;
-  padding:22px
-}
-
-.modal-head{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  margin-bottom:15px
-}
-
-.chat-person{
-  display:flex;
-  align-items:center;
-  gap:10px;
-  margin-top:6px
-}
-
-.chat-person-avatar{
-  width:34px;
-  height:34px;
-  border-radius:50%;
-  object-fit:cover
-}
-
-.chat-person-name{
-  color:#cbd5e1;
-  font-weight:bold
-}
-
-.close{
-  background:none;
-  border:0;
-  color:#94a3b8;
-  font-size:30px
-}
-
-.chat{
-  height:400px;
-  overflow-y:auto;
-  background:#0b1020;
-  padding:15px;
-  border-radius:10px;
-  margin-bottom:10px
-}
-
-.message-row{
-  display:flex;
-  gap:9px;
-  align-items:flex-end;
-  margin-bottom:13px
-}
-
-.message-row-mine{
-  justify-content:flex-end
-}
-
-.message-avatar{
-  width:36px;
-  height:36px;
+.profile-header img{
+  width:80px;
+  height:80px;
   border-radius:50%;
   object-fit:cover;
-  flex-shrink:0
+  background:#ddd;
 }
 
-.message-wrapper{
-  max-width:75%;
-  display:flex;
-  flex-direction:column
+.chat-layout{
+  display:grid;
+  grid-template-columns:320px 1fr;
+  gap:15px;
+  min-height:600px;
 }
 
-.message-wrapper.mine-wrapper{
-  align-items:flex-end
-}
-
-.message-wrapper.theirs-wrapper{
-  align-items:flex-start
-}
-
-.message-name{
-  font-size:12px;
-  color:#94a3b8;
-  margin-bottom:4px
-}
-
-.message{
-  max-width:100%;
-  padding:10px 13px;
-  border-radius:12px;
-  word-break:break-word
-}
-
-.mine{
-  background:#7c5cff
-}
-
-.theirs{
-  background:#1e293b
-}
-
-.time{
-  display:block;
-  opacity:.6;
-  font-size:10px;
-  margin-top:4px
-}
-
-.chat-input{
-  display:flex;
-  gap:8px
+.conversations{
+  background:#fff;
+  border-radius:15px;
+  padding:10px;
+  border:1px solid #ddd;
 }
 
 .conversation{
-  background:#0f172a;
-  border:1px solid #273244;
-  border-radius:10px;
-  padding:14px;
-  margin-bottom:8px;
-  cursor:pointer
+  padding:12px;
+  border-radius:12px;
+  cursor:pointer;
+  display:flex;
+  gap:10px;
+  align-items:center;
+  margin-bottom:5px;
 }
 
 .conversation:hover{
-  border-color:#7c5cff
-}
-
-.conversation-head{
-  display:flex;
-  align-items:center;
-  gap:10px
+  background:#f1f1f1;
 }
 
 .conversation-avatar{
@@ -445,83 +234,254 @@ textarea{
   height:45px;
   border-radius:50%;
   object-fit:cover;
-  flex-shrink:0
+  background:#ddd;
+  flex-shrink:0;
 }
 
 .conversation-info{
   min-width:0;
-  flex:1
 }
 
 .conversation-name{
-  font-weight:bold;
-  color:white;
-  overflow:hidden;
-  text-overflow:ellipsis;
-  white-space:nowrap
+  font-weight:700;
 }
 
 .conversation-title{
-  color:#a78bfa;
   font-size:13px;
-  margin-top:3px;
+  color:#666;
+  white-space:nowrap;
   overflow:hidden;
   text-overflow:ellipsis;
-  white-space:nowrap
 }
 
-.conversation-message{
-  color:#94a3b8;
-  margin-top:9px;
+.conversation-last{
+  font-size:13px;
+  color:#888;
+  white-space:nowrap;
   overflow:hidden;
   text-overflow:ellipsis;
-  white-space:nowrap
 }
 
-.toast{
-  position:fixed;
-  right:20px;
-  bottom:20px;
-  background:#111827;
-  border:1px solid #334155;
+.chat{
+  background:#fff;
+  border-radius:15px;
+  border:1px solid #ddd;
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+}
+
+.chat-header{
+  padding:15px;
+  border-bottom:1px solid #ddd;
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+
+.chat-header img{
+  width:45px;
+  height:45px;
+  border-radius:50%;
+  object-fit:cover;
+  background:#ddd;
+}
+
+.chat-header-name{
+  font-weight:800;
+}
+
+.chat-header-title{
+  color:#777;
+  font-size:13px;
+}
+
+.messages{
+  flex:1;
+  padding:20px;
+  overflow-y:auto;
+  min-height:400px;
+  max-height:500px;
+}
+
+.message{
+  display:flex;
+  gap:8px;
+  margin-bottom:14px;
+  align-items:flex-end;
+}
+
+.message.mine{
+  justify-content:flex-end;
+}
+
+.message.mine .message-content{
+  order:1;
+  background:#111;
+  color:#fff;
+}
+
+.message.mine .message-avatar{
+  order:2;
+}
+
+.message-content{
+  max-width:70%;
+  background:#eee;
+  padding:10px 13px;
+  border-radius:14px;
+}
+
+.message-name{
+  font-size:12px;
+  font-weight:700;
+  margin-bottom:4px;
+  opacity:.75;
+}
+
+.message-text{
+  word-break:break-word;
+}
+
+.message-time{
+  font-size:10px;
+  opacity:.55;
+  margin-top:5px;
+}
+
+.message-avatar{
+  width:32px;
+  height:32px;
+  border-radius:50%;
+  object-fit:cover;
+  background:#ddd;
+}
+
+.chat-input{
+  display:flex;
+  gap:8px;
+  padding:12px;
+  border-top:1px solid #ddd;
+}
+
+.chat-input input{
+  flex:1;
+  padding:12px;
+  border:1px solid #ddd;
   border-radius:10px;
-  padding:14px 18px;
-  display:none;
-  z-index:200
 }
 
-.toast.show{
-  display:block
+.empty{
+  color:#777;
+  text-align:center;
+  padding:40px 10px;
+}
+
+.notice{
+  padding:15px;
+  background:#fff4d6;
+  border-radius:12px;
+  margin-bottom:15px;
+}
+
+.mobile-nav{
+  display:none;
 }
 
 @media(max-width:750px){
 
   header{
-    padding:0 10px
+    padding:0 10px;
+    height:auto;
+    min-height:65px;
   }
 
-  nav{
-    display:none
+  header nav{
+    display:none;
   }
 
-  .search{
-    flex-direction:column
+  .logo{
+    font-size:21px;
+  }
+
+  .user{
+    gap:5px;
+  }
+
+  #userName{
+    display:none;
+  }
+
+  #messagesBtn{
+    display:block;
+    padding:8px 10px;
+    font-size:13px;
+  }
+
+  #loginBtn,
+  #logoutBtn{
+    padding:8px 10px;
+    font-size:13px;
   }
 
   main{
-    padding:15px
+    margin:15px auto 80px;
   }
 
-  .listings{
-    grid-template-columns:1fr
+  .hero{
+    padding:20px;
   }
 
-  .chat-input{
-    flex-direction:column
+  .hero h1{
+    font-size:28px;
   }
 
-  .message-wrapper{
-    max-width:80%
+  .grid{
+    grid-template-columns:1fr;
+  }
+
+  .chat-layout{
+    grid-template-columns:1fr;
+  }
+
+  .conversations{
+    max-height:250px;
+    overflow-y:auto;
+  }
+
+  .messages{
+    min-height:350px;
+    max-height:450px;
+  }
+
+  .message-content{
+    max-width:78%;
+  }
+
+  .mobile-nav{
+    position:fixed;
+    bottom:0;
+    left:0;
+    right:0;
+    height:65px;
+    background:#fff;
+    border-top:1px solid #ddd;
+    display:flex;
+    justify-content:space-around;
+    align-items:center;
+    z-index:999;
+  }
+
+  .mobile-nav button{
+    border:0;
+    background:none;
+    font-size:12px;
+    font-weight:600;
+    cursor:pointer;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:3px;
   }
 }
 </style>
@@ -536,21 +496,10 @@ textarea{
   </div>
 
   <nav>
-    <button onclick="showSection('home')">
-      Главная
-    </button>
-
-    <button onclick="showSection('sell')">
-      Продать
-    </button>
-
-    <button onclick="showSection('messages')">
-      💬 Сообщения
-    </button>
-
-    <button onclick="showSection('profile')">
-      Профиль
-    </button>
+    <button onclick="showSection('home')">Главная</button>
+    <button onclick="showSection('sell')">Продать</button>
+    <button onclick="showSection('messages')">💬 Сообщения</button>
+    <button onclick="showSection('profile')">Профиль</button>
   </nav>
 
   <div class="user">
@@ -561,7 +510,16 @@ textarea{
       id="headerAvatar"
       class="avatar"
       style="display:none"
+      alt="avatar"
     >
+
+    <button
+      id="messagesBtn"
+      class="btn secondary"
+      onclick="showSection('messages')"
+    >
+      💬 Сообщения
+    </button>
 
     <button
       id="loginBtn"
@@ -587,180 +545,77 @@ textarea{
 
 <main>
 
-<!-- HOME -->
+  <!-- HOME -->
 
-<section id="home" class="section active">
+  <section id="home" class="section active">
 
-  <div class="hero">
+    <div class="hero">
 
-    <h1>
-      Добро пожаловать в
-      <span>Delyvex</span>
-    </h1>
+      <h1>Покупай и продавай на Delyvex</h1>
 
-    <p>
-      Маркетплейс игровых товаров
-    </p>
+      <p>
+        Простая площадка для покупки и продажи товаров.
+      </p>
 
-    <div class="search">
+      <div class="search">
+        <input
+          id="searchInput"
+          placeholder="Поиск товаров..."
+          oninput="loadListings()"
+        >
 
-      <input
-        id="search"
-        placeholder="Поиск товаров..."
-        oninput="renderListings()"
-      >
-
-      <button
-        class="btn"
-        onclick="renderListings()"
-      >
-        Найти
-      </button>
+        <button
+          class="btn"
+          onclick="showSection('sell')"
+        >
+          + Продать
+        </button>
+      </div>
 
     </div>
 
-  </div>
+    <div id="listingsGrid" class="grid"></div>
 
-  <div class="categories">
-
-    <button
-      class="category active"
-      onclick="setCategory('Все',this)"
-    >
-      Все
-    </button>
-
-    <button
-      class="category"
-      onclick="setCategory('Roblox',this)"
-    >
-      Roblox
-    </button>
-
-    <button
-      class="category"
-      onclick="setCategory('Minecraft',this)"
-    >
-      Minecraft
-    </button>
-
-    <button
-      class="category"
-      onclick="setCategory('GTA',this)"
-    >
-      GTA
-    </button>
-
-    <button
-      class="category"
-      onclick="setCategory('CS2',this)"
-    >
-      CS2
-    </button>
-
-    <button
-      class="category"
-      onclick="setCategory('Другое',this)"
-    >
-      Другое
-    </button>
-
-  </div>
-
-  <div
-    id="listings"
-    class="listings"
-  >
-
-    <div class="loading">
-      Загрузка товаров...
-    </div>
-
-  </div>
-
-</section>
+  </section>
 
 
-<!-- SELL -->
+  <!-- SELL -->
 
-<section id="sell" class="section">
-
-  <div class="form">
+  <section id="sell" class="section">
 
     <h2>Продать товар</h2>
 
-    <div
-      id="sellLogin"
-      class="empty"
-      style="display:none"
-    >
-      Сначала войдите через Google.
-    </div>
+    <div class="form">
 
-    <div id="sellForm">
+      <label>Название</label>
 
-      <div class="group">
+      <input
+        id="listingTitle"
+        placeholder="Например: iPhone 13"
+      >
 
-        <label>Название</label>
+      <label>Описание</label>
 
-        <input
-          id="title"
-          placeholder="Например: Robux 1000"
-        >
+      <textarea
+        id="listingDescription"
+        placeholder="Опишите товар..."
+      ></textarea>
 
-      </div>
+      <label>Цена</label>
 
-      <div class="group">
+      <input
+        id="listingPrice"
+        type="number"
+        step="0.01"
+        placeholder="100"
+      >
 
-        <label>Описание</label>
+      <label>Изображение</label>
 
-        <textarea
-          id="description"
-          placeholder="Описание товара"
-        ></textarea>
-
-      </div>
-
-      <div class="group">
-
-        <label>Категория</label>
-
-        <select id="category">
-
-          <option>Roblox</option>
-          <option>Minecraft</option>
-          <option>GTA</option>
-          <option>CS2</option>
-          <option>Другое</option>
-
-        </select>
-
-      </div>
-
-      <div class="group">
-
-        <label>Цена (€)</label>
-
-        <input
-          id="price"
-          type="number"
-          min="0"
-          step="0.01"
-          placeholder="10"
-        >
-
-      </div>
-
-      <div class="group">
-
-        <label>URL изображения</label>
-
-        <input
-          id="image"
-          placeholder="https://..."
-        >
-
-      </div>
+      <input
+        id="listingImage"
+        placeholder="Ссылка на изображение"
+      >
 
       <button
         class="btn"
@@ -771,202 +626,169 @@ textarea{
 
     </div>
 
-  </div>
-
-</section>
+  </section>
 
 
-<!-- MESSAGES -->
+  <!-- MESSAGES -->
 
-<section id="messages" class="section">
+  <section id="messages" class="section">
 
-  <div class="form">
-
-    <h2>Сообщения</h2>
+    <h2>💬 Сообщения</h2>
 
     <div
-      id="messageLogin"
-      class="empty"
-    >
-      Войдите, чтобы посмотреть сообщения.
-    </div>
-
-    <div id="conversations"></div>
-
-  </div>
-
-</section>
-
-
-<!-- PROFILE -->
-
-<section id="profile" class="section">
-
-  <div class="profile">
-
-    <div
-      id="profileLogin"
-      class="empty"
-    >
-
-      <h2>Профиль</h2>
-
-      <p>
-        Войдите через Google.
-      </p>
-
-      <button
-        class="btn"
-        onclick="loginWithGoogle()"
-      >
-        Войти через Google
-      </button>
-
-    </div>
-
-    <div
-      id="profileContent"
+      id="loginNotice"
+      class="notice"
       style="display:none"
     >
+      Войдите в аккаунт, чтобы пользоваться сообщениями.
+    </div>
 
-      <div class="profile-head">
+    <div
+      id="chatLayout"
+      class="chat-layout"
+    >
 
-        <img
-          id="profileAvatar"
-          class="big-avatar"
+      <div class="conversations">
+
+        <h3>Чаты</h3>
+
+        <div id="conversationsList"></div>
+
+      </div>
+
+
+      <div class="chat">
+
+        <div
+          id="chatHeader"
+          class="chat-header"
         >
 
-        <div>
+          <div class="empty">
+            Выберите чат
+          </div>
 
-          <h2 id="profileName">
-            Пользователь
-          </h2>
+        </div>
 
-          <div
-            id="profileEmail"
-            style="color:#64748b"
-          ></div>
+
+        <div
+          id="messagesList"
+          class="messages"
+        >
+
+          <div class="empty">
+            Выберите чат слева
+          </div>
+
+        </div>
+
+
+        <div class="chat-input">
+
+          <input
+            id="messageInput"
+            placeholder="Напишите сообщение..."
+            onkeydown="if(event.key==='Enter') sendMessage()"
+          >
+
+          <button
+            class="btn"
+            onclick="sendMessage()"
+          >
+            Отправить
+          </button>
 
         </div>
 
       </div>
 
-      <div class="group">
+    </div>
 
-        <label>Имя</label>
+  </section>
 
-        <input id="profileNameInput">
+
+  <!-- PROFILE -->
+
+  <section id="profile" class="section">
+
+    <h2>Профиль</h2>
+
+    <div class="profile-box">
+
+      <div class="profile-header">
+
+        <img
+          id="profileAvatar"
+          alt="avatar"
+        >
+
+        <div>
+          <h3 id="profileName">Гость</h3>
+          <div id="profileEmail"></div>
+        </div>
 
       </div>
 
-      <div class="group">
+      <div class="form">
 
-        <label>Аватар URL</label>
+        <label>Никнейм</label>
 
-        <input id="profileAvatarInput">
+        <input
+          id="profileNickname"
+          placeholder="Ваш никнейм"
+        >
+
+        <label>Ссылка на аватар</label>
+
+        <input
+          id="profileAvatarInput"
+          placeholder="https://..."
+        >
+
+        <button
+          class="btn"
+          onclick="saveProfile()"
+        >
+          Сохранить профиль
+        </button>
 
       </div>
-
-      <button
-        class="btn"
-        onclick="saveProfile()"
-      >
-        Сохранить
-      </button>
-
-      <hr
-        style="border-color:#273244;margin:25px 0"
-      >
-
-      <h3>Мои объявления</h3>
-
-      <div id="myListings"></div>
 
     </div>
 
-  </div>
-
-</section>
+  </section>
 
 </main>
 
 
-<!-- CHAT -->
+<!-- MOBILE NAV -->
 
-<div
-  id="chatModal"
-  class="modal"
->
+<div class="mobile-nav">
 
-  <div class="modal-box">
+  <button onclick="showSection('home')">
+    🏠
+    <span>Главная</span>
+  </button>
 
-    <div class="modal-head">
+  <button onclick="showSection('sell')">
+    ➕
+    <span>Продать</span>
+  </button>
 
-      <div>
+  <button onclick="showSection('messages')">
+    💬
+    <span>Чаты</span>
+  </button>
 
-        <h2 id="chatTitle">
-          Чат
-        </h2>
-
-        <div
-          id="chatSubtitle"
-          class="chat-person"
-        ></div>
-
-      </div>
-
-      <button
-        class="close"
-        onclick="closeChat()"
-      >
-        ×
-      </button>
-
-    </div>
-
-    <div
-      id="chatMessages"
-      class="chat"
-    ></div>
-
-    <div class="chat-input">
-
-      <input
-        id="chatInput"
-        placeholder="Напишите сообщение..."
-        onkeydown="
-          if(event.key==='Enter'){
-            event.preventDefault();
-            sendMessage();
-          }
-        "
-      >
-
-      <button
-        class="btn"
-        onclick="sendMessage()"
-      >
-        Отправить
-      </button>
-
-    </div>
-
-  </div>
+  <button onclick="showSection('profile')">
+    👤
+    <span>Профиль</span>
+  </button>
 
 </div>
 
 
-<div
-  id="toast"
-  class="toast"
-></div>
-
-
 <script>
-
-/* =====================================================
-   SUPABASE
-===================================================== */
 
 const SUPABASE_URL =
 "https://gisdufgixjfudblxydvm.supabase.co";
@@ -974,32 +796,22 @@ const SUPABASE_URL =
 const SUPABASE_KEY =
 "sb_publishable_irNKt_PStZrQ2NCEdaD5sg_quCmigAn";
 
-const GITHUB_URL =
-"https://tyronik2x2v2-stack.github.io/Delyvex/";
-
 const sb =
-window.supabase.createClient(
+supabase.createClient(
   SUPABASE_URL,
   SUPABASE_KEY
 );
 
 
-/* =====================================================
-   STATE
-===================================================== */
+const GITHUB_URL =
+"https://tyronik2x2v2-stack.github.io/Delyvex/";
+
 
 let currentUser = null;
 
-let currentProfile = null;
-
-let allListings = [];
-
-let selectedCategory = "Все";
-
 let currentChat = {
   listingId:null,
-  receiverId:null,
-  title:null
+  otherUserId:null
 };
 
 let currentChatProfiles = {
@@ -1007,12 +819,50 @@ let currentChatProfiles = {
   other:null
 };
 
-let chatChannel = null;
+let chatSubscription = null;
 
 
-/* =====================================================
-   GOOGLE LOGIN
-===================================================== */
+/* =========================
+   NAVIGATION
+========================= */
+
+function showSection(id){
+
+  document
+    .querySelectorAll(".section")
+    .forEach(section=>{
+      section.classList.remove("active");
+    });
+
+  const section =
+    document.getElementById(id);
+
+  if(section){
+    section.classList.add("active");
+  }
+
+  if(id === "home"){
+    loadListings();
+  }
+
+  if(id === "messages"){
+    loadConversations();
+  }
+
+  if(id === "profile"){
+    loadProfile();
+  }
+
+  window.scrollTo({
+    top:0,
+    behavior:"smooth"
+  });
+}
+
+
+/* =========================
+   AUTH
+========================= */
 
 async function loginWithGoogle(){
 
@@ -1020,22 +870,17 @@ async function loginWithGoogle(){
 
     const result =
       await sb.auth.signInWithOAuth({
-
         provider:"google",
 
         options:{
-
           redirectTo:GITHUB_URL,
-
           skipBrowserRedirect:false,
 
           queryParams:{
             access_type:"offline",
             prompt:"select_account"
           }
-
         }
-
       });
 
     if(result.error){
@@ -1046,10 +891,9 @@ async function loginWithGoogle(){
       );
 
       alert(
-        "Ошибка входа через Google:\n\n"+
+        "Ошибка входа:\n\n"+
         result.error.message
       );
-
     }
 
   }catch(error){
@@ -1060,106 +904,137 @@ async function loginWithGoogle(){
       "Ошибка входа:\n\n"+
       error.message
     );
-
   }
-
 }
 
 
-/* =====================================================
-   INIT
-===================================================== */
+async function logout(){
 
-document.addEventListener(
-  "DOMContentLoaded",
-  async()=>{
+  await sb.auth.signOut();
 
-    await loadSession();
+  currentUser = null;
 
-    await loadListings();
+  updateAuthUI();
 
-    sb.auth.onAuthStateChange(
-      async(event,session)=>{
-
-        console.log(
-          "Auth event:",
-          event
-        );
-
-        currentUser =
-          session?.user || null;
-
-        if(currentUser){
-
-          await loadProfile();
-
-        }else{
-
-          currentProfile=null;
-
-        }
-
-        updateUI();
-
-        await loadListings();
-
-      }
-    );
-
-  }
-);
+  showSection("home");
+}
 
 
-/* =====================================================
-   SESSION
-===================================================== */
-
-async function loadSession(){
+async function checkAuth(){
 
   const {
-    data,
-    error
-  } =
-  await sb.auth.getSession();
-
-  if(error){
-
-    console.error(error);
-
-    return;
-
-  }
+    data:{
+      session
+    }
+  } = await sb.auth.getSession();
 
   currentUser =
-    data.session?.user || null;
+    session?.user || null;
 
-  if(currentUser){
+  updateAuthUI();
 
-    await loadProfile();
+  sb.auth.onAuthStateChange(
+    async (event,session)=>{
 
-  }
+      currentUser =
+        session?.user || null;
 
-  updateUI();
+      updateAuthUI();
 
+    }
+  );
 }
 
 
-/* =====================================================
-   PROFILE
-===================================================== */
+/* =========================
+   AUTH UI
+========================= */
 
-async function loadProfile(){
+async function updateAuthUI(){
 
-  if(!currentUser) return;
+  const loginBtn =
+    document.getElementById("loginBtn");
+
+  const logoutBtn =
+    document.getElementById("logoutBtn");
+
+  const messagesBtn =
+    document.getElementById("messagesBtn");
+
+  const userName =
+    document.getElementById("userName");
+
+  const headerAvatar =
+    document.getElementById("headerAvatar");
+
+
+  if(!currentUser){
+
+    loginBtn.style.display="block";
+    logoutBtn.style.display="none";
+
+    messagesBtn.style.display="none";
+
+    userName.textContent="";
+
+    headerAvatar.style.display="none";
+
+    return;
+  }
+
+
+  loginBtn.style.display="none";
+  logoutBtn.style.display="block";
+
+  messagesBtn.style.display="block";
+
+
+  const profile =
+    await getProfile(
+      currentUser.id
+    );
+
+
+  userName.textContent =
+    profileName(
+      profile,
+      currentUser
+    );
+
+
+  const avatar =
+    profileAvatar(
+      profile,
+      currentUser
+    );
+
+
+  if(avatar){
+
+    headerAvatar.src = avatar;
+
+    headerAvatar.style.display="block";
+
+  }else{
+
+    headerAvatar.style.display="none";
+  }
+}
+
+
+/* =========================
+   PROFILES
+========================= */
+
+async function getProfile(userId){
 
   const {
     data,
     error
-  } =
-  await sb
+  } = await sb
     .from("profiles")
     .select("*")
-    .eq("id",currentUser.id)
+    .eq("id",userId)
     .maybeSingle();
 
   if(error){
@@ -1169,919 +1044,405 @@ async function loadProfile(){
       error
     );
 
-    return;
-
-  }
-
-  if(data){
-
-    currentProfile=data;
-
-    return;
-
-  }
-
-  const metadata =
-    currentUser.user_metadata || {};
-
-  const profile={
-
-    id:currentUser.id,
-
-    username:
-      metadata.full_name ||
-      metadata.name ||
-      currentUser.email?.split("@")[0] ||
-      "Пользователь",
-
-    avatar_url:
-      metadata.avatar_url ||
-      metadata.picture ||
-      ""
-
-  };
-
-  const result =
-    await sb
-      .from("profiles")
-      .insert(profile)
-      .select()
-      .single();
-
-  if(result.error){
-
-    console.error(
-      "Profile creation error:",
-      result.error
-    );
-
-  }else{
-
-    currentProfile =
-      result.data || profile;
-
-  }
-
-}
-
-
-/* =====================================================
-   PROFILE HELPERS
-===================================================== */
-
-async function getProfile(userId){
-
-  if(!userId) return null;
-
-  if(
-    currentUser &&
-    String(userId)===String(currentUser.id) &&
-    currentProfile
-  ){
-
-    return currentProfile;
-
-  }
-
-  const {
-    data,
-    error
-  } =
-  await sb
-    .from("profiles")
-    .select("id,username,avatar_url")
-    .eq("id",userId)
-    .maybeSingle();
-
-  if(error){
-
-    console.error(
-      "Profile loading error:",
-      error
-    );
-
     return null;
-
   }
 
-  return data || null;
-
+  return data;
 }
 
 
-function profileName(
-  profile,
-  fallback="Пользователь"
-){
+function profileName(profile,user){
+
+  if(profile){
+
+    return (
+      profile.nickname ||
+      profile.username ||
+      profile.name ||
+      profile.full_name ||
+      user?.user_metadata?.full_name ||
+      user?.email?.split("@")[0] ||
+      "Пользователь"
+    );
+  }
 
   return (
-    profile?.username ||
-    fallback
+    user?.user_metadata?.full_name ||
+    user?.email?.split("@")[0] ||
+    "Пользователь"
   );
-
 }
 
 
-function profileAvatar(profile){
+function profileAvatar(profile,user){
 
   return (
     profile?.avatar_url ||
-    "https://placehold.co/100x100/1e293b/ffffff?text=User"
+    profile?.avatar ||
+    user?.user_metadata?.avatar_url ||
+    user?.user_metadata?.picture ||
+    ""
   );
-
 }
 
 
-/* =====================================================
-   UI
-===================================================== */
-
-function updateUI(){
-
-  const login =
-    document.getElementById(
-      "loginBtn"
-    );
-
-  const logout =
-    document.getElementById(
-      "logoutBtn"
-    );
-
-  const name =
-    document.getElementById(
-      "userName"
-    );
-
-  const avatar =
-    document.getElementById(
-      "headerAvatar"
-    );
-
-  if(currentUser){
-
-    login.style.display="none";
-
-    logout.style.display="block";
-
-    name.textContent =
-      currentProfile?.username ||
-      currentUser.user_metadata?.name ||
-      currentUser.email ||
-      "Пользователь";
-
-    const photo =
-      currentProfile?.avatar_url ||
-      currentUser.user_metadata?.avatar_url ||
-      currentUser.user_metadata?.picture ||
-      "";
-
-    if(photo){
-
-      avatar.src=photo;
-
-      avatar.style.display="block";
-
-    }else{
-
-      avatar.style.display="none";
-
-    }
-
-  }else{
-
-    login.style.display="block";
-
-    logout.style.display="none";
-
-    name.textContent="";
-
-    avatar.style.display="none";
-
-  }
-
-  updateSell();
-
-  updateProfile();
-
-  updateMessages();
-
-}
-
-
-/* =====================================================
-   LOGOUT
-===================================================== */
-
-async function logout(){
-
-  if(chatChannel){
-
-    await sb.removeChannel(
-      chatChannel
-    );
-
-    chatChannel=null;
-
-  }
-
-  await sb.auth.signOut();
-
-  currentUser=null;
-
-  currentProfile=null;
-
-  currentChatProfiles={
-    me:null,
-    other:null
-  };
-
-  showToast(
-    "Вы вышли из аккаунта"
-  );
-
-  showSection("home");
-
-}
-
-
-/* =====================================================
-   NAVIGATION
-===================================================== */
-
-function showSection(id){
-
-  document
-    .querySelectorAll(".section")
-    .forEach(x=>
-      x.classList.remove("active")
-    );
-
-  document
-    .getElementById(id)
-    ?.classList.add("active");
-
-  if(id==="profile"){
-
-    updateProfile();
-
-    renderMyListings();
-
-  }
-
-  if(id==="messages"){
-
-    updateMessages();
-
-    loadConversations();
-
-  }
-
-}
-
-
-/* =====================================================
+/* =========================
    LISTINGS
-===================================================== */
+========================= */
 
 async function loadListings(){
+
+  const grid =
+    document.getElementById(
+      "listingsGrid"
+    );
+
+  const search =
+    document.getElementById(
+      "searchInput"
+    )?.value
+    ?.trim()
+    ?.toLowerCase() || "";
+
+
+  let query =
+    sb
+      .from("listings")
+      .select("*")
+      .order(
+        "created_at",
+        {ascending:false}
+      );
+
 
   const {
     data,
     error
   } =
-  await sb
-    .from("listings")
-    .select("*")
-    .order(
-      "created_at",
-      {ascending:false}
-    );
+    await query;
+
 
   if(error){
 
-    console.error(
-      "Listings error:",
-      error
-    );
+    console.error(error);
 
-    document.getElementById(
-      "listings"
-    ).innerHTML=`
-
-      <div class="empty">
-        Ошибка загрузки товаров.
-        <br><br>
-        ${escapeHtml(error.message)}
-      </div>
-
-    `;
+    grid.innerHTML =
+      `<div class="empty">
+        Ошибка загрузки товаров
+      </div>`;
 
     return;
-
   }
 
-  allListings=data || [];
 
-  renderListings();
+  const filtered =
+    (data || []).filter(item=>{
 
-}
+      if(!search){
+        return true;
+      }
 
-
-function setCategory(
-  category,
-  button
-){
-
-  selectedCategory=category;
-
-  document
-    .querySelectorAll(".category")
-    .forEach(x=>
-      x.classList.remove("active")
-    );
-
-  button.classList.add("active");
-
-  renderListings();
-
-}
-
-
-function renderListings(){
-
-  const box =
-    document.getElementById(
-      "listings"
-    );
-
-  const search =
-    (
-      document.getElementById(
-        "search"
-      )?.value || ""
-    )
-    .toLowerCase()
-    .trim();
-
-  let items =
-    [...allListings];
-
-  if(
-    selectedCategory!=="Все"
-  ){
-
-    items =
-      items.filter(x=>
-        x.category===
-        selectedCategory
+      return (
+        String(item.title || "")
+          .toLowerCase()
+          .includes(search)
+        ||
+        String(item.description || "")
+          .toLowerCase()
+          .includes(search)
       );
 
-  }
+    });
 
-  if(search){
 
-    items =
-      items.filter(x=>
+  if(filtered.length===0){
 
-        String(x.title||"")
-          .toLowerCase()
-          .includes(search)
-
-        ||
-
-        String(x.description||"")
-          .toLowerCase()
-          .includes(search)
-
-        ||
-
-        String(x.category||"")
-          .toLowerCase()
-          .includes(search)
-
-      );
-
-  }
-
-  if(!items.length){
-
-    box.innerHTML=`
-
-      <div class="empty">
-        Товаров пока нет.
-      </div>
-
-    `;
+    grid.innerHTML =
+      `<div class="empty">
+        Товаров пока нет
+      </div>`;
 
     return;
-
   }
 
-  box.innerHTML =
-    items
-      .map(createCard)
+
+  grid.innerHTML =
+    filtered
+      .map(item=>createListingHTML(item))
       .join("");
-
 }
 
 
-function createCard(item){
+function createListingHTML(item){
 
   const image =
     item.image_url ||
-    "https://placehold.co/600x400/111827/ffffff?text=Delyvex";
+    item.image ||
+    "https://via.placeholder.com/600x400?text=Delyvex";
 
-  const owner =
-    currentUser &&
-    String(item.seller_id)===
-    String(currentUser.id);
+
+  const price =
+    item.price != null
+      ? `${item.price} €`
+      : "Цена не указана";
+
 
   return `
-
     <div class="card">
 
       <img
-        class="card-image"
-        src="${escapeAttribute(image)}"
-        onerror="
-          this.src=
-          'https://placehold.co/600x400/111827/ffffff?text=Delyvex'
-        "
+        src="${escapeHTML(image)}"
+        alt=""
       >
 
       <div class="card-body">
 
         <h3>
-          ${escapeHtml(item.title)}
+          ${escapeHTML(item.title || "Без названия")}
         </h3>
 
-        <div class="meta">
-          ${escapeHtml(
-            item.category || "Другое"
-          )}
-        </div>
-
-        <div class="description">
-          ${escapeHtml(
-            item.description || "Без описания"
+        <div>
+          ${escapeHTML(
+            item.description || ""
           )}
         </div>
 
         <div class="price">
-          ${Number(item.price||0).toFixed(2)} €
+          ${escapeHTML(price)}
         </div>
 
-        <div class="actions">
-
-          ${
-            owner
-
-            ?
-
-            `
-              <button
-                class="btn red"
-                onclick="
-                  deleteListing('${item.id}')
-                "
-              >
-                Удалить
-              </button>
-            `
-
-            :
-
-            `
-              <button
-                class="btn green"
-                onclick="
-                  buyListing('${item.id}')
-                "
-              >
-                Купить
-              </button>
-
-              <button
-                class="btn secondary"
-                onclick="
-                  openChat('${item.id}')
-                "
-              >
-                💬 Чат
-              </button>
-            `
-          }
-
-        </div>
+        <button
+          class="btn"
+          onclick="openChat(${Number(item.id)})"
+        >
+          💬 Написать продавцу
+        </button>
 
       </div>
 
     </div>
-
   `;
-
 }
 
 
-/* =====================================================
+/* =========================
    SELL
-===================================================== */
-
-function updateSell(){
-
-  const login =
-    document.getElementById(
-      "sellLogin"
-    );
-
-  const form =
-    document.getElementById(
-      "sellForm"
-    );
-
-  if(currentUser){
-
-    login.style.display="none";
-
-    form.style.display="block";
-
-  }else{
-
-    login.style.display="block";
-
-    form.style.display="none";
-
-  }
-
-}
-
+========================= */
 
 async function createListing(){
 
   if(!currentUser){
 
-    showToast(
-      "Сначала войдите"
+    alert(
+      "Сначала войдите в аккаунт."
     );
 
     return;
-
   }
+
 
   const title =
     document.getElementById(
-      "title"
+      "listingTitle"
     ).value.trim();
 
   const description =
     document.getElementById(
-      "description"
+      "listingDescription"
     ).value.trim();
 
-  const category =
-    document.getElementById(
-      "category"
-    ).value;
-
   const price =
-    Number(
-      document.getElementById(
-        "price"
-      ).value
-    );
+    document.getElementById(
+      "listingPrice"
+    ).value;
 
   const image =
     document.getElementById(
-      "image"
+      "listingImage"
     ).value.trim();
+
 
   if(!title){
 
-    showToast(
-      "Введите название"
+    alert(
+      "Введите название товара."
     );
 
     return;
-
   }
 
-  if(
-    Number.isNaN(price) ||
-    price<0
-  ){
-
-    showToast(
-      "Введите цену"
-    );
-
-    return;
-
-  }
 
   const {
     error
   } =
-  await sb
-    .from("listings")
-    .insert({
+    await sb
+      .from("listings")
+      .insert({
 
-      title:title,
+        title:title,
 
-      description:description,
+        description:description,
 
-      category:category,
+        price:
+          price
+            ? Number(price)
+            : null,
 
-      price:price,
+        image_url:image,
 
-      image_url:image,
+        seller_id:
+          currentUser.id
 
-      seller_id:currentUser.id
+      });
 
-    });
 
   if(error){
 
     console.error(error);
 
-    showToast(
-      "Ошибка: "+
+    alert(
+      "Ошибка публикации:\n\n"+
       error.message
     );
 
     return;
-
   }
 
-  document.getElementById(
-    "title"
-  ).value="";
 
-  document.getElementById(
-    "description"
-  ).value="";
-
-  document.getElementById(
-    "price"
-  ).value="";
-
-  document.getElementById(
-    "image"
-  ).value="";
-
-  showToast(
+  alert(
     "Товар опубликован!"
   );
 
-  await loadListings();
+
+  document.getElementById(
+    "listingTitle"
+  ).value="";
+
+  document.getElementById(
+    "listingDescription"
+  ).value="";
+
+  document.getElementById(
+    "listingPrice"
+  ).value="";
+
+  document.getElementById(
+    "listingImage"
+  ).value="";
+
 
   showSection("home");
-
 }
 
 
-/* =====================================================
-   DELETE
-===================================================== */
+/* =========================
+   OPEN CHAT FROM LISTING
+========================= */
 
-async function deleteListing(id){
+async function openChat(listingId){
 
-  if(!currentUser) return;
+  if(!currentUser){
 
-  if(
-    !confirm(
-      "Удалить это объявление?"
-    )
-  ) return;
+    alert(
+      "Чтобы написать продавцу, сначала войдите."
+    );
+
+    return;
+  }
+
 
   const {
-    data,
+    data:listing,
     error
   } =
-  await sb
-    .from("listings")
-    .delete()
-    .eq("id",id)
-    .eq(
-      "seller_id",
-      currentUser.id
-    )
-    .select("id");
+    await sb
+      .from("listings")
+      .select("*")
+      .eq("id",listingId)
+      .single();
+
 
   if(error){
 
-    console.error(error);
-
-    showToast(
-      "Ошибка удаления: "+
-      error.message
+    alert(
+      "Не удалось открыть товар."
     );
 
     return;
-
   }
 
-  if(!data || !data.length){
-
-    showToast(
-      "Удаление запрещено политикой RLS."
-    );
-
-    return;
-
-  }
-
-  showToast(
-    "Объявление удалено"
-  );
-
-  await loadListings();
-
-  await renderMyListings();
-
-}
-
-
-/* =====================================================
-   BUY
-===================================================== */
-
-async function buyListing(id){
-
-  if(!currentUser){
-
-    showToast(
-      "Сначала войдите"
-    );
-
-    return;
-
-  }
-
-  const item =
-    allListings.find(x=>
-      String(x.id)===
-      String(id)
-    );
-
-  if(!item){
-
-    showToast(
-      "Товар не найден"
-    );
-
-    return;
-
-  }
 
   if(
-    String(item.seller_id)===
-    String(currentUser.id)
+    listing.seller_id ===
+    currentUser.id
   ){
 
-    showToast(
-      "Нельзя купить свой товар"
+    alert(
+      "Это ваш товар. Откройте раздел «Сообщения», чтобы посмотреть чаты с покупателями."
     );
+
+    showSection("messages");
 
     return;
-
   }
 
-  if(
-    !confirm(
-      `Купить "${item.title}" за ${Number(item.price).toFixed(2)} €?`
-    )
-  ) return;
 
-  const {
-    error
-  } =
-  await sb
-    .from("purchases")
-    .insert({
-
-      listing_id:item.id,
-
-      buyer_id:currentUser.id,
-
-      seller_id:item.seller_id,
-
-      price:item.price
-
-    });
-
-  if(error){
-
-    console.error(error);
-
-    showToast(
-      "Ошибка покупки: "+
-      error.message
-    );
-
-    return;
-
-  }
-
-  showToast(
-    "Покупка оформлена!"
-  );
-
-}
-
-
-/* =====================================================
-   CHAT
-===================================================== */
-
-async function openChat(id){
-
-  if(!currentUser){
-
-    showToast(
-      "Сначала войдите"
-    );
-
-    return;
-
-  }
-
-  const item =
-    allListings.find(x=>
-      String(x.id)===
-      String(id)
-    );
-
-  if(!item){
-
-    showToast(
-      "Товар не найден"
-    );
-
-    return;
-
-  }
-
-  if(
-    String(item.seller_id)===
-    String(currentUser.id)
-  ){
-
-    showToast(
-      "Нельзя написать самому себе"
-    );
-
-    return;
-
-  }
-
-  currentChat={
-
-    listingId:item.id,
-
-    receiverId:item.seller_id,
-
-    title:item.title
-
-  };
-
-  await openCurrentChat();
-
-}
-
-
-async function openConversation(
-  listingId,
-  receiverId,
-  title
-){
-
-  if(!currentUser){
-
-    showToast(
-      "Сначала войдите"
-    );
-
-    return;
-
-  }
-
-  currentChat={
+  currentChat = {
 
     listingId:listingId,
 
-    receiverId:receiverId,
-
-    title:title
+    otherUserId:
+      listing.seller_id
 
   };
 
-  await openCurrentChat();
 
+  showSection("messages");
+
+  await openCurrentChat();
+}
+
+
+/* =========================
+   OPEN EXISTING CHAT
+========================= */
+
+async function openConversation(
+  listingId,
+  otherUserId
+){
+
+  if(!currentUser){
+    return;
+  }
+
+
+  currentChat = {
+
+    listingId:
+      Number(listingId),
+
+    otherUserId:
+      otherUserId
+
+  };
+
+
+  await openCurrentChat();
 }
 
 
 async function openCurrentChat(){
+
+  if(
+    !currentUser ||
+    !currentChat.listingId ||
+    !currentChat.otherUserId
+  ){
+
+    return;
+  }
+
 
   const me =
     await getProfile(
@@ -2090,10 +1451,11 @@ async function openCurrentChat(){
 
   const other =
     await getProfile(
-      currentChat.receiverId
+      currentChat.otherUserId
     );
 
-  currentChatProfiles={
+
+  currentChatProfiles = {
 
     me:me,
 
@@ -2101,290 +1463,234 @@ async function openCurrentChat(){
 
   };
 
-  document.getElementById(
-    "chatTitle"
-  ).textContent =
-    "💬 "+currentChat.title;
 
-  document.getElementById(
-    "chatSubtitle"
-  ).innerHTML=`
+  const otherUser =
+    {
+      id:
+        currentChat.otherUserId
+    };
 
-    <img
-      class="chat-person-avatar"
-      src="${escapeAttribute(
-        profileAvatar(other)
-      )}"
-      onerror="
-        this.src='https://placehold.co/100x100/1e293b/ffffff?text=User'
-      "
-    >
 
-    <span class="chat-person-name">
-      ${escapeHtml(
-        profileName(
-          other,
-          "Пользователь"
-        )
-      )}
-    </span>
+  const name =
+    profileName(
+      other,
+      otherUser
+    );
+
+
+  const avatar =
+    profileAvatar(
+      other,
+      otherUser
+    );
+
+
+  const header =
+    document.getElementById(
+      "chatHeader"
+    );
+
+
+  header.innerHTML = `
+
+    ${
+      avatar
+      ?
+      `<img src="${escapeHTML(avatar)}">`
+      :
+      `<img src="https://via.placeholder.com/80">`
+    }
+
+    <div>
+
+      <div class="chat-header-name">
+        ${escapeHTML(name)}
+      </div>
+
+      <div class="chat-header-title">
+        Чат по объявлению
+      </div>
+
+    </div>
 
   `;
 
-  document.getElementById(
-    "chatModal"
-  ).classList.add("show");
 
   await loadChat();
 
   subscribeChat();
-
 }
 
 
-/* =====================================================
-   CLOSE CHAT
-===================================================== */
-
-function closeChat(){
-
-  document
-    .getElementById(
-      "chatModal"
-    )
-    .classList.remove("show");
-
-  if(chatChannel){
-
-    sb.removeChannel(
-      chatChannel
-    );
-
-    chatChannel=null;
-
-  }
-
-  currentChatProfiles={
-    me:null,
-    other:null
-  };
-
-}
-
-
-/* =====================================================
+/* =========================
    LOAD CHAT
-===================================================== */
+========================= */
 
 async function loadChat(){
+
+  const box =
+    document.getElementById(
+      "messagesList"
+    );
+
 
   if(
     !currentUser ||
     !currentChat.listingId ||
-    !currentChat.receiverId
+    !currentChat.otherUserId
   ){
 
-    return;
+    box.innerHTML =
+      `<div class="empty">
+        Выберите чат
+      </div>`;
 
+    return;
   }
 
-  const box =
-    document.getElementById(
-      "chatMessages"
-    );
-
-  box.innerHTML=`
-
-    <div class="loading">
-      Загрузка сообщений...
-    </div>
-
-  `;
 
   const {
     data,
     error
   } =
-  await sb
-    .from("messages")
-    .select("*")
-    .eq(
-      "listing_id",
-      currentChat.listingId
-    )
-    .or(
+    await sb
+      .from("messages")
+      .select("*")
+      .eq(
+        "listing_id",
+        currentChat.listingId
+      )
+      .or(
+        `and(sender_id.eq.${currentUser.id},receiver_id.eq.${currentChat.otherUserId}),and(sender_id.eq.${currentChat.otherUserId},receiver_id.eq.${currentUser.id})`
+      )
+      .order(
+        "created_at",
+        {ascending:true}
+      );
 
-      `and(sender_id.eq.${currentUser.id},receiver_id.eq.${currentChat.receiverId}),and(sender_id.eq.${currentChat.receiverId},receiver_id.eq.${currentUser.id})`
-
-    )
-    .order(
-      "created_at",
-      {ascending:true}
-    );
 
   if(error){
 
-    console.error(
-      "Chat loading error:",
-      error
-    );
+    console.error(error);
 
-    box.innerHTML=`
-
-      <div class="empty">
-
-        Не удалось загрузить чат.
-
-        <br><br>
-
-        ${escapeHtml(error.message)}
-
-      </div>
-
-    `;
+    box.innerHTML =
+      `<div class="empty">
+        Ошибка загрузки сообщений
+      </div>`;
 
     return;
-
   }
 
-  if(!data || !data.length){
 
-    box.innerHTML=`
+  if(!data || data.length===0){
 
-      <div class="empty">
-
-        Сообщений пока нет.
-
-        <br>
-
-        Начните переписку!
-
-      </div>
-
-    `;
+    box.innerHTML =
+      `<div class="empty">
+        Сообщений пока нет. Напишите первым!
+      </div>`;
 
     return;
-
   }
 
-  const userIds=[
 
-    ...new Set(
+  const userIds =
+    [
+      ...new Set(
+        data.flatMap(message=>[
+          message.sender_id,
+          message.receiver_id
+        ])
+      )
+    ];
 
-      data.flatMap(message=>[
-
-        message.sender_id,
-
-        message.receiver_id
-
-      ])
-
-    )
-
-  ];
 
   const {
-    data:profiles,
-    error:profilesError
+    data:profiles
   } =
-  await sb
-    .from("profiles")
-    .select(
-      "id,username,avatar_url"
-    )
-    .in(
-      "id",
-      userIds
-    );
+    await sb
+      .from("profiles")
+      .select("*")
+      .in("id",userIds);
 
-  if(profilesError){
 
-    console.error(
-      "Profiles error:",
-      profilesError
-    );
+  const profileMap = {};
 
-  }
+  (profiles || []).forEach(profile=>{
 
-  const profileMap =
-    new Map();
+    profileMap[profile.id] =
+      profile;
 
-  (profiles || [])
-    .forEach(profile=>{
+  });
 
-      profileMap.set(
-        String(profile.id),
-        profile
-      );
-
-    });
 
   box.innerHTML =
     data
       .map(message=>
-
         createMessageHTML(
-
           message,
-
-          profileMap.get(
-            String(
-              message.sender_id
-            )
-          )
-
+          profileMap
         )
-
       )
       .join("");
 
+
   box.scrollTop =
     box.scrollHeight;
-
 }
 
 
-/* =====================================================
+/* =========================
    MESSAGE HTML
-===================================================== */
+========================= */
 
 function createMessageHTML(
   message,
-  senderProfile
+  profileMap
 ){
 
   const mine =
-    String(
-      message.sender_id
-    )===
-    String(
-      currentUser.id
-    );
+    message.sender_id ===
+    currentUser.id;
 
-  const profile =
-    senderProfile ||
-    (
-      mine
-      ? currentChatProfiles.me
-      : currentChatProfiles.other
-    );
+
+  const senderProfile =
+    profileMap[
+      message.sender_id
+    ];
+
+
+  const receiverProfile =
+    profileMap[
+      message.receiver_id
+    ];
+
+
+  const user =
+    mine
+      ? currentUser
+      : {
+          id:message.sender_id
+        };
+
 
   const name =
     profileName(
-      profile,
-      mine
-        ? "Вы"
-        : "Пользователь"
+      senderProfile,
+      user
     );
 
+
   const avatar =
-    profileAvatar(profile);
+    profileAvatar(
+      senderProfile,
+      user
+    );
+
 
   const time =
     new Date(
       message.created_at
-    )
-    .toLocaleTimeString(
+    ).toLocaleTimeString(
       "ru-RU",
       {
         hour:"2-digit",
@@ -2392,592 +1698,485 @@ function createMessageHTML(
       }
     );
 
+
   return `
 
-    <div
-      class="message-row ${
-        mine
-          ? "message-row-mine"
-          : ""
-      }"
-    >
+    <div class="message ${mine ? "mine" : ""}">
 
       ${
-        !mine
-
+        avatar
         ?
-
-        `
-
-          <img
-            class="message-avatar"
-            src="${escapeAttribute(avatar)}"
-            onerror="
-              this.src='https://placehold.co/100x100/1e293b/ffffff?text=User'
-            "
-          >
-
-        `
-
+        `<img
+          class="message-avatar"
+          src="${escapeHTML(avatar)}"
+        >`
         :
-
-        ""
-
+        `<img
+          class="message-avatar"
+          src="https://via.placeholder.com/50"
+        >`
       }
 
-      <div
-        class="
-          message-wrapper
-          ${
-            mine
-              ? "mine-wrapper"
-              : "theirs-wrapper"
-          }
-        "
-      >
+      <div class="message-content">
 
         <div class="message-name">
-          ${escapeHtml(name)}
+          ${escapeHTML(name)}
         </div>
 
-        <div
-          class="
-            message
-            ${
-              mine
-                ? "mine"
-                : "theirs"
-            }
-          "
-        >
-
-          ${escapeHtml(
+        <div class="message-text">
+          ${escapeHTML(
             message.message
           )}
+        </div>
 
-          <span class="time">
-            ${time}
-          </span>
-
+        <div class="message-time">
+          ${time}
         </div>
 
       </div>
 
-      ${
-        mine
-
-        ?
-
-        `
-
-          <img
-            class="message-avatar"
-            src="${escapeAttribute(avatar)}"
-            onerror="
-              this.src='https://placehold.co/100x100/1e293b/ffffff?text=User'
-            "
-          >
-
-        `
-
-        :
-
-        ""
-
-      }
-
     </div>
 
   `;
-
 }
 
 
-/* =====================================================
+/* =========================
    SEND MESSAGE
-===================================================== */
+========================= */
 
 async function sendMessage(){
 
   if(!currentUser){
 
-    showToast(
-      "Сначала войдите"
+    alert(
+      "Сначала войдите в аккаунт."
     );
 
     return;
-
   }
+
+
+  if(
+    !currentChat.listingId ||
+    !currentChat.otherUserId
+  ){
+
+    alert(
+      "Сначала выберите чат."
+    );
+
+    return;
+  }
+
 
   const input =
     document.getElementById(
-      "chatInput"
+      "messageInput"
     );
+
 
   const text =
     input.value.trim();
 
-  if(!text) return;
 
-  if(
-    !currentChat.listingId ||
-    !currentChat.receiverId
-  ){
-
-    showToast(
-      "Чат не выбран"
-    );
-
+  if(!text){
     return;
-
   }
+
+
+  input.disabled=true;
+
 
   const {
     error
   } =
-  await sb
-    .from("messages")
-    .insert({
+    await sb
+      .from("messages")
+      .insert({
 
-      listing_id:
-        currentChat.listingId,
+        listing_id:
+          currentChat.listingId,
 
-      sender_id:
-        currentUser.id,
+        sender_id:
+          currentUser.id,
 
-      receiver_id:
-        currentChat.receiverId,
+        receiver_id:
+          currentChat.otherUserId,
 
-      message:text
+        message:text
 
-    });
+      });
+
+
+  input.disabled=false;
+
 
   if(error){
 
-    console.error(
-      "Send message error:",
-      error
-    );
+    console.error(error);
 
-    showToast(
-      "Ошибка отправки: "+
+    alert(
+      "Не удалось отправить сообщение:\n\n"+
       error.message
     );
 
     return;
-
   }
+
 
   input.value="";
 
   await loadChat();
-
 }
 
 
-/* =====================================================
+/* =========================
    REALTIME CHAT
-===================================================== */
+========================= */
 
 function subscribeChat(){
 
-  if(chatChannel){
+  if(chatSubscription){
 
     sb.removeChannel(
-      chatChannel
+      chatSubscription
     );
 
-    chatChannel=null;
-
+    chatSubscription=null;
   }
 
-  chatChannel =
+
+  if(
+    !currentUser ||
+    !currentChat.listingId
+  ){
+
+    return;
+  }
+
+
+  chatSubscription =
     sb
       .channel(
-        "delyvex-chat-"+
-        currentChat.listingId+
-        "-"+
+        "chat-" +
+        currentChat.listingId +
+        "-" +
         currentUser.id
       )
-
       .on(
-
         "postgres_changes",
-
         {
-
           event:"INSERT",
-
           schema:"public",
-
           table:"messages",
-
           filter:
             `listing_id=eq.${currentChat.listingId}`
-
         },
-
         async payload=>{
 
           const message =
             payload.new;
 
-          const relevant =
 
+          if(
             (
-
-              String(
-                message.sender_id
-              )===
-              String(
-                currentUser.id
-              )
-
-              &&
-
-              String(
-                message.receiver_id
-              )===
-              String(
-                currentChat.receiverId
-              )
-
+              message.sender_id ===
+              currentUser.id &&
+              message.receiver_id ===
+              currentChat.otherUserId
             )
-
             ||
-
             (
-
-              String(
-                message.sender_id
-              )===
-              String(
-                currentChat.receiverId
-              )
-
-              &&
-
-              String(
-                message.receiver_id
-              )===
-              String(
-                currentUser.id
-              )
-
-            );
-
-          if(relevant){
+              message.sender_id ===
+              currentChat.otherUserId &&
+              message.receiver_id ===
+              currentUser.id
+            )
+          ){
 
             await loadChat();
-
           }
 
         }
-
       )
-
       .subscribe();
-
 }
 
 
-/* =====================================================
-   MESSAGES
-===================================================== */
-
-function updateMessages(){
-
-  const login =
-    document.getElementById(
-      "messageLogin"
-    );
-
-  if(currentUser){
-
-    login.style.display="none";
-
-    loadConversations();
-
-  }else{
-
-    login.style.display="block";
-
-    document.getElementById(
-      "conversations"
-    ).innerHTML="";
-
-  }
-
-}
-
+/* =========================
+   LOAD CONVERSATIONS
+========================= */
 
 async function loadConversations(){
 
-  const box =
+  const list =
     document.getElementById(
-      "conversations"
+      "conversationsList"
     );
+
 
   if(!currentUser){
 
-    box.innerHTML="";
+    document.getElementById(
+      "loginNotice"
+    ).style.display="block";
+
+    list.innerHTML =
+      `<div class="empty">
+        Войдите, чтобы увидеть чаты.
+      </div>`;
 
     return;
-
   }
 
+
+  document.getElementById(
+    "loginNotice"
+  ).style.display="none";
+
+
   const {
-    data,
+    data:messages,
     error
   } =
-  await sb
-    .from("messages")
-    .select("*")
-    .or(
+    await sb
+      .from("messages")
+      .select("*")
+      .or(
+        `sender_id.eq.${currentUser.id},receiver_id.eq.${currentUser.id}`
+      )
+      .order(
+        "created_at",
+        {ascending:false}
+      );
 
-      `sender_id.eq.${currentUser.id},receiver_id.eq.${currentUser.id}`
-
-    )
-    .order(
-      "created_at",
-      {ascending:false}
-    );
 
   if(error){
 
-    console.error(
-      "Conversations error:",
-      error
-    );
+    console.error(error);
 
-    box.innerHTML=`
-
-      <div class="empty">
-
-        Ошибка загрузки сообщений.
-
-        <br><br>
-
-        ${escapeHtml(
-          error.message
-        )}
-
-      </div>
-
-    `;
+    list.innerHTML =
+      `<div class="empty">
+        Ошибка загрузки чатов.
+      </div>`;
 
     return;
-
   }
 
-  if(!data || !data.length){
 
-    box.innerHTML=`
+  if(!messages || messages.length===0){
 
-      <div class="empty">
-        Сообщений пока нет.
-      </div>
-
-    `;
+    list.innerHTML =
+      `<div class="empty">
+        Пока нет сообщений.
+      </div>`;
 
     return;
-
   }
 
-  const unique =
+
+  const conversations =
     new Map();
 
-  for(
-    const message of data
-  ){
 
-    const otherUser =
+  for(const message of messages){
 
-      String(
-        message.sender_id
-      )===
-      String(
-        currentUser.id
-      )
+    const otherUserId =
+      message.sender_id === currentUser.id
+        ? message.receiver_id
+        : message.sender_id;
 
-      ?
-
-      message.receiver_id
-
-      :
-
-      message.sender_id;
 
     const key =
-      `${message.listing_id}-${otherUser}`;
+      `${message.listing_id}_${otherUserId}`;
 
-    if(!unique.has(key)){
 
-      unique.set(
+    if(!conversations.has(key)){
+
+      conversations.set(
         key,
-        message
+        {
+          listingId:
+            message.listing_id,
+
+          otherUserId:
+            otherUserId,
+
+          message:
+            message.message,
+
+          createdAt:
+            message.created_at
+        }
       );
 
     }
 
   }
 
-  const messages =
+
+  const conversationArray =
     Array.from(
-      unique.values()
+      conversations.values()
     );
 
-  const userIds=[
 
-    ...new Set(
+  const userIds =
+    conversationArray.map(
+      item=>item.otherUserId
+    );
 
-      messages.flatMap(
-        message=>[
 
-          message.sender_id,
-
-          message.receiver_id
-
-        ]
+  const listingIds =
+    conversationArray
+      .map(
+        item=>item.listingId
       )
+      .filter(Boolean);
 
-    )
-
-  ];
 
   const {
-    data:profiles,
-    error:profilesError
+    data:profiles
   } =
-  await sb
-    .from("profiles")
-    .select(
-      "id,username,avatar_url"
-    )
-    .in(
-      "id",
-      userIds
-    );
-
-  if(profilesError){
-
-    console.error(
-      "Conversation profiles error:",
-      profilesError
-    );
-
-  }
-
-  const profileMap =
-    new Map();
-
-  (profiles || [])
-    .forEach(profile=>{
-
-      profileMap.set(
-        String(profile.id),
-        profile
+    await sb
+      .from("profiles")
+      .select("*")
+      .in(
+        "id",
+        userIds
       );
 
-    });
 
-  box.innerHTML =
-    messages
-      .map(message=>{
+  const {
+    data:listings
+  } =
+    listingIds.length
+    ?
+    await sb
+      .from("listings")
+      .select("*")
+      .in(
+        "id",
+        listingIds
+      )
+    :
+    {data:[]};
 
-        const mine =
-          String(
-            message.sender_id
-          )===
-          String(
-            currentUser.id
+
+  const profileMap={};
+
+  (profiles || []).forEach(profile=>{
+
+    profileMap[profile.id]=profile;
+
+  });
+
+
+  const listingMap={};
+
+  (listings || []).forEach(listing=>{
+
+    listingMap[listing.id]=listing;
+
+  });
+
+
+  list.innerHTML =
+    conversationArray
+      .map(item=>{
+
+        const profile =
+          profileMap[
+            item.otherUserId
+          ];
+
+
+        const user =
+          {
+            id:item.otherUserId
+          };
+
+
+        const name =
+          profileName(
+            profile,
+            user
           );
 
-        const otherId =
-          mine
-            ? message.receiver_id
-            : message.sender_id;
 
-        const otherProfile =
-          profileMap.get(
-            String(otherId)
+        const avatar =
+          profileAvatar(
+            profile,
+            user
           );
+
 
         const listing =
-          allListings.find(item=>
-            String(item.id)===
-            String(message.listing_id)
-          );
+          listingMap[
+            item.listingId
+          ];
+
 
         const title =
           listing?.title ||
           "Объявление";
 
-        const name =
-          profileName(
-            otherProfile,
-            "Пользователь"
+
+        const date =
+          new Date(
+            item.createdAt
+          ).toLocaleString(
+            "ru-RU",
+            {
+              day:"2-digit",
+              month:"2-digit",
+              hour:"2-digit",
+              minute:"2-digit"
+            }
           );
 
-        const avatar =
-          profileAvatar(
-            otherProfile
-          );
 
         return `
 
           <div
             class="conversation"
-            data-listing-id="${escapeAttribute(
-              message.listing_id
-            )}"
-            data-user-id="${escapeAttribute(
-              otherId
-            )}"
-            onclick="
-              openConversationFromElement(this)
-            "
+            data-listing-id="${Number(item.listingId)}"
+            data-user-id="${escapeHTML(item.otherUserId)}"
+            onclick="openConversationFromElement(this)"
           >
 
-            <div class="conversation-head">
-
-              <img
+            ${
+              avatar
+              ?
+              `<img
                 class="conversation-avatar"
-                src="${escapeAttribute(avatar)}"
-                onerror="
-                  this.src='https://placehold.co/100x100/1e293b/ffffff?text=User'
-                "
-              >
+                src="${escapeHTML(avatar)}"
+              >`
+              :
+              `<img
+                class="conversation-avatar"
+                src="https://via.placeholder.com/60"
+              >`
+            }
 
-              <div class="conversation-info">
+            <div class="conversation-info">
 
-                <div class="conversation-name">
-
-                  ${escapeHtml(name)}
-
-                </div>
-
-                <div class="conversation-title">
-
-                  ${escapeHtml(title)}
-
-                </div>
-
+              <div class="conversation-name">
+                ${escapeHTML(name)}
               </div>
 
-            </div>
+              <div class="conversation-title">
+                ${escapeHTML(title)}
+              </div>
 
-            <div class="conversation-message">
+              <div class="conversation-last">
+                ${escapeHTML(item.message)}
+              </div>
 
-              ${
-                mine
-                  ? "Вы: "
-                  : ""
-              }
-
-              ${escapeHtml(
-                message.message
-              )}
+              <div class="conversation-last">
+                ${date}
+              </div>
 
             </div>
 
@@ -2987,13 +2186,10 @@ async function loadConversations(){
 
       })
       .join("");
-
 }
 
 
-function openConversationFromElement(
-  element
-){
+async function openConversationFromElement(element){
 
   const listingId =
     element.dataset.listingId;
@@ -3001,303 +2197,188 @@ function openConversationFromElement(
   const userId =
     element.dataset.userId;
 
-  const title =
-    element
-      .querySelector(
-        ".conversation-title"
-      )
-      ?.textContent
-      .trim() ||
-    "Объявление";
 
-  openConversation(
+  await openConversation(
     listingId,
-    userId,
-    title
+    userId
   );
-
 }
 
 
-/* =====================================================
-   PROFILE UI
-===================================================== */
+/* =========================
+   PROFILE
+========================= */
 
-function updateProfile(){
-
-  const login =
-    document.getElementById(
-      "profileLogin"
-    );
-
-  const content =
-    document.getElementById(
-      "profileContent"
-    );
+async function loadProfile(){
 
   if(!currentUser){
 
-    login.style.display="block";
+    document.getElementById(
+      "profileName"
+    ).textContent="Гость";
 
-    content.style.display="none";
+    document.getElementById(
+      "profileEmail"
+    ).textContent=
+      "Войдите в аккаунт";
 
     return;
-
   }
 
-  login.style.display="none";
 
-  content.style.display="block";
+  const profile =
+    await getProfile(
+      currentUser.id
+    );
+
 
   const name =
-    currentProfile?.username ||
-    currentUser.user_metadata?.name ||
-    currentUser.email?.split("@")[0] ||
-    "Пользователь";
+    profileName(
+      profile,
+      currentUser
+    );
 
-  const photo =
-    currentProfile?.avatar_url ||
-    currentUser.user_metadata?.picture ||
-    currentUser.user_metadata?.avatar_url ||
-    "";
+
+  const avatar =
+    profileAvatar(
+      profile,
+      currentUser
+    );
+
 
   document.getElementById(
     "profileName"
   ).textContent=name;
+
 
   document.getElementById(
     "profileEmail"
   ).textContent=
     currentUser.email || "";
 
+
   document.getElementById(
-    "profileNameInput"
-  ).value=name;
+    "profileNickname"
+  ).value =
+    profile?.nickname ||
+    profile?.username ||
+    profile?.name ||
+    "";
+
 
   document.getElementById(
     "profileAvatarInput"
-  ).value=photo;
+  ).value =
+    profile?.avatar_url ||
+    profile?.avatar ||
+    "";
 
-  document.getElementById(
-    "profileAvatar"
-  ).src=
-    photo ||
-    "https://placehold.co/100x100/111827/ffffff?text=User";
 
+  const image =
+    document.getElementById(
+      "profileAvatar"
+    );
+
+
+  image.src =
+    avatar ||
+    "https://via.placeholder.com/100";
 }
 
 
 async function saveProfile(){
 
-  if(!currentUser) return;
+  if(!currentUser){
 
-  const username =
+    alert(
+      "Сначала войдите."
+    );
+
+    return;
+  }
+
+
+  const nickname =
     document.getElementById(
-      "profileNameInput"
+      "profileNickname"
     ).value.trim();
+
 
   const avatar =
     document.getElementById(
       "profileAvatarInput"
     ).value.trim();
 
-  if(!username){
-
-    showToast(
-      "Введите имя"
-    );
-
-    return;
-
-  }
 
   const {
     error
   } =
-  await sb
-    .from("profiles")
-    .upsert({
+    await sb
+      .from("profiles")
+      .upsert({
 
-      id:currentUser.id,
+        id:
+          currentUser.id,
 
-      username:username,
+        nickname:
+          nickname,
 
-      avatar_url:avatar
+        avatar_url:
+          avatar
 
-    });
+      });
+
 
   if(error){
 
     console.error(error);
 
-    showToast(
-      "Ошибка: "+
+    alert(
+      "Ошибка сохранения:\n\n"+
       error.message
     );
 
     return;
-
   }
+
+
+  alert(
+    "Профиль сохранён!"
+  );
+
 
   await loadProfile();
 
-  updateUI();
-
-  showToast(
-    "Профиль сохранён"
-  );
-
+  await updateAuthUI();
 }
 
 
-async function renderMyListings(){
+/* =========================
+   ESCAPE HTML
+========================= */
 
-  const box =
-    document.getElementById(
-      "myListings"
-    );
-
-  if(!currentUser){
-
-    box.innerHTML="";
-
-    return;
-
-  }
-
-  const mine =
-    allListings.filter(x=>
-      String(x.seller_id)===
-      String(currentUser.id)
-    );
-
-  if(!mine.length){
-
-    box.innerHTML=
-      `<div class="empty">
-        У вас нет объявлений.
-      </div>`;
-
-    return;
-
-  }
-
-  box.innerHTML =
-    mine
-      .map(x=>`
-
-        <div class="conversation">
-
-          <strong>
-            ${escapeHtml(x.title)}
-          </strong>
-
-          <small>
-            ${Number(x.price||0).toFixed(2)} €
-          </small>
-
-        </div>
-
-      `)
-      .join("");
-
-}
-
-
-/* =====================================================
-   HELPERS
-===================================================== */
-
-function escapeHtml(value){
+function escapeHTML(value){
 
   return String(value ?? "")
-    .replaceAll(
-      "&",
-      "&amp;"
-    )
-    .replaceAll(
-      "<",
-      "&lt;"
-    )
-    .replaceAll(
-      ">",
-      "&gt;"
-    )
-    .replaceAll(
-      '"',
-      "&quot;"
-    )
-    .replaceAll(
-      "'",
-      "&#039;"
-    );
-
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
 }
 
 
-function escapeAttribute(value){
+/* =========================
+   START
+========================= */
 
-  return String(value ?? "")
-    .replaceAll(
-      "\\",
-      "\\\\"
-    )
-    .replaceAll(
-      "'",
-      "\\'"
-    )
-    .replaceAll(
-      '"',
-      "&quot;"
-    );
+(async function(){
 
-}
+  await checkAuth();
 
+  await loadListings();
 
-function showToast(text){
-
-  const toast =
-    document.getElementById(
-      "toast"
-    );
-
-  toast.textContent=text;
-
-  toast.classList.add("show");
-
-  setTimeout(
-    ()=>{
-      toast.classList.remove("show");
-    },
-    3000
-  );
-
-}
-
-
-/* =====================================================
-   MODAL
-===================================================== */
-
-document
-  .getElementById(
-    "chatModal"
-  )
-  .addEventListener(
-    "click",
-    event=>{
-
-      if(
-        event.target.id===
-        "chatModal"
-      ){
-
-        closeChat();
-
-      }
-
-    }
-  );
+})();
 
 </script>
 
