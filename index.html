@@ -201,18 +201,27 @@ main{
   background:#ddd;
 }
 
+/* =========================
+   ЧАТЫ
+========================= */
+
 .chat-layout{
   display:grid;
-  grid-template-columns:320px 1fr;
+  grid-template-columns:330px 1fr;
   gap:15px;
-  min-height:600px;
+  min-height:620px;
 }
 
 .conversations{
   background:#fff;
   border-radius:15px;
-  padding:10px;
+  padding:15px;
   border:1px solid #ddd;
+  overflow-y:auto;
+}
+
+.conversations h3{
+  margin-top:0;
 }
 
 .conversation{
@@ -222,16 +231,22 @@ main{
   display:flex;
   gap:10px;
   align-items:center;
-  margin-bottom:5px;
+  margin-bottom:7px;
+  border:1px solid transparent;
 }
 
 .conversation:hover{
   background:#f1f1f1;
 }
 
+.conversation.active{
+  background:#eee;
+  border-color:#ddd;
+}
+
 .conversation-avatar{
-  width:45px;
-  height:45px;
+  width:48px;
+  height:48px;
   border-radius:50%;
   object-fit:cover;
   background:#ddd;
@@ -240,10 +255,12 @@ main{
 
 .conversation-info{
   min-width:0;
+  flex:1;
 }
 
 .conversation-name{
   font-weight:700;
+  margin-bottom:3px;
 }
 
 .conversation-title{
@@ -260,6 +277,7 @@ main{
   white-space:nowrap;
   overflow:hidden;
   text-overflow:ellipsis;
+  margin-top:3px;
 }
 
 .chat{
@@ -277,6 +295,7 @@ main{
   display:flex;
   align-items:center;
   gap:12px;
+  min-height:75px;
 }
 
 .chat-header img{
@@ -294,6 +313,7 @@ main{
 .chat-header-title{
   color:#777;
   font-size:13px;
+  margin-top:3px;
 }
 
 .messages{
@@ -316,13 +336,8 @@ main{
 }
 
 .message.mine .message-content{
-  order:1;
   background:#111;
   color:#fff;
-}
-
-.message.mine .message-avatar{
-  order:2;
 }
 
 .message-content{
@@ -388,15 +403,17 @@ main{
   display:none;
 }
 
-@media(max-width:750px){
+/* =========================
+   MOBILE
+========================= */
+
+@media(max-width:850px){
 
   header{
     padding:0 10px;
-    height:auto;
-    min-height:65px;
   }
 
-  header nav{
+  nav{
     display:none;
   }
 
@@ -404,12 +421,12 @@ main{
     font-size:21px;
   }
 
-  .user{
-    gap:5px;
-  }
-
   #userName{
     display:none;
+  }
+
+  .user{
+    gap:5px;
   }
 
   #messagesBtn{
@@ -445,13 +462,11 @@ main{
   }
 
   .conversations{
-    max-height:250px;
-    overflow-y:auto;
+    max-height:280px;
   }
 
   .messages{
     min-height:350px;
-    max-height:450px;
   }
 
   .message-content{
@@ -484,6 +499,21 @@ main{
     gap:3px;
   }
 }
+
+@media(max-width:500px){
+
+  #messagesBtn{
+    font-size:0;
+    width:40px;
+    height:38px;
+    padding:8px;
+  }
+
+  #messagesBtn::before{
+    content:"💬";
+    font-size:18px;
+  }
+}
 </style>
 </head>
 
@@ -491,17 +521,38 @@ main{
 
 <header>
 
-  <div class="logo" onclick="showSection('home')">
+  <!-- ЛОГО -->
+  <div
+    class="logo"
+    onclick="showSection('home')"
+  >
     Delyvex
   </div>
 
+
+  <!-- ВСЕ КНОПКИ -->
   <nav>
-    <button onclick="showSection('home')">Главная</button>
-    <button onclick="showSection('sell')">Продать</button>
-    <button onclick="showSection('messages')">💬 Сообщения</button>
-    <button onclick="showSection('profile')">Профиль</button>
+
+    <button onclick="showSection('home')">
+      Главная
+    </button>
+
+    <button onclick="showSection('sell')">
+      ➕ Продать
+    </button>
+
+    <button onclick="showSection('messages')">
+      💬 Чаты
+    </button>
+
+    <button onclick="showSection('profile')">
+      👤 Профиль
+    </button>
+
   </nav>
 
+
+  <!-- ПОЛЬЗОВАТЕЛЬ -->
   <div class="user">
 
     <span id="userName"></span>
@@ -513,12 +564,14 @@ main{
       alt="avatar"
     >
 
+    <!-- КНОПКА ЧАТОВ ВСЕГДА ДОСТУПНА -->
     <button
       id="messagesBtn"
       class="btn secondary"
       onclick="showSection('messages')"
+      style="display:none"
     >
-      💬 Сообщения
+      💬 Чаты
     </button>
 
     <button
@@ -545,242 +598,326 @@ main{
 
 <main>
 
-  <!-- HOME -->
 
-  <section id="home" class="section active">
+<!-- =========================
+     ГЛАВНАЯ
+========================= -->
 
-    <div class="hero">
+<section
+  id="home"
+  class="section active"
+>
 
-      <h1>Покупай и продавай на Delyvex</h1>
+  <div class="hero">
 
-      <p>
-        Простая площадка для покупки и продажи товаров.
-      </p>
+    <h1>
+      Покупай и продавай на Delyvex
+    </h1>
 
-      <div class="search">
-        <input
-          id="searchInput"
-          placeholder="Поиск товаров..."
-          oninput="loadListings()"
-        >
+    <p>
+      Простая площадка для покупки и продажи товаров.
+    </p>
 
-        <button
-          class="btn"
-          onclick="showSection('sell')"
-        >
-          + Продать
-        </button>
-      </div>
-
-    </div>
-
-    <div id="listingsGrid" class="grid"></div>
-
-  </section>
-
-
-  <!-- SELL -->
-
-  <section id="sell" class="section">
-
-    <h2>Продать товар</h2>
-
-    <div class="form">
-
-      <label>Название</label>
+    <div class="search">
 
       <input
-        id="listingTitle"
-        placeholder="Например: iPhone 13"
-      >
-
-      <label>Описание</label>
-
-      <textarea
-        id="listingDescription"
-        placeholder="Опишите товар..."
-      ></textarea>
-
-      <label>Цена</label>
-
-      <input
-        id="listingPrice"
-        type="number"
-        step="0.01"
-        placeholder="100"
-      >
-
-      <label>Изображение</label>
-
-      <input
-        id="listingImage"
-        placeholder="Ссылка на изображение"
+        id="searchInput"
+        placeholder="Поиск товаров..."
+        oninput="loadListings()"
       >
 
       <button
         class="btn"
-        onclick="createListing()"
+        onclick="showSection('sell')"
       >
-        Опубликовать
+        ➕ Продать
       </button>
 
     </div>
 
-  </section>
+  </div>
 
 
-  <!-- MESSAGES -->
+  <div
+    id="listingsGrid"
+    class="grid"
+  ></div>
 
-  <section id="messages" class="section">
+</section>
 
-    <h2>💬 Сообщения</h2>
 
-    <div
-      id="loginNotice"
-      class="notice"
-      style="display:none"
+<!-- =========================
+     ПРОДАТЬ
+========================= -->
+
+<section
+  id="sell"
+  class="section"
+>
+
+  <h2>
+    ➕ Продать товар
+  </h2>
+
+  <div class="form">
+
+    <label>
+      Название товара
+    </label>
+
+    <input
+      id="listingTitle"
+      placeholder="Например: iPhone 13"
     >
-      Войдите в аккаунт, чтобы пользоваться сообщениями.
+
+
+    <label>
+      Описание
+    </label>
+
+    <textarea
+      id="listingDescription"
+      placeholder="Опишите товар..."
+    ></textarea>
+
+
+    <label>
+      Цена
+    </label>
+
+    <input
+      id="listingPrice"
+      type="number"
+      step="0.01"
+      placeholder="100"
+    >
+
+
+    <label>
+      Ссылка на изображение
+    </label>
+
+    <input
+      id="listingImage"
+      placeholder="https://..."
+    >
+
+
+    <button
+      class="btn"
+      onclick="createListing()"
+    >
+      Опубликовать товар
+    </button>
+
+  </div>
+
+</section>
+
+
+<!-- =========================
+     ЧАТЫ
+========================= -->
+
+<section
+  id="messages"
+  class="section"
+>
+
+  <h2>
+    💬 Чаты
+  </h2>
+
+  <div
+    id="loginNotice"
+    class="notice"
+    style="display:none"
+  >
+    Войдите в аккаунт, чтобы увидеть сообщения пользователей.
+  </div>
+
+
+  <div
+    id="chatLayout"
+    class="chat-layout"
+  >
+
+    <!-- СПИСОК ПОЛЬЗОВАТЕЛЕЙ -->
+    <div class="conversations">
+
+      <h3>
+        Сообщения от пользователей
+      </h3>
+
+      <div
+        id="conversationsList"
+      ></div>
+
     </div>
 
-    <div
-      id="chatLayout"
-      class="chat-layout"
-    >
 
-      <div class="conversations">
+    <!-- ОТКРЫТЫЙ ЧАТ -->
+    <div class="chat">
 
-        <h3>Чаты</h3>
+      <div
+        id="chatHeader"
+        class="chat-header"
+      >
 
-        <div id="conversationsList"></div>
-
-      </div>
-
-
-      <div class="chat">
-
-        <div
-          id="chatHeader"
-          class="chat-header"
-        >
-
-          <div class="empty">
-            Выберите чат
-          </div>
-
-        </div>
-
-
-        <div
-          id="messagesList"
-          class="messages"
-        >
-
-          <div class="empty">
-            Выберите чат слева
-          </div>
-
-        </div>
-
-
-        <div class="chat-input">
-
-          <input
-            id="messageInput"
-            placeholder="Напишите сообщение..."
-            onkeydown="if(event.key==='Enter') sendMessage()"
-          >
-
-          <button
-            class="btn"
-            onclick="sendMessage()"
-          >
-            Отправить
-          </button>
-
+        <div class="empty">
+          Выберите пользователя
         </div>
 
       </div>
 
-    </div>
 
-  </section>
+      <div
+        id="messagesList"
+        class="messages"
+      >
 
-
-  <!-- PROFILE -->
-
-  <section id="profile" class="section">
-
-    <h2>Профиль</h2>
-
-    <div class="profile-box">
-
-      <div class="profile-header">
-
-        <img
-          id="profileAvatar"
-          alt="avatar"
-        >
-
-        <div>
-          <h3 id="profileName">Гость</h3>
-          <div id="profileEmail"></div>
+        <div class="empty">
+          Здесь появится переписка
         </div>
 
       </div>
 
-      <div class="form">
 
-        <label>Никнейм</label>
+      <div class="chat-input">
 
         <input
-          id="profileNickname"
-          placeholder="Ваш никнейм"
-        >
-
-        <label>Ссылка на аватар</label>
-
-        <input
-          id="profileAvatarInput"
-          placeholder="https://..."
+          id="messageInput"
+          placeholder="Напишите сообщение..."
+          onkeydown="
+            if(event.key==='Enter'){
+              sendMessage();
+            }
+          "
         >
 
         <button
           class="btn"
-          onclick="saveProfile()"
+          onclick="sendMessage()"
         >
-          Сохранить профиль
+          Отправить
         </button>
 
       </div>
 
     </div>
 
-  </section>
+  </div>
+
+</section>
+
+
+<!-- =========================
+     ПРОФИЛЬ
+========================= -->
+
+<section
+  id="profile"
+  class="section"
+>
+
+  <h2>
+    👤 Профиль
+  </h2>
+
+  <div class="profile-box">
+
+    <div class="profile-header">
+
+      <img
+        id="profileAvatar"
+        src="https://via.placeholder.com/100"
+        alt="avatar"
+      >
+
+      <div>
+
+        <h3 id="profileName">
+          Гость
+        </h3>
+
+        <div id="profileEmail"></div>
+
+      </div>
+
+    </div>
+
+
+    <div class="form">
+
+      <label>
+        Никнейм
+      </label>
+
+      <input
+        id="profileNickname"
+        placeholder="Ваш никнейм"
+      >
+
+
+      <label>
+        Ссылка на аватар
+      </label>
+
+      <input
+        id="profileAvatarInput"
+        placeholder="https://..."
+      >
+
+
+      <button
+        class="btn"
+        onclick="saveProfile()"
+      >
+        Сохранить профиль
+      </button>
+
+    </div>
+
+  </div>
+
+</section>
 
 </main>
 
 
-<!-- MOBILE NAV -->
+<!-- =========================
+     МОБИЛЬНОЕ МЕНЮ
+========================= -->
 
 <div class="mobile-nav">
 
-  <button onclick="showSection('home')">
+  <button
+    onclick="showSection('home')"
+  >
     🏠
     <span>Главная</span>
   </button>
 
-  <button onclick="showSection('sell')">
+
+  <button
+    onclick="showSection('sell')"
+  >
     ➕
     <span>Продать</span>
   </button>
 
-  <button onclick="showSection('messages')">
+
+  <button
+    onclick="showSection('messages')"
+  >
     💬
     <span>Чаты</span>
   </button>
 
-  <button onclick="showSection('profile')">
+
+  <button
+    onclick="showSection('profile')"
+  >
     👤
     <span>Профиль</span>
   </button>
@@ -789,6 +926,10 @@ main{
 
 
 <script>
+
+/* =========================
+   SUPABASE
+========================= */
 
 const SUPABASE_URL =
 "https://gisdufgixjfudblxydvm.supabase.co";
@@ -803,6 +944,10 @@ supabase.createClient(
 );
 
 
+/* =========================
+   GOOGLE REDIRECT
+========================= */
+
 const GITHUB_URL =
 "https://tyronik2x2v2-stack.github.io/Delyvex/";
 
@@ -814,16 +959,11 @@ let currentChat = {
   otherUserId:null
 };
 
-let currentChatProfiles = {
-  me:null,
-  other:null
-};
-
 let chatSubscription = null;
 
 
 /* =========================
-   NAVIGATION
+   НАВИГАЦИЯ
 ========================= */
 
 function showSection(id){
@@ -834,24 +974,30 @@ function showSection(id){
       section.classList.remove("active");
     });
 
+
   const section =
     document.getElementById(id);
+
 
   if(section){
     section.classList.add("active");
   }
 
+
   if(id === "home"){
     loadListings();
   }
+
 
   if(id === "messages"){
     loadConversations();
   }
 
+
   if(id === "profile"){
     loadProfile();
   }
+
 
   window.scrollTo({
     top:0,
@@ -861,7 +1007,7 @@ function showSection(id){
 
 
 /* =========================
-   AUTH
+   GOOGLE LOGIN
 ========================= */
 
 async function loginWithGoogle(){
@@ -870,18 +1016,24 @@ async function loginWithGoogle(){
 
     const result =
       await sb.auth.signInWithOAuth({
+
         provider:"google",
 
         options:{
+
           redirectTo:GITHUB_URL,
+
           skipBrowserRedirect:false,
 
           queryParams:{
             access_type:"offline",
             prompt:"select_account"
           }
+
         }
+
       });
+
 
     if(result.error){
 
@@ -904,15 +1056,20 @@ async function loginWithGoogle(){
       "Ошибка входа:\n\n"+
       error.message
     );
+
   }
 }
 
+
+/* =========================
+   LOGOUT
+========================= */
 
 async function logout(){
 
   await sb.auth.signOut();
 
-  currentUser = null;
+  currentUser=null;
 
   updateAuthUI();
 
@@ -920,26 +1077,34 @@ async function logout(){
 }
 
 
+/* =========================
+   AUTH
+========================= */
+
 async function checkAuth(){
 
   const {
     data:{
       session
     }
-  } = await sb.auth.getSession();
+  } =
+    await sb.auth.getSession();
+
 
   currentUser =
     session?.user || null;
 
-  updateAuthUI();
+
+  await updateAuthUI();
+
 
   sb.auth.onAuthStateChange(
-    async (event,session)=>{
+    async(event,session)=>{
 
       currentUser =
         session?.user || null;
 
-      updateAuthUI();
+      await updateAuthUI();
 
     }
   );
@@ -953,24 +1118,35 @@ async function checkAuth(){
 async function updateAuthUI(){
 
   const loginBtn =
-    document.getElementById("loginBtn");
+    document.getElementById(
+      "loginBtn"
+    );
 
   const logoutBtn =
-    document.getElementById("logoutBtn");
+    document.getElementById(
+      "logoutBtn"
+    );
 
   const messagesBtn =
-    document.getElementById("messagesBtn");
+    document.getElementById(
+      "messagesBtn"
+    );
 
   const userName =
-    document.getElementById("userName");
+    document.getElementById(
+      "userName"
+    );
 
   const headerAvatar =
-    document.getElementById("headerAvatar");
+    document.getElementById(
+      "headerAvatar"
+    );
 
 
   if(!currentUser){
 
     loginBtn.style.display="block";
+
     logoutBtn.style.display="none";
 
     messagesBtn.style.display="none";
@@ -984,6 +1160,7 @@ async function updateAuthUI(){
 
 
   loginBtn.style.display="none";
+
   logoutBtn.style.display="block";
 
   messagesBtn.style.display="block";
@@ -996,14 +1173,14 @@ async function updateAuthUI(){
 
 
   userName.textContent =
-    profileName(
+    getProfileName(
       profile,
       currentUser
     );
 
 
   const avatar =
-    profileAvatar(
+    getProfileAvatar(
       profile,
       currentUser
     );
@@ -1011,19 +1188,20 @@ async function updateAuthUI(){
 
   if(avatar){
 
-    headerAvatar.src = avatar;
+    headerAvatar.src=avatar;
 
     headerAvatar.style.display="block";
 
   }else{
 
     headerAvatar.style.display="none";
+
   }
 }
 
 
 /* =========================
-   PROFILES
+   ПРОФИЛЬ
 ========================= */
 
 async function getProfile(userId){
@@ -1031,11 +1209,13 @@ async function getProfile(userId){
   const {
     data,
     error
-  } = await sb
-    .from("profiles")
-    .select("*")
-    .eq("id",userId)
-    .maybeSingle();
+  } =
+    await sb
+      .from("profiles")
+      .select("*")
+      .eq("id",userId)
+      .maybeSingle();
+
 
   if(error){
 
@@ -1047,26 +1227,21 @@ async function getProfile(userId){
     return null;
   }
 
+
   return data;
 }
 
 
-function profileName(profile,user){
-
-  if(profile){
-
-    return (
-      profile.nickname ||
-      profile.username ||
-      profile.name ||
-      profile.full_name ||
-      user?.user_metadata?.full_name ||
-      user?.email?.split("@")[0] ||
-      "Пользователь"
-    );
-  }
+function getProfileName(
+  profile,
+  user
+){
 
   return (
+    profile?.nickname ||
+    profile?.username ||
+    profile?.name ||
+    profile?.full_name ||
     user?.user_metadata?.full_name ||
     user?.email?.split("@")[0] ||
     "Пользователь"
@@ -1074,7 +1249,10 @@ function profileName(profile,user){
 }
 
 
-function profileAvatar(profile,user){
+function getProfileAvatar(
+  profile,
+  user
+){
 
   return (
     profile?.avatar_url ||
@@ -1087,7 +1265,7 @@ function profileAvatar(profile,user){
 
 
 /* =========================
-   LISTINGS
+   ТОВАРЫ
 ========================= */
 
 async function loadListings(){
@@ -1097,29 +1275,32 @@ async function loadListings(){
       "listingsGrid"
     );
 
-  const search =
+
+  const input =
     document.getElementById(
       "searchInput"
-    )?.value
-    ?.trim()
-    ?.toLowerCase() || "";
+    );
 
 
-  let query =
-    sb
-      .from("listings")
-      .select("*")
-      .order(
-        "created_at",
-        {ascending:false}
-      );
+  const search =
+    input?.value
+      ?.trim()
+      ?.toLowerCase() || "";
 
 
   const {
     data,
     error
   } =
-    await query;
+    await sb
+      .from("listings")
+      .select("*")
+      .order(
+        "created_at",
+        {
+          ascending:false
+        }
+      );
 
 
   if(error){
@@ -1128,7 +1309,7 @@ async function loadListings(){
 
     grid.innerHTML =
       `<div class="empty">
-        Ошибка загрузки товаров
+        Ошибка загрузки товаров.
       </div>`;
 
     return;
@@ -1142,14 +1323,19 @@ async function loadListings(){
         return true;
       }
 
+
       return (
+
         String(item.title || "")
           .toLowerCase()
           .includes(search)
+
         ||
+
         String(item.description || "")
           .toLowerCase()
           .includes(search)
+
       );
 
     });
@@ -1159,7 +1345,7 @@ async function loadListings(){
 
     grid.innerHTML =
       `<div class="empty">
-        Товаров пока нет
+        Товаров пока нет.
       </div>`;
 
     return;
@@ -1168,12 +1354,14 @@ async function loadListings(){
 
   grid.innerHTML =
     filtered
-      .map(item=>createListingHTML(item))
+      .map(
+        item=>listingHTML(item)
+      )
       .join("");
 }
 
 
-function createListingHTML(item){
+function listingHTML(item){
 
   const image =
     item.image_url ||
@@ -1188,6 +1376,7 @@ function createListingHTML(item){
 
 
   return `
+
     <div class="card">
 
       <img
@@ -1198,7 +1387,10 @@ function createListingHTML(item){
       <div class="card-body">
 
         <h3>
-          ${escapeHTML(item.title || "Без названия")}
+          ${escapeHTML(
+            item.title ||
+            "Без названия"
+          )}
         </h3>
 
         <div>
@@ -1221,12 +1413,13 @@ function createListingHTML(item){
       </div>
 
     </div>
+
   `;
 }
 
 
 /* =========================
-   SELL
+   СОЗДАНИЕ ТОВАРА
 ========================= */
 
 async function createListing(){
@@ -1246,15 +1439,18 @@ async function createListing(){
       "listingTitle"
     ).value.trim();
 
+
   const description =
     document.getElementById(
       "listingDescription"
     ).value.trim();
 
+
   const price =
     document.getElementById(
       "listingPrice"
     ).value;
+
 
   const image =
     document.getElementById(
@@ -1318,13 +1514,16 @@ async function createListing(){
     "listingTitle"
   ).value="";
 
+
   document.getElementById(
     "listingDescription"
   ).value="";
 
+
   document.getElementById(
     "listingPrice"
   ).value="";
+
 
   document.getElementById(
     "listingImage"
@@ -1336,7 +1535,7 @@ async function createListing(){
 
 
 /* =========================
-   OPEN CHAT FROM LISTING
+   ОТКРЫТЬ ЧАТ С ПРОДАВЦОМ
 ========================= */
 
 async function openChat(listingId){
@@ -1378,7 +1577,7 @@ async function openChat(listingId){
   ){
 
     alert(
-      "Это ваш товар. Откройте раздел «Сообщения», чтобы посмотреть чаты с покупателями."
+      "Это ваш товар. Откройте «Чаты», чтобы посмотреть сообщения от покупателей."
     );
 
     showSection("messages");
@@ -1389,7 +1588,8 @@ async function openChat(listingId){
 
   currentChat = {
 
-    listingId:listingId,
+    listingId:
+      Number(listingId),
 
     otherUserId:
       listing.seller_id
@@ -1404,18 +1604,13 @@ async function openChat(listingId){
 
 
 /* =========================
-   OPEN EXISTING CHAT
+   ОТКРЫТЬ ЧАТ
 ========================= */
 
 async function openConversation(
   listingId,
   otherUserId
 ){
-
-  if(!currentUser){
-    return;
-  }
-
 
   currentChat = {
 
@@ -1432,6 +1627,29 @@ async function openConversation(
 }
 
 
+async function openConversationFromElement(
+  element
+){
+
+  const listingId =
+    element.dataset.listingId;
+
+
+  const userId =
+    element.dataset.userId;
+
+
+  await openConversation(
+    listingId,
+    userId
+  );
+}
+
+
+/* =========================
+   ОТКРЫТЫЙ ЧАТ
+========================= */
+
 async function openCurrentChat(){
 
   if(
@@ -1444,42 +1662,27 @@ async function openCurrentChat(){
   }
 
 
-  const me =
-    await getProfile(
-      currentUser.id
-    );
-
   const other =
     await getProfile(
       currentChat.otherUserId
     );
 
 
-  currentChatProfiles = {
-
-    me:me,
-
-    other:other
-
+  const otherUser = {
+    id:
+      currentChat.otherUserId
   };
 
 
-  const otherUser =
-    {
-      id:
-        currentChat.otherUserId
-    };
-
-
   const name =
-    profileName(
+    getProfileName(
       other,
       otherUser
     );
 
 
   const avatar =
-    profileAvatar(
+    getProfileAvatar(
       other,
       otherUser
     );
@@ -1496,9 +1699,15 @@ async function openCurrentChat(){
     ${
       avatar
       ?
-      `<img src="${escapeHTML(avatar)}">`
+      `<img
+        src="${escapeHTML(avatar)}"
+        alt=""
+      >`
       :
-      `<img src="https://via.placeholder.com/80">`
+      `<img
+        src="https://via.placeholder.com/80"
+        alt=""
+      >`
     }
 
     <div>
@@ -1508,7 +1717,7 @@ async function openCurrentChat(){
       </div>
 
       <div class="chat-header-title">
-        Чат по объявлению
+        Переписка по объявлению
       </div>
 
     </div>
@@ -1523,7 +1732,7 @@ async function openCurrentChat(){
 
 
 /* =========================
-   LOAD CHAT
+   ЗАГРУЗКА СООБЩЕНИЙ
 ========================= */
 
 async function loadChat(){
@@ -1542,7 +1751,7 @@ async function loadChat(){
 
     box.innerHTML =
       `<div class="empty">
-        Выберите чат
+        Выберите чат слева.
       </div>`;
 
     return;
@@ -1565,7 +1774,9 @@ async function loadChat(){
       )
       .order(
         "created_at",
-        {ascending:true}
+        {
+          ascending:true
+        }
       );
 
 
@@ -1575,7 +1786,7 @@ async function loadChat(){
 
     box.innerHTML =
       `<div class="empty">
-        Ошибка загрузки сообщений
+        Ошибка загрузки сообщений.
       </div>`;
 
     return;
@@ -1586,20 +1797,21 @@ async function loadChat(){
 
     box.innerHTML =
       `<div class="empty">
-        Сообщений пока нет. Напишите первым!
+        Сообщений пока нет.
+        Напишите первым!
       </div>`;
 
     return;
   }
 
 
-  const userIds =
+  const ids =
     [
       ...new Set(
-        data.flatMap(message=>[
-          message.sender_id,
-          message.receiver_id
-        ])
+        data.map(
+          message=>
+            message.sender_id
+        )
       )
     ];
 
@@ -1610,26 +1822,33 @@ async function loadChat(){
     await sb
       .from("profiles")
       .select("*")
-      .in("id",userIds);
+      .in(
+        "id",
+        ids
+      );
 
 
-  const profileMap = {};
+  const profileMap={};
 
-  (profiles || []).forEach(profile=>{
 
-    profileMap[profile.id] =
-      profile;
+  (profiles || [])
+    .forEach(profile=>{
 
-  });
+      profileMap[
+        profile.id
+      ]=profile;
+
+    });
 
 
   box.innerHTML =
     data
-      .map(message=>
-        createMessageHTML(
-          message,
-          profileMap
-        )
+      .map(
+        message=>
+          messageHTML(
+            message,
+            profileMap
+          )
       )
       .join("");
 
@@ -1643,7 +1862,7 @@ async function loadChat(){
    MESSAGE HTML
 ========================= */
 
-function createMessageHTML(
+function messageHTML(
   message,
   profileMap
 ){
@@ -1653,36 +1872,28 @@ function createMessageHTML(
     currentUser.id;
 
 
-  const senderProfile =
+  const profile =
     profileMap[
       message.sender_id
     ];
 
 
-  const receiverProfile =
-    profileMap[
-      message.receiver_id
-    ];
-
-
-  const user =
-    mine
-      ? currentUser
-      : {
-          id:message.sender_id
-        };
+  const user = {
+    id:
+      message.sender_id
+  };
 
 
   const name =
-    profileName(
-      senderProfile,
+    getProfileName(
+      profile,
       user
     );
 
 
   const avatar =
-    profileAvatar(
-      senderProfile,
+    getProfileAvatar(
+      profile,
       user
     );
 
@@ -1701,7 +1912,9 @@ function createMessageHTML(
 
   return `
 
-    <div class="message ${mine ? "mine" : ""}">
+    <div
+      class="message ${mine ? "mine" : ""}"
+    >
 
       ${
         avatar
@@ -1709,13 +1922,16 @@ function createMessageHTML(
         `<img
           class="message-avatar"
           src="${escapeHTML(avatar)}"
+          alt=""
         >`
         :
         `<img
           class="message-avatar"
           src="https://via.placeholder.com/50"
+          alt=""
         >`
       }
+
 
       <div class="message-content">
 
@@ -1742,7 +1958,7 @@ function createMessageHTML(
 
 
 /* =========================
-   SEND MESSAGE
+   ОТПРАВИТЬ СООБЩЕНИЕ
 ========================= */
 
 async function sendMessage(){
@@ -1817,7 +2033,7 @@ async function sendMessage(){
     console.error(error);
 
     alert(
-      "Не удалось отправить сообщение:\n\n"+
+      "Ошибка отправки:\n\n"+
       error.message
     );
 
@@ -1828,11 +2044,13 @@ async function sendMessage(){
   input.value="";
 
   await loadChat();
+
+  await loadConversations();
 }
 
 
 /* =========================
-   REALTIME CHAT
+   REALTIME
 ========================= */
 
 function subscribeChat(){
@@ -1880,22 +2098,31 @@ function subscribeChat(){
 
 
           if(
+
             (
               message.sender_id ===
               currentUser.id &&
+
               message.receiver_id ===
               currentChat.otherUserId
             )
+
             ||
+
             (
               message.sender_id ===
               currentChat.otherUserId &&
+
               message.receiver_id ===
               currentUser.id
             )
+
           ){
 
             await loadChat();
+
+            await loadConversations();
+
           }
 
         }
@@ -1905,7 +2132,7 @@ function subscribeChat(){
 
 
 /* =========================
-   LOAD CONVERSATIONS
+   СПИСОК ЧАТОВ
 ========================= */
 
 async function loadConversations(){
@@ -1922,9 +2149,11 @@ async function loadConversations(){
       "loginNotice"
     ).style.display="block";
 
+
     list.innerHTML =
       `<div class="empty">
-        Войдите, чтобы увидеть чаты.
+        Войдите в аккаунт,
+        чтобы увидеть сообщения.
       </div>`;
 
     return;
@@ -1948,7 +2177,9 @@ async function loadConversations(){
       )
       .order(
         "created_at",
-        {ascending:false}
+        {
+          ascending:false
+        }
       );
 
 
@@ -1965,34 +2196,56 @@ async function loadConversations(){
   }
 
 
-  if(!messages || messages.length===0){
+  if(
+    !messages ||
+    messages.length===0
+  ){
 
     list.innerHTML =
       `<div class="empty">
-        Пока нет сообщений.
+        Пока никто не написал.
       </div>`;
 
     return;
   }
 
 
+  /*
+    Создаём уникальные чаты:
+    пользователь + объявление
+  */
+
   const conversations =
     new Map();
 
 
-  for(const message of messages){
+  for(
+    const message of messages
+  ){
 
     const otherUserId =
-      message.sender_id === currentUser.id
-        ? message.receiver_id
-        : message.sender_id;
+      message.sender_id ===
+      currentUser.id
+
+      ? message.receiver_id
+
+      : message.sender_id;
 
 
     const key =
       `${message.listing_id}_${otherUserId}`;
 
 
-    if(!conversations.has(key)){
+    /*
+      Так как сообщения
+      отсортированы от новых
+      к старым, первым будет
+      последнее сообщение.
+    */
+
+    if(
+      !conversations.has(key)
+    ){
 
       conversations.set(
         key,
@@ -2007,7 +2260,11 @@ async function loadConversations(){
             message.message,
 
           createdAt:
-            message.created_at
+            message.created_at,
+
+          fromMe:
+            message.sender_id ===
+            currentUser.id
         }
       );
 
@@ -2016,20 +2273,31 @@ async function loadConversations(){
   }
 
 
-  const conversationArray =
+  const items =
     Array.from(
       conversations.values()
     );
 
 
+  if(items.length===0){
+
+    list.innerHTML =
+      `<div class="empty">
+        Пока никто не написал.
+      </div>`;
+
+    return;
+  }
+
+
   const userIds =
-    conversationArray.map(
+    items.map(
       item=>item.otherUserId
     );
 
 
   const listingIds =
-    conversationArray
+    items
       .map(
         item=>item.listingId
       )
@@ -2052,38 +2320,48 @@ async function loadConversations(){
     data:listings
   } =
     listingIds.length
-    ?
-    await sb
-      .from("listings")
-      .select("*")
-      .in(
-        "id",
-        listingIds
-      )
-    :
-    {data:[]};
+
+      ?
+
+      await sb
+        .from("listings")
+        .select("*")
+        .in(
+          "id",
+          listingIds
+        )
+
+      :
+
+      {data:[]};
 
 
   const profileMap={};
 
-  (profiles || []).forEach(profile=>{
+  (profiles || [])
+    .forEach(profile=>{
 
-    profileMap[profile.id]=profile;
+      profileMap[
+        profile.id
+      ]=profile;
 
-  });
+    });
 
 
   const listingMap={};
 
-  (listings || []).forEach(listing=>{
+  (listings || [])
+    .forEach(listing=>{
 
-    listingMap[listing.id]=listing;
+      listingMap[
+        listing.id
+      ]=listing;
 
-  });
+    });
 
 
   list.innerHTML =
-    conversationArray
+    items
       .map(item=>{
 
         const profile =
@@ -2092,21 +2370,21 @@ async function loadConversations(){
           ];
 
 
-        const user =
-          {
-            id:item.otherUserId
-          };
+        const user = {
+          id:
+            item.otherUserId
+        };
 
 
         const name =
-          profileName(
+          getProfileName(
             profile,
             user
           );
 
 
         const avatar =
-          profileAvatar(
+          getProfileAvatar(
             profile,
             user
           );
@@ -2137,6 +2415,14 @@ async function loadConversations(){
           );
 
 
+        /*
+          Показываем:
+          имя пользователя
+          объявление
+          последнее сообщение
+          дату
+        */
+
         return `
 
           <div
@@ -2148,34 +2434,60 @@ async function loadConversations(){
 
             ${
               avatar
+
               ?
+
               `<img
                 class="conversation-avatar"
                 src="${escapeHTML(avatar)}"
+                alt=""
               >`
+
               :
+
               `<img
                 class="conversation-avatar"
                 src="https://via.placeholder.com/60"
+                alt=""
               >`
             }
+
 
             <div class="conversation-info">
 
               <div class="conversation-name">
+
                 ${escapeHTML(name)}
+
               </div>
+
 
               <div class="conversation-title">
-                ${escapeHTML(title)}
+
+                📦 ${escapeHTML(title)}
+
               </div>
 
-              <div class="conversation-last">
-                ${escapeHTML(item.message)}
-              </div>
 
               <div class="conversation-last">
+
+                ${
+                  item.fromMe
+                    ? "Вы: "
+                    : ""
+                }
+
+                ${escapeHTML(
+                  item.message
+                )}
+
+              </div>
+
+
+              <div class="conversation-last">
+
                 ${date}
+
               </div>
 
             </div>
@@ -2189,24 +2501,8 @@ async function loadConversations(){
 }
 
 
-async function openConversationFromElement(element){
-
-  const listingId =
-    element.dataset.listingId;
-
-  const userId =
-    element.dataset.userId;
-
-
-  await openConversation(
-    listingId,
-    userId
-  );
-}
-
-
 /* =========================
-   PROFILE
+   ПРОФИЛЬ
 ========================= */
 
 async function loadProfile(){
@@ -2217,10 +2513,12 @@ async function loadProfile(){
       "profileName"
     ).textContent="Гость";
 
+
     document.getElementById(
       "profileEmail"
     ).textContent=
       "Войдите в аккаунт";
+
 
     return;
   }
@@ -2233,14 +2531,14 @@ async function loadProfile(){
 
 
   const name =
-    profileName(
+    getProfileName(
       profile,
       currentUser
     );
 
 
   const avatar =
-    profileAvatar(
+    getProfileAvatar(
       profile,
       currentUser
     );
@@ -2274,13 +2572,9 @@ async function loadProfile(){
     "";
 
 
-  const image =
-    document.getElementById(
-      "profileAvatar"
-    );
-
-
-  image.src =
+  document.getElementById(
+    "profileAvatar"
+  ).src =
     avatar ||
     "https://via.placeholder.com/100";
 }
@@ -2354,22 +2648,39 @@ async function saveProfile(){
 
 
 /* =========================
-   ESCAPE HTML
+   БЕЗОПАСНЫЙ ТЕКСТ
 ========================= */
 
 function escapeHTML(value){
 
-  return String(value ?? "")
-    .replaceAll("&","&amp;")
-    .replaceAll("<","&lt;")
-    .replaceAll(">","&gt;")
-    .replaceAll('"',"&quot;")
-    .replaceAll("'","&#039;");
+  return String(
+    value ?? ""
+  )
+    .replaceAll(
+      "&",
+      "&amp;"
+    )
+    .replaceAll(
+      "<",
+      "&lt;"
+    )
+    .replaceAll(
+      ">",
+      "&gt;"
+    )
+    .replaceAll(
+      '"',
+      "&quot;"
+    )
+    .replaceAll(
+      "'",
+      "&#039;"
+    );
 }
 
 
 /* =========================
-   START
+   ЗАПУСК
 ========================= */
 
 (async function(){
@@ -2379,7 +2690,6 @@ function escapeHTML(value){
   await loadListings();
 
 })();
-
 </script>
 
 </body>
