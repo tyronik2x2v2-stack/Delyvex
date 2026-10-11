@@ -802,6 +802,10 @@ main{max-width:1100px;margin:auto;padding:25px 18px 100px}
       <div class="chat-top-person" style="flex:1;min-width:0">
         <div id="supportCaseTitle" class="chat-top-name">Чат по жалобе</div>
         <div id="supportCaseSubtitle" class="chat-top-status">Общий чат заявителя, пользователя и администрации</div>
+        <div id="supportCaseProfileButtons" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
+          <button id="supportCaseReporterProfileButton" class="nav-btn" type="button" style="font-size:12px;padding:6px 9px" hidden>👤 Профиль заявителя</button>
+          <button id="supportCaseReportedProfileButton" class="nav-btn" type="button" style="font-size:12px;padding:6px 9px" hidden>👤 Профиль пользователя</button>
+        </div>
       </div>
       <span>🛡️</span>
     </div>
@@ -4382,6 +4386,11 @@ async function loadAdminSupportCases(){
   }
 }
 
+function openSupportCaseProfile(userId){
+  if(!userId) return;
+  viewSellerProfile(String(userId));
+}
+
 async function openSupportCaseChat(caseId,returnSection="admin"){
   if(!currentUser) return;
   try{
@@ -4405,6 +4414,14 @@ async function openSupportCaseChat(caseId,returnSection="admin"){
     const reported=names[String(caseRow.reported_user_id)]||"Пользователь";
     document.getElementById("supportCaseTitle").textContent="Жалоба №"+caseRow.id+": "+String(caseRow.reason||"Обращение").slice(0,90);
     document.getElementById("supportCaseSubtitle").textContent="Заявитель: "+reporter+" · Пользователь: "+reported+" · Администратор может отвечать здесь";
+    const reporterButton=document.getElementById("supportCaseReporterProfileButton");
+    const reportedButton=document.getElementById("supportCaseReportedProfileButton");
+    reporterButton.textContent="👤 Профиль: "+reporter;
+    reporterButton.hidden=false;
+    reporterButton.onclick=()=>openSupportCaseProfile(caseRow.reporter_id);
+    reportedButton.textContent="👤 Профиль: "+reported;
+    reportedButton.hidden=false;
+    reportedButton.onclick=()=>openSupportCaseProfile(caseRow.reported_user_id);
     showSection("supportCaseChat");
     await loadSupportCaseMessages();
     supportCaseRefreshTimer=setInterval(()=>{
