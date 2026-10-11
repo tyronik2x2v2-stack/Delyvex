@@ -658,6 +658,9 @@ let selectedProductImage = null;
 let currentChat = null;
 let currentReceiver = null;
 let currentListing = null;
+let chatRefreshTimer = null;
+let lastMessagesSignature = "";
+let messagesLoading = false;
 let appInitialized = false;
 let listingsLoading = false;
 let listingsRenderToken = 0;
@@ -3214,6 +3217,8 @@ async function openChat(listingId,receiverId,title){
   currentChat = listingId;
   currentReceiver = receiverId;
   currentListing = listingId;
+  lastMessagesSignature = "";
+  if(chatRefreshTimer){ clearInterval(chatRefreshTimer); chatRefreshTimer = null; }
   const titleButton = document.getElementById("chatTitle");
   titleButton.textContent = title || "Пользователь";
   titleButton.disabled = false;
@@ -3225,6 +3230,12 @@ async function openChat(listingId,receiverId,title){
   titleButton.textContent = person.nickname || title || "Пользователь";
   avatar.src = person.avatar_url || avatarUrl(AVATAR_STYLES[0][1],receiverId || "Delyvex");
   await loadMessages();
+  chatRefreshTimer = setInterval(()=>{
+    const chatSection = document.getElementById("chatWindow");
+    if(currentUser && currentReceiver && chatSection && chatSection.classList.contains("active")){
+      loadMessages();
+    }
+  }, 2000);
   document.getElementById("chatInput").focus({preventScroll:true});
 }
 
@@ -3260,90 +3271,65 @@ function formatSystemMessage(message){
 
 
 async function loadMessages(){
-
-  const container =
-    document.getElementById("chatMessages");
-
-  container.innerHTML =
-    `<div class="empty">Загрузка...</div>`;
-
-  const {
-    data,
-    error
-  } =
-    await sb
+  if(!currentUser || !currentReceiver || messagesLoading) return;
+  const container = document.getElementById("chatMessages");
+  if(!container) return;
+  messagesLoading = true;
+  try{
+    const { data, error } = await sb
       .from("messages")
       .select("*")
       .eq("listing_id",currentChat)
-      .or(
-        `and(sender_id.eq.${currentUser.id},receiver_id.eq.${currentReceiver}),and(sender_id.eq.${currentReceiver},receiver_id.eq.${currentUser.id})`
-      )
+      .or(`and(sender_id.eq.${currentUser.id},receiver_id.eq.${currentReceiver}),and(sender_id.eq.${currentReceiver},receiver_id.eq.${currentUser.id})`)
       .order("created_at",{ascending:true});
 
-  if(error){
-
-    console.error(error);
-
-    container.innerHTML =
-      `<div class="empty">Ошибка загрузки сообщений.</div>`;
-
-    return;
-
-  }
-
-  container.innerHTML = "";
-
-  if(!data?.length){
-    container.innerHTML = `<div class="empty" style="margin:auto;padding:25px">👋<br><br>Начни общение!<br><span style="font-size:13px">Не передавай пароли и личные данные.</span></div>`;
-    return;
-  }
-
-  data.forEach(message=>{
-
-    const text =
-      String(message.message || "");
-
-    if(text.startsWith("SYSTEM_PURCHASE|")){
-
-      const div =
-        document.createElement("div");
-
-      div.className =
-        "system-message";
-
-      div.innerHTML =
-        formatSystemMessage(text);
-
-      container.appendChild(div);
-
+    if(error){
+      console.error("Ошибка загрузки сообщений:",error);
+      if(!container.children.length){
+        container.innerHTML = `<div class="empty">Ошибка загрузки сообщений. Попробуй обновить страницу.</div>`;
+      }
       return;
-
     }
 
-    const div =
-      document.createElement("div");
+    const messages = data || [];
+    const signature = messages.map(m=>`${m.id || ""}:${m.created_at || ""}:${m.message || ""}`).join("|");
+    if(signature === lastMessagesSignature) return;
 
-    div.className =
-      "message "+
-      (
-        message.sender_id === currentUser.id
-          ? "mine"
-          : "theirs"
-      );
+    const wasAtBottom = container.scrollHeight - container.scrollTop - container.clientHeight < 90;
+    lastMessagesSignature = signature;
+    container.innerHTML = "";
 
-    const body = document.createElement("span");
-    body.textContent = text;
-    const time = document.createElement("span");
-    time.className = "message-time";
-    time.textContent = chatTime(message.created_at);
-    div.append(body,time);
-    container.appendChild(div);
+    if(!messages.length){
+      container.innerHTML = `<div class="empty" style="margin:auto;padding:25px">👋<br><br>Начни общение!<br><span style="font-size:13px">Не передавай пароли и личные данные.</span></div>`;
+      return;
+    }
 
-  });
+    messages.forEach(message=>{
+      const text = String(message.message || "");
+      if(text.startsWith("SYSTEM_PURCHASE|")){
+        const div = document.createElement("div");
+        div.className = "system-message";
+        div.innerHTML = formatSystemMessage(text);
+        container.appendChild(div);
+        return;
+      }
+      const div = document.createElement("div");
+      div.className = "message " + (String(message.sender_id) === String(currentUser.id) ? "mine" : "theirs");
+      const body = document.createElement("span");
+      body.textContent = text;
+      const time = document.createElement("span");
+      time.className = "message-time";
+      time.textContent = chatTime(message.created_at);
+      div.append(body,time);
+      container.appendChild(div);
+    });
 
-  container.scrollTop =
-    container.scrollHeight;
-
+    if(wasAtBottom || messages.length <= 1){
+      container.scrollTop = container.scrollHeight;
+    }
+  } finally {
+    messagesLoading = false;
+  }
 }
 
 
@@ -3397,6 +3383,7 @@ async function sendMessage(){
 
 async function logout(){
 
+  if(chatRefreshTimer){ clearInterval(chatRefreshTimer); chatRefreshTimer = null; }
   await sb.auth.signOut();
 
   currentUser = null;
