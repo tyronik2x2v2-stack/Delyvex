@@ -307,7 +307,7 @@ main{max-width:1100px;margin:auto;padding:25px 18px 100px}
   .header-logo{font-size:21px}
   .header-nav{display:none}
   .header-profile{margin-left:auto}
-  main{padding:20px 13px 90px}
+  main{padding:20px 13px calc(100px + env(safe-area-inset-bottom))}
   .listing-card{flex-direction:column}
   .listing-image{width:100%;height:220px}
   .avatar-grid{grid-template-columns:repeat(4,1fr)}
@@ -324,18 +324,22 @@ main{max-width:1100px;margin:auto;padding:25px 18px 100px}
   .chat-list-avatar{width:48px;height:48px;flex-basis:48px}
 
   .mobile-nav{
-    position:fixed;bottom:0;left:0;right:0;height:65px;
-    background:#100b1a;border-top:1px solid #241733;
-    display:flex;justify-content:space-around;align-items:center;z-index:500
+    position:fixed;bottom:0;left:0;right:0;min-height:65px;
+    padding:4px 3px calc(4px + env(safe-area-inset-bottom));
+    box-sizing:border-box;background:#100b1a;border-top:1px solid #241733;
+    display:flex;justify-content:space-around;align-items:center;gap:0;z-index:500
   }
 
   .mobile-nav button{
-    background:none;border:0;color:#aaa;font-size:12px
+    flex:1;min-width:0;padding:5px 1px;background:none;border:0;color:#aaa;
+    font-size:10px;line-height:1.15;white-space:nowrap
   }
 
   .mobile-nav button span{
-    display:block;font-size:20px;margin-bottom:2px
+    display:block;font-size:19px;margin-bottom:3px;line-height:1
   }
+
+  .mobile-nav button:active,.mobile-nav button:focus-visible{color:#c084fc;outline:none}
 }
 
 .report-btn{margin-top:10px;background:transparent;color:#fca5a5;border:1px solid #7f1d1d;border-radius:10px;padding:10px 13px;font-weight:700}
@@ -649,12 +653,6 @@ main{max-width:1100px;margin:auto;padding:25px 18px 100px}
   </select>
   <div id="adminReportsContainer" class="admin-reports"><p>Открой раздел, чтобы загрузить жалобы.</p></div>
   </div>
-
-  <div class="card">
-    <h2>🚩 Жалобы на пользователей из чатов</h2>
-    <p>Здесь появляются обращения. Кнопка «Зайти в общий чат» открывает переписку, где могут писать заявитель, пользователь, на которого пожаловались, и администратор.</p>
-    <div id="adminSupportCasesContainer" class="admin-reports"><p>Загрузка обращений...</p></div>
-  </div>
 </section>
 
 <section id="profile" class="section">
@@ -772,7 +770,6 @@ main{max-width:1100px;margin:auto;padding:25px 18px 100px}
         <div class="chat-top-status">Нажми на никнейм, чтобы открыть профиль</div>
       </div>
       <button class="nav-btn" onclick="openChatPartnerProfile()" title="Профиль">👤</button>
-      <button class="chat-btn" type="button" onclick="createSupportCaseFromChat()" style="padding:9px 11px">🚩 Пожаловаться</button>
     </div>
 
     <div id="chatMessages" class="chat-messages"></div>
@@ -793,26 +790,6 @@ main{max-width:1100px;margin:auto;padding:25px 18px 100px}
     </div>
   </div>
 
-</section>
-
-<section id="supportCaseChat" class="section">
-  <div class="chat-window">
-    <div class="chat-topbar">
-      <button class="nav-btn" type="button" onclick="backFromSupportCaseChat()">← Назад</button>
-      <div class="chat-top-person" style="flex:1;min-width:0">
-        <div id="supportCaseTitle" class="chat-top-name">Чат по жалобе</div>
-        <div id="supportCaseSubtitle" class="chat-top-status">Общий чат заявителя, пользователя и администрации</div>
-      </div>
-      <span>🛡️</span>
-    </div>
-    <div id="supportCaseMessages" class="chat-messages"></div>
-    <div class="chat-compose">
-      <div class="chat-send">
-        <input id="supportCaseInput" type="text" maxlength="2000" autocomplete="off" placeholder="Написать в чат по жалобе..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendSupportCaseMessage()}" />
-        <button class="primary-btn" id="supportCaseSendButton" type="button" onclick="sendSupportCaseMessage()">➤</button>
-      </div>
-    </div>
-  </div>
 </section>
 
 </main>
@@ -843,6 +820,11 @@ main{max-width:1100px;margin:auto;padding:25px 18px 100px}
   <button onclick="showSection('profile')">
     <span>👤</span>
     Профиль
+  </button>
+
+  <button onclick="showSection('admin')" aria-label="Открыть жалобы">
+    <span>🚩</span>
+    Жалобы
   </button>
 
 </div>
@@ -919,11 +901,6 @@ let notificationPollStartedAt = null;
 let notificationToastTimer = null;
 let lastNotificationTarget = "chats";
 let notificationPollBusy = false;
-let activeSupportCaseId = null;
-let supportCaseRefreshTimer = null;
-let supportCaseMessagesSignature = "";
-let supportCaseMessagesLoading = false;
-let supportCaseReturnSection = "admin";
 
 
 /* =========================================
@@ -1278,6 +1255,10 @@ async function showSection(section){
     target.classList.add("active");
   }
 
+  // При смене раздела сразу возвращаемся наверх, чтобы не приходилось
+  // вручную прокручивать длинную страницу.
+  window.scrollTo({top:0, left:0, behavior:"auto"});
+
   if(section==="home"){
 
     loadBalance();
@@ -1301,7 +1282,6 @@ async function showSection(section){
 
   if(section==="admin"){
     loadAdminReports();
-    loadAdminSupportCases();
   }
 
   if(section==="profile"){
@@ -4311,178 +4291,12 @@ async function loadAdminReports(){
         ${open?`<div class="admin-report-actions"><button class="admin-resolve" onclick="setDelyvexReportStatus(${Number(r.id)},'resolved')">✓ Рассмотрено</button><button class="admin-reject" onclick="setDelyvexReportStatus(${Number(r.id)},'rejected')">✕ Отклонить</button></div>`:""}
       </article>`;
     }).join("");
-    await loadAdminSupportCases();
   }catch(e){
     console.error("Загрузка жалоб:",e);
     container.innerHTML=`<div class="admin-report-error"><strong>Не удалось загрузить жалобы.</strong><br>${adminEscape(e?.message || "Неизвестная ошибка")}<br><br>Проверь, что таблицы admin_users и listing_reports существуют, а для администратора настроены права Supabase.</div>`;
   }
 }
 
-
-/* =========================================
-   USER REPORTS + SHARED MODERATION CHAT
-========================================= */
-async function createSupportCaseFromChat(){
-  if(!currentUser || !currentReceiver){ alert("Сначала открой чат с пользователем."); return; }
-  if(String(currentUser.id)===String(currentReceiver)){ alert("Нельзя пожаловаться на самого себя."); return; }
-  const reason=(prompt("Почему вы хотите пожаловаться? Например: обман, оскорбления, не выдал товар.")||"").trim();
-  if(!reason) return;
-  const details=(prompt("Опиши проблему подробнее. Это сообщение увидят администрация и участники обращения.")||"").trim();
-  try{
-    const {data:caseId,error}=await sb.rpc("delyvex_create_support_case",{
-      p_reported_user_id:currentReceiver,
-      p_related_listing_id:currentListing==null?null:String(currentListing),
-      p_reason:reason.slice(0,250),
-      p_details:details.slice(0,1500),
-      p_chat_listing_id:currentChat==null?null:String(currentChat)
-    });
-    if(error) throw error;
-    alert("Жалоба отправлена администрации. Она появилась в панели администратора.");
-    await openSupportCaseChat(caseId,"chatWindow");
-  }catch(e){
-    console.error("Создание жалобы:",e);
-    alert("Не удалось отправить жалобу. Убедись, что SQL-файл Delyvex_support_cases.sql выполнен в Supabase.\n\n"+(e.message||"Ошибка"));
-  }
-}
-
-async function loadAdminSupportCases(){
-  const container=document.getElementById("adminSupportCasesContainer");
-  if(!container) return;
-  if(!currentUser){container.innerHTML="<p>Войди в аккаунт администратора.</p>";return;}
-  try{
-    if(!(await isDelyvexAdmin())){container.innerHTML="<p>⛔ Доступ закрыт: нужен аккаунт администратора.</p>";return;}
-    const {data:cases,error}=await sb.from("support_cases").select("*").order("created_at",{ascending:false}).limit(100);
-    if(error) throw error;
-    if(!cases || !cases.length){container.innerHTML="<p>Новых жалоб от пользователей пока нет.</p>";return;}
-    const ids=[...new Set(cases.flatMap(c=>[c.reporter_id,c.reported_user_id]).filter(Boolean))];
-    let profileMap={};
-    if(ids.length){
-      const {data:profiles}=await sb.from("profiles").select("id,nickname").in("id",ids);
-      (profiles||[]).forEach(p=>profileMap[String(p.id)]=p.nickname||"Пользователь");
-    }
-    const labels={new:"Новая",reviewing:"На рассмотрении",resolved:"Рассмотрена",rejected:"Отклонена"};
-    container.innerHTML=cases.map(c=>{
-      const date=c.created_at?new Date(c.created_at).toLocaleString("ru-RU"):"—";
-      const reporter=profileMap[String(c.reporter_id)]||String(c.reporter_id).slice(0,8);
-      const reported=profileMap[String(c.reported_user_id)]||String(c.reported_user_id).slice(0,8);
-      return `<article class="admin-report-card">
-        <h3>🚩 ${adminEscape(c.reason||"Жалоба на пользователя")}</h3>
-        <div class="admin-report-meta">Обращение №${adminEscape(c.id)}<br>Заявитель: <strong>${adminEscape(reporter)}</strong><br>Жалоба на: <strong>${adminEscape(reported)}</strong><br>Создано: ${adminEscape(date)}</div>
-        <p class="admin-report-details"><strong>Описание:</strong><br>${adminEscape(c.details||"Пользователь не добавил описание.")}</p>
-        <span class="admin-status">Статус: ${adminEscape(labels[c.status]||c.status)}</span>
-        <div class="admin-report-actions" style="margin-top:12px;flex-wrap:wrap">
-          <button class="admin-report-link" type="button" onclick="openSupportCaseChat(${Number(c.id)},'admin')">💬 Зайти в общий чат</button>
-          ${c.status!=="resolved"&&c.status!=="rejected"?`<button class="admin-resolve" type="button" onclick="setSupportCaseStatus(${Number(c.id)},'resolved')">✓ Рассмотрено</button><button class="admin-reject" type="button" onclick="setSupportCaseStatus(${Number(c.id)},'rejected')">✕ Отклонить</button>`:""}
-        </div>
-      </article>`;
-    }).join("");
-  }catch(e){
-    console.error("Загрузка жалоб пользователей:",e);
-    container.innerHTML=`<div class="admin-report-error"><strong>Не удалось загрузить жалобы пользователей.</strong><br>${adminEscape(e.message||"Ошибка")}<br><br>Проверь, что SQL-файл Delyvex_support_cases.sql выполнен и этот аккаунт добавлен в admin_users.</div>`;
-  }
-}
-
-async function openSupportCaseChat(caseId,returnSection="admin"){
-  if(!currentUser) return;
-  try{
-    const {data:caseRow,error}=await sb.from("support_cases").select("*").eq("id",caseId).single();
-    if(error) throw error;
-    const admin=await isDelyvexAdmin();
-    if(admin && caseRow.status==="new"){
-      await sb.from("support_cases").update({status:"reviewing"}).eq("id",caseId);
-    }
-    if(!admin && String(currentUser.id)!==String(caseRow.reporter_id) && String(currentUser.id)!==String(caseRow.reported_user_id)){
-      alert("У тебя нет доступа к этому чату."); return;
-    }
-    activeSupportCaseId=Number(caseId);
-    supportCaseReturnSection=returnSection||"admin";
-    supportCaseMessagesSignature="";
-    if(chatRefreshTimer){clearInterval(chatRefreshTimer);chatRefreshTimer=null;}
-    if(supportCaseRefreshTimer){clearInterval(supportCaseRefreshTimer);supportCaseRefreshTimer=null;}
-    const {data:profiles}=await sb.from("profiles").select("id,nickname").in("id",[caseRow.reporter_id,caseRow.reported_user_id]);
-    const names={}; (profiles||[]).forEach(p=>names[String(p.id)]=p.nickname||"Пользователь");
-    const reporter=names[String(caseRow.reporter_id)]||"Заявитель";
-    const reported=names[String(caseRow.reported_user_id)]||"Пользователь";
-    document.getElementById("supportCaseTitle").textContent="Жалоба №"+caseRow.id+": "+String(caseRow.reason||"Обращение").slice(0,90);
-    document.getElementById("supportCaseSubtitle").textContent="Заявитель: "+reporter+" · Пользователь: "+reported+" · Администратор может отвечать здесь";
-    showSection("supportCaseChat");
-    await loadSupportCaseMessages();
-    supportCaseRefreshTimer=setInterval(()=>{
-      const section=document.getElementById("supportCaseChat");
-      if(currentUser&&activeSupportCaseId&&section&&section.classList.contains("active")) loadSupportCaseMessages();
-    },2500);
-    document.getElementById("supportCaseInput").focus({preventScroll:true});
-  }catch(e){
-    console.error("Открытие чата по жалобе:",e);
-    alert("Не удалось открыть чат по жалобе. Проверь SQL и права доступа.\n\n"+(e.message||"Ошибка"));
-  }
-}
-
-async function loadSupportCaseMessages(){
-  if(!currentUser||!activeSupportCaseId||supportCaseMessagesLoading) return;
-  const container=document.getElementById("supportCaseMessages");
-  if(!container) return;
-  supportCaseMessagesLoading=true;
-  try{
-    const {data:messages,error}=await sb.from("support_case_messages").select("id,case_id,sender_id,message,created_at").eq("case_id",activeSupportCaseId).order("created_at",{ascending:true});
-    if(error) throw error;
-    const rows=messages||[];
-    const signature=rows.map(m=>`${m.id}:${m.created_at}:${m.message}`).join("|");
-    if(signature===supportCaseMessagesSignature) return;
-    const wasAtBottom=container.scrollHeight-container.scrollTop-container.clientHeight<90;
-    supportCaseMessagesSignature=signature;
-    container.innerHTML="";
-    if(!rows.length){container.innerHTML='<div class="empty" style="margin:auto;padding:25px">Обращение создано. Напишите подробности проблемы.</div>';return;}
-    const ids=[...new Set(rows.map(m=>m.sender_id).filter(Boolean))];
-    const {data:profiles}=ids.length?await sb.from("profiles").select("id,nickname").in("id",ids):{data:[]};
-    const names={};(profiles||[]).forEach(p=>names[String(p.id)]=p.nickname||"Пользователь");
-    const adminIds=new Set();
-    await Promise.all(ids.map(async id=>{try{const {data}=await sb.rpc("is_delyvex_admin_user",{p_user_id:id});if(data===true)adminIds.add(String(id));}catch(_){}}));
-    rows.forEach(m=>{
-      const mine=String(m.sender_id)===String(currentUser.id);
-      const div=document.createElement("div");div.className="message "+(mine?"mine":"theirs");
-      const who=document.createElement("div");who.className="admin-message-label";
-      who.textContent=adminIds.has(String(m.sender_id))?"🛡️ Администратор":(mine?"Вы":""+ (names[String(m.sender_id)]||"Участник обращения"));
-      if(who.textContent)div.appendChild(who);
-      const body=document.createElement("div");body.textContent=String(m.message||"");div.appendChild(body);
-      const time=document.createElement("span");time.className="message-time";time.textContent=chatTime(m.created_at);div.appendChild(time);
-      container.appendChild(div);
-    });
-    if(wasAtBottom||rows.length<=1)container.scrollTop=container.scrollHeight;
-  }catch(e){
-    console.error("Загрузка чата жалобы:",e);
-    if(!container.children.length)container.innerHTML='<div class="empty">Не удалось загрузить сообщения. Проверь SQL и права доступа.</div>';
-  }finally{supportCaseMessagesLoading=false;}
-}
-
-async function sendSupportCaseMessage(){
-  if(!currentUser||!activeSupportCaseId) return;
-  const input=document.getElementById("supportCaseInput");
-  const message=(input.value||"").trim();
-  if(!message) return;
-  const button=document.getElementById("supportCaseSendButton");if(button)button.disabled=true;
-  try{
-    const {error}=await sb.from("support_case_messages").insert({case_id:activeSupportCaseId,sender_id:currentUser.id,message:message.slice(0,2000)});
-    if(error) throw error;
-    input.value="";supportCaseMessagesSignature="";await loadSupportCaseMessages();input.focus({preventScroll:true});
-  }catch(e){console.error("Отправка сообщения по жалобе:",e);alert("Не удалось отправить сообщение.\n\n"+(e.message||"Проверь SQL и права доступа."));}
-  finally{if(button)button.disabled=false;}
-}
-
-function backFromSupportCaseChat(){
-  if(supportCaseRefreshTimer){clearInterval(supportCaseRefreshTimer);supportCaseRefreshTimer=null;}
-  const dest=supportCaseReturnSection||"admin";
-  activeSupportCaseId=null;
-  showSection(dest);
-}
-
-async function setSupportCaseStatus(caseId,status){
-  if(!["resolved","rejected","reviewing"].includes(status))return;
-  if(!currentUser||!(await isDelyvexAdmin())){alert("Нет доступа администратора.");return;}
-  const {error}=await sb.from("support_cases").update({status}).eq("id",caseId);
-  if(error){alert("Не удалось изменить статус: "+error.message);return;}
-  await loadAdminSupportCases();
-}
 
 async function openReportedListing(listingId){
   if(!listingId){alert("У этой жалобы не указан ID товара.");return;}
