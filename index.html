@@ -1300,39 +1300,25 @@ async function saveProfile(){
 
   }
 
-  const nickname =
-    document
-      .getElementById("nicknameInput")
-      .value
-      .trim();
+  const nickname = document.getElementById("nicknameInput").value.trim().replace(/\s+/g," ");
 
-  if(!nickname){
+  if(!nickname){ alert("Введите никнейм."); return; }
+  if(nickname.length < 3 || nickname.length > 30){ alert("Никнейм должен содержать от 3 до 30 символов."); return; }
+  if(/[<>]/.test(nickname)){ alert("Никнейм не должен содержать символы < и >."); return; }
 
-    alert("Введите никнейм.");
-    return;
+  // Проверка на занятый ник без учёта регистра.
+  const {data:existing,error:checkError} = await sb.from("profiles")
+    .select("id,nickname").ilike("nickname", nickname).neq("id", currentUser.id).limit(1);
+  if(checkError){ alert("Не удалось проверить никнейм. Выполни SQL для уникальных никнеймов.\n\n"+checkError.message); return; }
+  if(existing && existing.length){ alert("Этот никнейм уже занят. Придумай другой — чужой никнейм использовать нельзя."); return; }
 
-  }
-
-  const {
-    error
-  } =
-    await sb
-      .from("profiles")
-      .upsert({
-        id:currentUser.id,
-        nickname:nickname,
-        avatar_url:selectedAvatar
-      });
-
+  const {error} = await sb.from("profiles").upsert({
+    id:currentUser.id, nickname:nickname, avatar_url:selectedAvatar
+  });
   if(error){
-
-    alert(
-      "Ошибка сохранения:\n\n"+
-      error.message
-    );
-
+    if(error.code === "23505" || /duplicate key|unique/i.test(error.message||"")) alert("Этот никнейм уже занят. Придумай другой.");
+    else alert("Ошибка сохранения:\n\n"+error.message);
     return;
-
   }
 
   document.getElementById("profileNickname").textContent = nickname;
@@ -3948,9 +3934,16 @@ async function searchAdminUsers(){
   if(term.length<2){container.innerHTML="<p>Введи минимум 2 символа ника.</p>";return;}
   container.innerHTML="<p>Ищем пользователей...</p>";
   try{
-    const {data:users,error}=await sb.from("profiles").select("id,nickname").ilike("nickname","%"+term.replace(/[%,]/g," ")+"%").limit(20);
+    // Ищем точное совпадение первым, а затем — частичное.
+    const safeTerm=term.replace(/[%,]/g," ").trim();
+    let {data:users,error}=await sb.from("profiles").select("id,nickname").ilike("nickname",safeTerm).limit(20);
     if(error) throw error;
-    if(!users || !users.length){container.innerHTML="<p>Пользователи не найдены. Проверь никнейм или права доступа к таблице profiles.</p>";return;}
+    if(!users || !users.length){
+      const partial=await sb.from("profiles").select("id,nickname").ilike("nickname","%"+safeTerm+"%").limit(20);
+      if(partial.error) throw partial.error;
+      users=partial.data||[];
+    }
+    if(!users || !users.length){container.innerHTML="<p>Пользователь с таким никнеймом не найден. Проверь написание и SQL для таблицы profiles.</p>";return;}
     const cards=[];
     for(const user of users){
       if(String(user.id)===String(currentUser.id)) continue;
