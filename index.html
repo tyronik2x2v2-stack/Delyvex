@@ -331,9 +331,16 @@ main{max-width:1100px;margin:auto;padding:25px 18px 100px}
 @media(max-width:700px){.report-modal-box{padding:18px}}
 
 /* Панель администратора: жалобы */
-.admin-reports{display:grid;gap:14px;margin-top:18px}
-.admin-report-card{background:var(--card,#fff);border:1px solid var(--border,#ddd);border-radius:14px;padding:16px;overflow-wrap:anywhere}
-.admin-report-card h3{margin:0 0 10px}
+.admin-reports{display:grid;gap:14px;margin-top:18px;color:#f4f0ff}
+#admin{color:#f4f0ff}
+#admin>p{color:#c9bfdc;line-height:1.55}
+#adminReportFilter{background:#171020;color:#fff;border:1px solid #58436d}
+.admin-report-card{background:#171020;color:#f4f0ff;border:1px solid #49365d;border-radius:14px;padding:16px;overflow-wrap:anywhere;box-shadow:0 8px 24px #0003}
+.admin-report-card h3{margin:0 0 10px;color:#fff;font-size:18px}
+.admin-report-card p{color:#e3dced;line-height:1.55}
+.admin-report-link{display:inline-flex;align-items:center;gap:7px;margin:10px 0 4px;background:#7c3aed;color:#fff;border:0;border-radius:9px;padding:10px 13px;text-decoration:none;font-weight:700;cursor:pointer}
+.admin-report-link:hover{background:#6d28d9}
+.admin-report-error{background:#35151c;border:1px solid #843746;color:#ffdce2;padding:12px;border-radius:10px;overflow-wrap:anywhere}
 .admin-report-meta{font-size:13px;opacity:.75;margin:8px 0;line-height:1.6}
 .admin-report-details{white-space:pre-wrap;margin:10px 0}
 .admin-report-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
@@ -1595,6 +1602,7 @@ async function renderListings(items){
 
     card.className =
       "card listing-card";
+    card.dataset.listingId = String(listing.id);
 
     let actions = "";
 
@@ -3864,7 +3872,8 @@ async function loadAdminReports(){
       const open=r.status!=="resolved" && r.status!=="rejected";
       return `<article class="admin-report-card">
         <h3>${adminEscape(r.listing_title || "Объявление")}</h3>
-        <div class="admin-report-meta">ID жалобы: ${adminEscape(r.id)}<br>Продавец: ${adminEscape(r.seller_id)}<br>Отправлена: ${adminEscape(date)}</div>
+        <div class="admin-report-meta">ID жалобы: ${adminEscape(r.id)}<br>ID товара: ${adminEscape(r.listing_id)}<br>Продавец: ${adminEscape(r.seller_id)}<br>Отправлена: ${adminEscape(date)}</div>
+        <button class="admin-report-link" type="button" onclick="openReportedListing('${escapeJs(String(r.listing_id || ""))}')">↗ Перейти к товару</button>
         <p><strong>Причина:</strong> ${adminEscape(r.reason)}</p>
         <p class="admin-report-details"><strong>Подробности:</strong><br>${adminEscape(r.details || "Не указаны")}</p>
         <span class="admin-status">Статус: ${adminEscape(names[r.status] || r.status)}</span>
@@ -3873,7 +3882,39 @@ async function loadAdminReports(){
     }).join("");
   }catch(e){
     console.error("Загрузка жалоб:",e);
-    container.innerHTML="<p>Не удалось загрузить жалобы. Проверь, что таблица listing_reports существует и для администратора настроены права Supabase.</p>";
+    container.innerHTML=`<div class="admin-report-error"><strong>Не удалось загрузить жалобы.</strong><br>${adminEscape(e?.message || "Неизвестная ошибка")}<br><br>Проверь, что таблицы admin_users и listing_reports существуют, а для администратора настроены права Supabase.</div>`;
+  }
+}
+
+
+async function openReportedListing(listingId){
+  if(!listingId){alert("У этой жалобы не указан ID товара.");return;}
+  showSection("home");
+  const search=document.getElementById("searchInput");
+  if(search) search.value="";
+  try{
+    await loadListings();
+    await searchListings();
+    let card=document.querySelector(`[data-listing-id="${CSS.escape(String(listingId))}"]`);
+    if(!card){
+      const {data,error}=await sb.from("listings").select("*").eq("id",listingId).maybeSingle();
+      if(error) throw error;
+      if(!data){alert("Товар больше не существует или был удалён.");return;}
+      listings=[data,...listings.filter(x=>String(x.id)!==String(data.id))];
+      await renderListings(listings);
+      card=document.querySelector(`[data-listing-id="${CSS.escape(String(listingId))}"]`);
+    }
+    if(card){
+      card.scrollIntoView({behavior:"smooth",block:"center"});
+      card.style.outline="3px solid #a78bfa";
+      card.style.outlineOffset="4px";
+      setTimeout(()=>{card.style.outline="";card.style.outlineOffset="";},3500);
+    }else{
+      alert("Не удалось найти карточку товара на главной странице.");
+    }
+  }catch(e){
+    console.error("Переход к товару из жалобы:",e);
+    alert("Не удалось открыть товар: "+(e?.message || "ошибка загрузки"));
   }
 }
 
