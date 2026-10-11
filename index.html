@@ -251,6 +251,7 @@ main{max-width:1100px;margin:auto;padding:25px 18px 100px}
 .chat-top-name{padding:0;border:0;background:none;color:#fff;font-weight:800;font-size:18px;text-align:left;overflow-wrap:anywhere}
 .chat-top-name:hover{color:#c084fc;text-decoration:underline;text-underline-offset:4px}
 .chat-top-status{font-size:12px;color:#9c8bad;margin-top:4px}
+.admin-message-label{font-size:11px;font-weight:800;letter-spacing:.2px;color:#c4a7ff;margin-bottom:5px;display:block}
 .chat-messages{height:min(55vh,520px);min-height:300px;overflow-y:auto;scroll-behavior:smooth;background:radial-gradient(ellipse at top,#1a1025 0%,#100b1a 65%);border:1px solid #2b1b3d;border-radius:18px;padding:18px;margin-bottom:12px;display:flex;flex-direction:column;gap:10px}
 .message{max-width:min(78%,560px);padding:11px 14px;border-radius:17px;margin:0;line-height:1.5;overflow-wrap:anywhere;white-space:pre-wrap;box-shadow:0 2px 7px #0002}
 .message.mine{align-self:flex-end;background:linear-gradient(135deg,#8052dc,#6334ad);border-bottom-right-radius:5px}
@@ -3575,6 +3576,22 @@ async function loadMessages(){
       return;
     }
 
+    // Узнаём, какие отправители являются администраторами, чтобы помечать их сообщения.
+    const senderAdminFlags = new Map();
+    const senderIds = [...new Set(messages.map(m => String(m.sender_id || "")).filter(Boolean))];
+    await Promise.all(senderIds.map(async senderId => {
+      if(String(senderId) === String(currentUser.id)) {
+        senderAdminFlags.set(senderId, await isDelyvexAdmin());
+        return;
+      }
+      try {
+        const {data, error} = await sb.rpc("is_delyvex_admin_user", {p_user_id: senderId});
+        senderAdminFlags.set(senderId, !error && data === true);
+      } catch(e) {
+        senderAdminFlags.set(senderId, false);
+      }
+    }));
+
     messages.forEach(message=>{
       const text = String(message.message || "");
       if(text.startsWith("SYSTEM_PURCHASE|")){
@@ -3586,6 +3603,12 @@ async function loadMessages(){
       }
       const div = document.createElement("div");
       div.className = "message " + (String(message.sender_id) === String(currentUser.id) ? "mine" : "theirs");
+      if(senderAdminFlags.get(String(message.sender_id)) === true){
+        const adminLabel = document.createElement("div");
+        adminLabel.className = "admin-message-label";
+        adminLabel.textContent = "🛡️ Администратор";
+        div.appendChild(adminLabel);
+      }
       const body = document.createElement("span");
       body.textContent = text;
       const time = document.createElement("span");
