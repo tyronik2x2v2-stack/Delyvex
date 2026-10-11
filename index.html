@@ -2544,7 +2544,17 @@ async function loadOrders(){
 
     }
 
+    const orderNumber = "DVX-" + String(order.id).padStart(6, "0");
+
     card.innerHTML = `
+
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:10px;padding:9px 11px;border:1px solid rgba(192,132,252,.28);border-radius:10px;background:rgba(192,132,252,.07)">
+        <div>
+          <div class="small" style="margin-bottom:2px">Номер заказа</div>
+          <div style="font-weight:800;letter-spacing:.5px;color:#d8b4fe">${escapeHtml(orderNumber)}</div>
+        </div>
+        <button type="button" class="secondary-btn" style="padding:7px 10px" onclick="copyOrderNumber('${escapeJs(orderNumber)}')">📋 Копировать номер</button>
+      </div>
 
       <div class="order-title">
         ${escapeHtml(listing.title || "Товар")}
@@ -2585,6 +2595,20 @@ async function loadOrders(){
 
   }
 
+}
+
+
+async function copyOrderNumber(orderNumber){
+  try{
+    if(navigator.clipboard && window.isSecureContext){
+      await navigator.clipboard.writeText(orderNumber);
+      showDelyvexToast("Номер заказа скопирован: " + orderNumber, "orders");
+    }else{
+      window.prompt("Скопируй номер заказа:", orderNumber);
+    }
+  }catch(error){
+    window.prompt("Скопируй номер заказа:", orderNumber);
+  }
 }
 
 
