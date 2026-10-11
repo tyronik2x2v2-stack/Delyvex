@@ -384,6 +384,14 @@ main{max-width:1100px;margin:auto;padding:25px 18px 100px}
 .admin-user-active{font-size:13px;color:#fbbf24;margin-top:8px;line-height:1.5}
 @media(max-width:600px){.admin-user-controls{grid-template-columns:1fr}}
 
+
+/* Phone verification modal */
+.phone-verify-overlay{position:fixed;inset:0;background:rgba(0,0,0,.72);display:flex;align-items:center;justify-content:center;padding:18px;z-index:10050}
+.phone-verify-card{width:min(100%,440px);background:#171522;border:1px solid #403653;border-radius:18px;padding:24px;color:#fff;box-shadow:0 24px 80px #0008}
+.phone-verify-card h2{margin:0 0 8px;font-size:23px}.phone-verify-card p{color:#bdb7cb;line-height:1.5;margin:0 0 16px}
+.phone-verify-card input{width:100%;box-sizing:border-box;padding:13px 14px;border-radius:10px;border:1px solid #4c435d;background:#0e0c14;color:#fff;font-size:16px;margin:7px 0 12px}
+.phone-verify-actions{display:flex;gap:10px;flex-wrap:wrap}.phone-verify-actions button{flex:1;min-width:135px}.phone-verify-error{color:#fca5a5;min-height:22px;font-size:14px;margin:8px 0}
+
 </style>
 </head>
 
@@ -1120,7 +1128,7 @@ function canAfford(price){
    NAVIGATION
 ========================================= */
 
-function showSection(section){
+async function showSection(section){
 
   if(!currentUser){
 
@@ -1136,6 +1144,14 @@ function showSection(section){
     showAuthGate();
     return;
 
+  }
+
+  if(section === "sell"){
+    const phoneOk = await isCurrentUserPhoneVerified();
+    if(!phoneOk){
+      openPhoneVerificationModal();
+      return;
+    }
   }
 
   document
@@ -2075,6 +2091,94 @@ async function deleteListing(listingId){
 
 
 /* =========================================
+   PHONE VERIFICATION (SMS.RU via Supabase Edge Function)
+========================================= */
+
+async function isCurrentUserPhoneVerified(){
+  if(!currentUser) return false;
+  const {data,error} = await sb.from("profiles")
+    .select("phone_e164,phone_verified_at")
+    .eq("id",currentUser.id)
+    .maybeSingle();
+  if(error){
+    console.warn("Phone verification status:", error.message);
+    alert("Не удалось проверить телефон. Сначала выполни SQL-настройку подтверждения телефона в Supabase.");
+    return false;
+  }
+  return !!(data?.phone_e164 && data?.phone_verified_at);
+}
+
+function openPhoneVerificationModal(){
+  if(!currentUser){ showAuthGate(); return; }
+  let overlay = document.getElementById("phoneVerifyOverlay");
+  if(!overlay){
+    overlay = document.createElement("div");
+    overlay.id = "phoneVerifyOverlay";
+    overlay.className = "phone-verify-overlay";
+    overlay.innerHTML = `
+      <div class="phone-verify-card" role="dialog" aria-modal="true" aria-labelledby="phoneVerifyTitle">
+        <h2 id="phoneVerifyTitle">📱 Подтверди телефон</h2>
+        <p>Чтобы продавать на Delyvex, подтверди российский номер телефона. Мы отправим SMS с кодом.</p>
+        <label for="phoneVerifyNumber">Номер телефона</label>
+        <input id="phoneVerifyNumber" type="tel" autocomplete="tel" placeholder="+7 900 123-45-67" maxlength="24">
+        <button type="button" class="primary-btn" id="phoneVerifySendBtn">Отправить SMS-код</button>
+        <label for="phoneVerifyCode">Код из SMS</label>
+        <input id="phoneVerifyCode" type="text" inputmode="numeric" autocomplete="one-time-code" placeholder="6 цифр" maxlength="6">
+        <div class="phone-verify-error" id="phoneVerifyError" role="status"></div>
+        <div class="phone-verify-actions">
+          <button type="button" class="primary-btn" id="phoneVerifyConfirmBtn">Подтвердить</button>
+          <button type="button" class="chat-btn" id="phoneVerifyCancelBtn">Позже</button>
+        </div>
+      </div>`;
+    document.body.appendChild(overlay);
+    document.getElementById("phoneVerifyCancelBtn").addEventListener("click",()=>overlay.remove());
+    document.getElementById("phoneVerifySendBtn").addEventListener("click",()=>submitPhoneVerification("send"));
+    document.getElementById("phoneVerifyConfirmBtn").addEventListener("click",()=>submitPhoneVerification("verify"));
+    overlay.addEventListener("click",e=>{if(e.target===overlay) overlay.remove();});
+  }
+  overlay.style.display="flex";
+  document.getElementById("phoneVerifyNumber")?.focus();
+}
+
+async function submitPhoneVerification(action){
+  const errorEl=document.getElementById("phoneVerifyError");
+  const sendBtn=document.getElementById("phoneVerifySendBtn");
+  const confirmBtn=document.getElementById("phoneVerifyConfirmBtn");
+  const phone=document.getElementById("phoneVerifyNumber")?.value.trim()||"";
+  const code=document.getElementById("phoneVerifyCode")?.value.trim()||"";
+  if(errorEl) errorEl.textContent="";
+  if(!currentUser){ if(errorEl) errorEl.textContent="Войди в аккаунт и попробуй снова."; return; }
+  if(action==="send" && sendBtn){sendBtn.disabled=true;sendBtn.textContent="Отправляем…";}
+  if(action==="verify" && confirmBtn){confirmBtn.disabled=true;confirmBtn.textContent="Проверяем…";}
+  try{
+    const {data:sessionData,error:sessionError}=await sb.auth.getSession();
+    const accessToken=sessionData?.session?.access_token;
+    if(sessionError||!accessToken) throw new Error("Сессия истекла. Войди снова.");
+    const response=await fetch(`${SUPABASE_URL}/functions/v1/phone-verification`,{
+      method:"POST",
+      headers:{"Content-Type":"application/json","apikey":SUPABASE_KEY,"Authorization":`Bearer ${accessToken}`},
+      body:JSON.stringify({action,phone,code})
+    });
+    const result=await response.json().catch(()=>({}));
+    if(!response.ok||!result.success) throw new Error(result.error||"Не удалось выполнить проверку телефона.");
+    if(action==="send"){
+      if(errorEl) errorEl.style.color="#86efac";
+      if(errorEl) errorEl.textContent=result.message||"SMS отправлено. Проверь сообщения.";
+      document.getElementById("phoneVerifyCode")?.focus();
+    }else{
+      alert(result.message||"Телефон подтверждён!");
+      document.getElementById("phoneVerifyOverlay")?.remove();
+      await showSection("sell");
+    }
+  }catch(error){
+    if(errorEl){errorEl.style.color="#fca5a5";errorEl.textContent=error?.message||"Ошибка проверки телефона.";}
+  }finally{
+    if(sendBtn){sendBtn.disabled=false;sendBtn.textContent="Отправить SMS-код";}
+    if(confirmBtn){confirmBtn.disabled=false;confirmBtn.textContent="Подтвердить";}
+  }
+}
+
+/* =========================================
    CREATE LISTING
 ========================================= */
 
@@ -2085,6 +2189,12 @@ async function createListing(){
     showAuthGate();
     return;
 
+  }
+
+  const phoneOk = await isCurrentUserPhoneVerified();
+  if(!phoneOk){
+    openPhoneVerificationModal();
+    return;
   }
 
   const restriction = await getMyDelyvexRestriction();
