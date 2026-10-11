@@ -329,6 +329,20 @@ main{max-width:1100px;margin:auto;padding:25px 18px 100px}
 .report-modal-actions{display:flex;gap:10px;margin-top:16px}
 .report-modal-actions button{flex:1}
 @media(max-width:700px){.report-modal-box{padding:18px}}
+
+/* Панель администратора: жалобы */
+.admin-reports{display:grid;gap:14px;margin-top:18px}
+.admin-report-card{background:var(--card,#fff);border:1px solid var(--border,#ddd);border-radius:14px;padding:16px;overflow-wrap:anywhere}
+.admin-report-card h3{margin:0 0 10px}
+.admin-report-meta{font-size:13px;opacity:.75;margin:8px 0;line-height:1.6}
+.admin-report-details{white-space:pre-wrap;margin:10px 0}
+.admin-report-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.admin-report-actions button{padding:10px 14px;border:0;border-radius:9px;cursor:pointer;font-weight:600}
+.admin-resolve{background:#16803c;color:#fff}
+.admin-reject{background:#c93636;color:#fff}
+.admin-status{display:inline-block;padding:5px 9px;border-radius:8px;background:#eee;color:#222;font-size:12px}
+#adminReportFilter{padding:10px;border-radius:9px;max-width:100%;margin:8px 0}
+
 </style>
 </head>
 
@@ -356,6 +370,8 @@ main{max-width:1100px;margin:auto;padding:25px 18px 100px}
     <button class="nav-btn" onclick="showSection('orders')">📦 Заказы <span id="orderNotificationBadge" class="notification-badge" hidden>0</span></button>
     <button class="nav-btn" onclick="showSection('balance')">💰 Баланс</button>
     <button class="nav-btn" onclick="showSection('profile')">👤 Профиль</button>
+    <button class="nav-btn" onclick="showSection('admin')">🛡️ Жалобы</button>
+
 
   </div>
 
@@ -487,6 +503,21 @@ main{max-width:1100px;margin:auto;padding:25px 18px 100px}
 
 </section>
 
+
+
+<section id="admin" class="section">
+  <h1 class="page-title">🛡️ Панель жалоб</h1>
+  <p>Просматривай жалобы на объявления и отмечай результат проверки.</p>
+  <label for="adminReportFilter">Фильтр жалоб:</label><br>
+  <select id="adminReportFilter" onchange="loadAdminReports()">
+    <option value="all">Все жалобы</option>
+    <option value="new">Новые</option>
+    <option value="reviewing">На рассмотрении</option>
+    <option value="resolved">Рассмотренные</option>
+    <option value="rejected">Отклонённые</option>
+  </select>
+  <div id="adminReportsContainer" class="admin-reports"><p>Открой раздел, чтобы загрузить жалобы.</p></div>
+</section>
 
 <section id="profile" class="section">
 
@@ -1063,6 +1094,10 @@ function showSection(section){
 
   if(section==="balance"){
     loadBalancePage();
+  }
+
+  if(section==="admin"){
+    loadAdminReports();
   }
 
   if(section==="profile"){
@@ -3792,6 +3827,64 @@ function escapeJs(value){
 
 }
 
+
+
+/* =========================================
+   ADMIN: ЖАЛОБЫ НА ОБЪЯВЛЕНИЯ
+========================================= */
+function adminEscape(value){
+  return String(value ?? "").replace(/[&<>\"']/g, ch => ({
+    "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;"
+  })[ch]);
+}
+
+async function isDelyvexAdmin(){
+  if(!currentUser) return false;
+  const {data,error}=await sb.from("admin_users").select("user_id").eq("user_id",currentUser.id).maybeSingle();
+  if(error){console.error("Проверка администратора:",error);return false;}
+  return !!data;
+}
+
+async function loadAdminReports(){
+  const container=document.getElementById("adminReportsContainer");
+  const filter=document.getElementById("adminReportFilter");
+  if(!container) return;
+  if(!currentUser){container.innerHTML="<p>Войди в аккаунт.</p>";return;}
+  container.innerHTML="<p>Загрузка жалоб...</p>";
+  try{
+    if(!(await isDelyvexAdmin())){container.innerHTML="<p>⛔ Доступ закрыт: этот аккаунт не добавлен в список администраторов.</p>";return;}
+    let query=sb.from("listing_reports").select("*").order("created_at",{ascending:false});
+    if(filter && filter.value!=="all") query=query.eq("status",filter.value);
+    const {data:reports,error}=await query;
+    if(error) throw error;
+    if(!reports || !reports.length){container.innerHTML="<p>Жалоб по этому фильтру нет.</p>";return;}
+    const names={new:"Новая",reviewing:"На рассмотрении",resolved:"Рассмотрена",rejected:"Отклонена"};
+    container.innerHTML=reports.map(r=>{
+      const date=r.created_at?new Date(r.created_at).toLocaleString("ru-RU"):"Не указана";
+      const open=r.status!=="resolved" && r.status!=="rejected";
+      return `<article class="admin-report-card">
+        <h3>${adminEscape(r.listing_title || "Объявление")}</h3>
+        <div class="admin-report-meta">ID жалобы: ${adminEscape(r.id)}<br>Продавец: ${adminEscape(r.seller_id)}<br>Отправлена: ${adminEscape(date)}</div>
+        <p><strong>Причина:</strong> ${adminEscape(r.reason)}</p>
+        <p class="admin-report-details"><strong>Подробности:</strong><br>${adminEscape(r.details || "Не указаны")}</p>
+        <span class="admin-status">Статус: ${adminEscape(names[r.status] || r.status)}</span>
+        ${open?`<div class="admin-report-actions"><button class="admin-resolve" onclick="setDelyvexReportStatus(${Number(r.id)},'resolved')">✓ Рассмотрено</button><button class="admin-reject" onclick="setDelyvexReportStatus(${Number(r.id)},'rejected')">✕ Отклонить</button></div>`:""}
+      </article>`;
+    }).join("");
+  }catch(e){
+    console.error("Загрузка жалоб:",e);
+    container.innerHTML="<p>Не удалось загрузить жалобы. Проверь, что таблица listing_reports существует и для администратора настроены права Supabase.</p>";
+  }
+}
+
+async function setDelyvexReportStatus(reportId,newStatus){
+  if(!["resolved","rejected"].includes(newStatus)) return;
+  if(!currentUser || !(await isDelyvexAdmin())){alert("Нет доступа администратора.");return;}
+  if(!confirm(newStatus==="resolved"?"Отметить жалобу как рассмотренную?":"Отклонить жалобу?")) return;
+  const {error}=await sb.from("listing_reports").update({status:newStatus}).eq("id",reportId);
+  if(error){console.error(error);alert("Не удалось изменить статус. Проверь SQL-политики Supabase.");return;}
+  await loadAdminReports();
+}
 
 /* =========================================
    START
