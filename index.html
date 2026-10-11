@@ -1568,6 +1568,15 @@ async function renderListings(items){
         <div style="margin-top:14px;color:#888">
           Это твоё объявление
         </div>
+        <div class="listing-actions" style="margin-top:10px">
+          <button
+            class="danger-btn"
+            style="background:#dc2626;color:white;border:0;border-radius:10px;padding:11px 14px;cursor:pointer;width:100%"
+            onclick="deleteListing('${escapeJs(listing.id)}')"
+          >
+            🗑️ Удалить товар
+          </button>
+        </div>
       `;
 
     }else{
@@ -1757,6 +1766,49 @@ async function searchListings(){
 
   await renderListings(result);
 
+}
+
+
+/* =========================================
+   DELETE OWN LISTING
+========================================= */
+
+async function deleteListing(listingId){
+  if(!currentUser){
+    alert("Сначала войди в аккаунт.");
+    return;
+  }
+
+  const listing = listings.find(item => String(item.id) === String(listingId));
+  if(!listing){
+    alert("Товар не найден. Обнови страницу и попробуй ещё раз.");
+    return;
+  }
+
+  if(String(listing.seller_id) !== String(currentUser.id)){
+    alert("Можно удалять только свои товары.");
+    return;
+  }
+
+  if(!confirm(`Удалить товар «${listing.title || "Без названия"}»? Это действие нельзя отменить.`)){
+    return;
+  }
+
+  const { error } = await sb
+    .from("listings")
+    .delete()
+    .eq("id", listingId)
+    .eq("seller_id", currentUser.id);
+
+  if(error){
+    console.error("Ошибка удаления товара:", error);
+    alert("Не удалось удалить товар. Возможно, в Supabase не настроено разрешение DELETE для своих объявлений.\n\n" + error.message);
+    return;
+  }
+
+  listings = listings.filter(item => String(item.id) !== String(listingId));
+  await renderListings(listings);
+  alert("Товар удалён.");
 }
 
 
