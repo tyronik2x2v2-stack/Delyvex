@@ -42,7 +42,14 @@ header{
 .header-nav{display:flex;gap:5px;margin-left:auto}
 .nav-btn{background:transparent;color:#ddd;border:0;padding:10px 13px;border-radius:10px}
 .nav-btn:hover{background:#21152e}
+
 .header-profile{margin-left:10px}
+.notification-badge{display:inline-flex;align-items:center;justify-content:center;min-width:19px;height:19px;padding:0 5px;margin-left:4px;border-radius:20px;background:#ef4444;color:#fff;font-size:11px;font-weight:800;vertical-align:middle}
+.notification-badge[hidden]{display:none!important}
+#notificationToast{position:fixed;right:18px;bottom:22px;z-index:10000;max-width:min(360px,calc(100vw - 36px));padding:15px 18px;border:1px solid #8b5cf6;border-radius:14px;background:#1b1029;color:#fff;box-shadow:0 8px 30px #0008;display:none;line-height:1.45;cursor:pointer}
+#notificationToast.show{display:block;animation:notificationIn .2s ease-out}
+@keyframes notificationIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:700px){#notificationToast{right:12px;bottom:85px;max-width:calc(100vw - 24px)}}
 
 .header-avatar{
   width:40px;height:40px;border-radius:50%;object-fit:cover;
@@ -331,8 +338,8 @@ main{max-width:1100px;margin:auto;padding:25px 18px 100px}
 
     <button class="nav-btn" onclick="showSection('home')">Главная</button>
     <button class="nav-btn" onclick="showSection('sell')">➕ Продать</button>
-    <button class="nav-btn" onclick="showSection('chats')">💬 Чаты</button>
-    <button class="nav-btn" onclick="showSection('orders')">📦 Заказы</button>
+    <button class="nav-btn" onclick="showSection('chats')">💬 Чаты <span id="chatNotificationBadge" class="notification-badge" hidden>0</span></button>
+    <button class="nav-btn" onclick="showSection('orders')">📦 Заказы <span id="orderNotificationBadge" class="notification-badge" hidden>0</span></button>
     <button class="nav-btn" onclick="showSection('balance')">💰 Баланс</button>
     <button class="nav-btn" onclick="showSection('profile')">👤 Профиль</button>
 
@@ -607,12 +614,12 @@ main{max-width:1100px;margin:auto;padding:25px 18px 100px}
   </button>
 
   <button onclick="showSection('chats')">
-    <span>💬</span>
+    <span>💬 <b id="mobileChatNotificationBadge" class="notification-badge" hidden>0</b></span>
     Чаты
   </button>
 
   <button onclick="showSection('orders')">
-    <span>📦</span>
+    <span>📦 <b id="mobileOrderNotificationBadge" class="notification-badge" hidden>0</b></span>
     Заказы
   </button>
 
@@ -623,6 +630,8 @@ main{max-width:1100px;margin:auto;padding:25px 18px 100px}
 
 </div>
 
+
+<div id="notificationToast" role="status" aria-live="polite" onclick="openNotificationTarget()"></div>
 
 <script>
 
@@ -664,6 +673,11 @@ let messagesLoading = false;
 let appInitialized = false;
 let listingsLoading = false;
 let listingsRenderToken = 0;
+let notificationTimer = null;
+let notificationPollStartedAt = null;
+let notificationToastTimer = null;
+let lastNotificationTarget = "chats";
+let notificationPollBusy = false;
 
 
 /* =========================================
@@ -822,6 +836,7 @@ async function initialize(){
     после оплаты YooKassa.
   */
   await checkReturnedTopup();
+  startDelyvexNotifications();
 
 }
 
@@ -835,6 +850,7 @@ sb.auth.onAuthStateChange(
       appInitialized = false;
       listings = [];
       currentBalance = 0;
+      stopDelyvexNotifications();
 
       hideAuthGate();
       loadListings();
@@ -998,10 +1014,12 @@ function showSection(section){
   }
 
   if(section==="chats"){
+    markNotificationsSeen("messages");
     loadChats();
   }
 
   if(section==="orders"){
+    markNotificationsSeen("orders");
     loadOrders();
   }
 
@@ -3493,12 +3511,126 @@ async function sendMessage(){
 
 
 /* =========================================
+   IN-SITE NOTIFICATIONS
+========================================= */
+
+function notificationStorageKey(kind){
+  return "delyvex_seen_" + kind + "_" + String(currentUser?.id || "guest");
+}
+
+function setNotificationBadge(kind,count){
+  const ids = kind === "messages"
+    ? ["chatNotificationBadge","mobileChatNotificationBadge"]
+    : ["orderNotificationBadge","mobileOrderNotificationBadge"];
+  ids.forEach(id=>{
+    const el = document.getElementById(id);
+    if(!el) return;
+    const n = Math.max(0, Number(count) || 0);
+    el.textContent = n > 99 ? "99+" : String(n);
+    el.hidden = n === 0;
+  });
+}
+
+function showDelyvexToast(message,target="chats"){
+  const toast = document.getElementById("notificationToast");
+  if(!toast) return;
+  lastNotificationTarget = target;
+  toast.textContent = message;
+  toast.classList.add("show");
+  if(notificationToastTimer) clearTimeout(notificationToastTimer);
+  notificationToastTimer = setTimeout(()=>toast.classList.remove("show"),6500);
+}
+
+function openNotificationTarget(){
+  const toast = document.getElementById("notificationToast");
+  if(toast) toast.classList.remove("show");
+  showSection(lastNotificationTarget);
+}
+
+function markNotificationsSeen(kind){
+  if(!currentUser) return;
+  localStorage.setItem(notificationStorageKey(kind),new Date().toISOString());
+  setNotificationBadge(kind,0);
+}
+
+function startDelyvexNotifications(){
+  if(!currentUser) return;
+  if(notificationTimer) clearInterval(notificationTimer);
+  const now = new Date().toISOString();
+  const msgKey = notificationStorageKey("messages");
+  const orderKey = notificationStorageKey("orders");
+  // При первом запуске не показываем старые сообщения/заказы как новые.
+  if(!localStorage.getItem(msgKey)) localStorage.setItem(msgKey,now);
+  if(!localStorage.getItem(orderKey)) localStorage.setItem(orderKey,now);
+  notificationPollStartedAt = now;
+  refreshNotificationBadges(false);
+  notificationTimer = setInterval(()=>refreshNotificationBadges(true),20000);
+}
+
+function stopDelyvexNotifications(){
+  if(notificationTimer){clearInterval(notificationTimer);notificationTimer=null;}
+  notificationPollStartedAt = null;
+  notificationPollBusy = false;
+  setNotificationBadge("messages",0);
+  setNotificationBadge("orders",0);
+  const toast = document.getElementById("notificationToast");
+  if(toast) toast.classList.remove("show");
+}
+
+async function refreshNotificationBadges(allowToasts=true){
+  if(!currentUser || notificationPollBusy) return;
+  notificationPollBusy = true;
+  const userId = String(currentUser.id);
+  const pollFrom = notificationPollStartedAt || new Date().toISOString();
+  try{
+    const [messagesResult,ordersResult] = await Promise.all([
+      sb.from("messages").select("id,created_at,sender_id,receiver_id,message")
+        .eq("receiver_id",userId).order("created_at",{ascending:false}).limit(100),
+      sb.from("purchases").select("id,created_at,buyer_id,seller_id")
+        .or("buyer_id.eq."+userId+",seller_id.eq."+userId)
+        .order("created_at",{ascending:false}).limit(100)
+    ]);
+
+    if(!messagesResult.error){
+      const messages = messagesResult.data || [];
+      const seen = Date.parse(localStorage.getItem(notificationStorageKey("messages")) || "");
+      const unread = messages.filter(m=>String(m.sender_id)!==userId && Date.parse(m.created_at||"") > seen);
+      setNotificationBadge("messages",unread.length);
+      const fresh = messages.filter(m=>Date.parse(m.created_at||"") > Date.parse(pollFrom));
+      if(allowToasts && fresh.length){
+        const newest = fresh[0];
+        const body = String(newest.message||"");
+        showDelyvexToast(body.startsWith("SYSTEM_PURCHASE|") ? "🛒 Новая информация о покупке" : "💬 Новое сообщение в Delyvex", "chats");
+      }
+    } else console.warn("Уведомления сообщений:",messagesResult.error.message);
+
+    if(!ordersResult.error){
+      const orders = ordersResult.data || [];
+      const seen = Date.parse(localStorage.getItem(notificationStorageKey("orders")) || "");
+      const unread = orders.filter(o=>Date.parse(o.created_at||"") > seen);
+      setNotificationBadge("orders",unread.length);
+      const fresh = orders.filter(o=>Date.parse(o.created_at||"") > Date.parse(pollFrom));
+      if(allowToasts && fresh.length){
+        showDelyvexToast("📦 У вас новый заказ! Откройте раздел «Заказы».","orders");
+      }
+    } else console.warn("Уведомления заказов:",ordersResult.error.message);
+
+    notificationPollStartedAt = new Date().toISOString();
+  }catch(error){
+    console.warn("Не удалось обновить уведомления:",error);
+  }finally{
+    notificationPollBusy = false;
+  }
+}
+
+/* =========================================
    LOGOUT
 ========================================= */
 
 async function logout(){
 
   if(chatRefreshTimer){ clearInterval(chatRefreshTimer); chatRefreshTimer = null; }
+  stopDelyvexNotifications();
   await sb.auth.signOut();
 
   currentUser = null;
