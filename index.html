@@ -1358,6 +1358,7 @@ async function loadListings(){
       await sb
         .from("listings")
         .select("*")
+        .order("bumped_at",{ascending:false,nullsFirst:false})
         .order("created_at",{ascending:false});
 
     if(error){
@@ -1564,11 +1565,23 @@ async function renderListings(items){
 
     }else if(currentUser){
 
+      const lastBump = listing.bumped_at ? new Date(listing.bumped_at).getTime() : 0;
+      const remainingMs = Math.max(0, 60 * 60 * 1000 - (Date.now() - lastBump));
+      const canBump = remainingMs === 0;
+      const remainingMinutes = Math.ceil(remainingMs / 60000);
       actions = `
         <div style="margin-top:14px;color:#888">
           Это твоё объявление
         </div>
-        <div class="listing-actions" style="margin-top:10px">
+        <div class="listing-actions" style="margin-top:10px;display:flex;flex-direction:column;gap:8px">
+          <button
+            class="primary-btn"
+            style="${canBump ? '' : 'opacity:.65;'}border-radius:10px;padding:11px 14px;cursor:${canBump ? 'pointer' : 'not-allowed'};width:100%"
+            ${canBump ? '' : 'disabled'}
+            onclick="bumpListing('${escapeJs(listing.id)}')"
+          >
+            ⬆️ ${canBump ? 'Поднять товар' : `Поднять через ${remainingMinutes} мин.`}
+          </button>
           <button
             class="danger-btn"
             style="background:#dc2626;color:white;border:0;border-radius:10px;padding:11px 14px;cursor:pointer;width:100%"
@@ -1768,6 +1781,56 @@ async function searchListings(){
 
 }
 
+
+/* =========================================
+   BUMP OWN LISTING (once per hour per listing)
+========================================= */
+
+async function bumpListing(listingId){
+  if(!currentUser){
+    alert("Сначала войди в аккаунт.");
+    return;
+  }
+  const listing = listings.find(item => String(item.id) === String(listingId));
+  if(!listing){
+    alert("Объявление не найдено. Обнови страницу.");
+    return;
+  }
+  if(String(listing.seller_id) !== String(currentUser.id)){
+    alert("Поднимать можно только собственные объявления.");
+    return;
+  }
+  const lastBump = listing.bumped_at ? new Date(listing.bumped_at).getTime() : 0;
+  const remaining = 60 * 60 * 1000 - (Date.now() - lastBump);
+  if(remaining > 0){
+    alert(`Поднять это объявление снова можно через ${Math.ceil(remaining / 60000)} мин.`);
+    return;
+  }
+  const { data, error } = await sb
+    .from("listings")
+    .update({ bumped_at: new Date().toISOString() })
+    .eq("id", listingId)
+    .eq("seller_id", currentUser.id)
+    .select()
+    .maybeSingle();
+  if(error){
+    console.error("Ошибка поднятия объявления:", error);
+    alert("Не удалось поднять товар. Сначала выполни SQL-настройку для поля bumped_at в Supabase.\n\n" + error.message);
+    return;
+  }
+  if(!data){
+    alert("Supabase не разрешил обновить объявление. Проверь политику UPDATE для собственных товаров.");
+    return;
+  }
+  listing.bumped_at = data.bumped_at;
+  listings.sort((a,b) => {
+    const ab = a.bumped_at ? new Date(a.bumped_at).getTime() : 0;
+    const bb = b.bumped_at ? new Date(b.bumped_at).getTime() : 0;
+    return bb - ab || new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime();
+  });
+  await renderListings(listings);
+  alert("Готово! Твой товар поднят в самый верх. Повторно поднять его можно через час.");
+}
 
 /* =========================================
    DELETE OWN LISTING
