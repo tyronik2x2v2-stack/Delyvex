@@ -1569,7 +1569,12 @@ async function loadListings(){
 
     });
 
-    listings = unique;
+    // Не показываем товары пользователей с активным баном.
+    // Объявления не удаляются из базы: после снятия бана они автоматически вернутся.
+    const sellerIds = [...new Set(unique.map(item => String(item.seller_id || "")).filter(Boolean))];
+    const bannedResults = await Promise.all(sellerIds.map(async sellerId => [sellerId, await isDelyvexUserBanned(sellerId)]));
+    const bannedSellerIds = new Set(bannedResults.filter(([, banned]) => banned).map(([sellerId]) => sellerId));
+    listings = unique.filter(item => !bannedSellerIds.has(String(item.seller_id || "")));
 
     await renderListings(listings);
 
@@ -4107,6 +4112,7 @@ async function applyDelyvexRestriction(userId){
   if(error){console.error(error);alert("Не удалось применить ограничение: "+error.message+"\nПроверь SQL-политики таблицы user_restrictions.");return;}
   alert("Ограничение применено.");
   await searchAdminUsers();
+  await loadListings();
 }
 
 async function clearDelyvexRestriction(userId){
@@ -4116,6 +4122,8 @@ async function clearDelyvexRestriction(userId){
   if(error){alert("Не удалось снять ограничения: "+error.message);return;}
   alert("Ограничения сняты.");
   await searchAdminUsers();
+  // После разбана товары этого пользователя снова появляются в магазине.
+  await loadListings();
 }
 
 async function isDelyvexAdmin(){
