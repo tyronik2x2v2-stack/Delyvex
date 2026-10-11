@@ -3930,23 +3930,18 @@ async function searchAdminUsers(){
   const input=document.getElementById("adminUserSearch");
   if(!container || !input) return;
   if(!currentUser || !(await isDelyvexAdmin())){container.innerHTML="<p>⛔ Доступ закрыт: нужен аккаунт администратора.</p>";return;}
-  const term=input.value.trim();
+  const term=input.value.trim().replace(/\s+/g," ");
   if(term.length<2){container.innerHTML="<p>Введи минимум 2 символа ника.</p>";return;}
   container.innerHTML="<p>Ищем пользователей...</p>";
   try{
-    // Ищем точное совпадение первым, а затем — частичное.
-    const safeTerm=term.replace(/[%,]/g," ").trim();
-    let {data:users,error}=await sb.from("profiles").select("id,nickname").ilike("nickname",safeTerm).limit(20);
+    // Поиск выполняется через SECURITY DEFINER RPC: обычные RLS-политики profiles
+    // могут скрывать чужие профили даже от интерфейса администратора.
+    const {data:users,error}=await sb.rpc("admin_search_delyvex_users",{p_nickname:term});
     if(error) throw error;
-    if(!users || !users.length){
-      const partial=await sb.from("profiles").select("id,nickname").ilike("nickname","%"+safeTerm+"%").limit(20);
-      if(partial.error) throw partial.error;
-      users=partial.data||[];
-    }
-    if(!users || !users.length){container.innerHTML="<p>Пользователь с таким никнеймом не найден. Проверь написание и SQL для таблицы profiles.</p>";return;}
+    const filtered=(users||[]).filter(user=>String(user.id)!==String(currentUser.id));
+    if(!filtered.length){container.innerHTML="<p>Пользователь с таким никнеймом не найден. Проверь никнейм и выполни SQL-файл для поиска администратором.</p>";return;}
     const cards=[];
-    for(const user of users){
-      if(String(user.id)===String(currentUser.id)) continue;
+    for(const user of filtered){
       const {data:restrictions,error:re}=await sb.from("user_restrictions").select("restriction_type,expires_at,reason").eq("user_id",user.id).or("expires_at.is.null,expires_at.gt."+new Date().toISOString()).order("created_at",{ascending:false}).limit(10);
       const active=!re && restrictions && restrictions.length ? restrictions[0] : null;
       const activeText=active ? `<div class="admin-user-active">Активно: ${adminEscape(active.restriction_type==="ban"?"Блокировка аккаунта":"Запрет продаж")} до ${adminEscape(active.expires_at?new Date(active.expires_at).toLocaleString("ru-RU"):"без срока")}${active.reason?". Причина: "+adminEscape(active.reason):""}</div>` : `<div class="admin-user-active" style="color:#86efac">Активных ограничений нет</div>`;
@@ -3962,7 +3957,7 @@ async function searchAdminUsers(){
     container.innerHTML=cards.length?cards.join(""):"<p>Другие пользователи с таким ником не найдены.</p>";
   }catch(e){
     console.error("Поиск пользователей для администратора:",e);
-    container.innerHTML=`<div class="admin-report-error"><strong>Не удалось найти пользователя.</strong><br>${adminEscape(e?.message||"Неизвестная ошибка")}<br>Проверь SQL для user_restrictions и доступ администратора к profiles.</div>`;
+    container.innerHTML=`<div class="admin-report-error"><strong>Не удалось найти пользователя.</strong><br>${adminEscape(e?.message||"Неизвестная ошибка")}<br>Открой SQL Editor в Supabase и выполни SQL-файл для поиска пользователей администратором.</div>`;
   }
 }
 
