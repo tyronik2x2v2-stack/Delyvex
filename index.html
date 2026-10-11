@@ -109,7 +109,18 @@ main{max-width:1100px;margin:auto;padding:25px 18px 100px}
   padding-top:12px;border-top:1px solid #241733
 }
 
-.seller-name{color:#fff;font-weight:700}
+.seller-name{color:#fff;font-weight:700;cursor:pointer;text-decoration:underline;text-decoration-color:#6d3cc7;text-underline-offset:3px}
+.seller-name:hover{color:#c084fc}
+.public-profile-card{max-width:760px;margin:auto}
+.public-profile-top{display:flex;align-items:center;gap:18px;margin-bottom:18px}
+.public-profile-avatar{width:92px;height:92px;border-radius:50%;object-fit:cover;border:3px solid #8b5cf6}
+.public-profile-meta{color:#aaa;line-height:1.7}
+.public-review{background:#100b1a;border:1px solid #2b1b3d;border-radius:13px;padding:14px;margin:10px 0}
+.public-review-head{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.public-review-author{font-weight:700;color:#e9d5ff}
+.public-review-date{font-size:12px;color:#888}
+.public-review-text{margin-top:9px;color:#ddd;line-height:1.5;white-space:pre-wrap;overflow-wrap:anywhere}
+.avatar-option img{background:#100b1a}
 .seller-rating{color:#fbbf24;font-size:14px;margin-top:3px}
 .listing-actions{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
 
@@ -517,6 +528,15 @@ main{max-width:1100px;margin:auto;padding:25px 18px 100px}
 </section>
 
 
+<section id="publicSellerProfile" class="section">
+  <div class="public-profile-card card">
+    <button class="nav-btn" onclick="goBackFromSellerProfile()">← Назад</button>
+    <div id="publicSellerProfileContent" style="margin-top:16px">
+      <div class="empty">Загрузка профиля...</div>
+    </div>
+  </div>
+</section>
+
 <section id="chatWindow" class="section">
 
   <div class="chat-window">
@@ -640,28 +660,26 @@ function makeAvatar(bg,face){
     encodeURIComponent(svg);
 }
 
-const AVATARS = [
-  makeAvatar("#8b5cf6","#4c1d95"),
-  makeAvatar("#ec4899","#831843"),
-  makeAvatar("#3b82f6","#1e3a8a"),
-  makeAvatar("#10b981","#064e3b"),
-  makeAvatar("#f59e0b","#78350f"),
-  makeAvatar("#ef4444","#7f1d1d"),
-  makeAvatar("#06b6d4","#164e63"),
-  makeAvatar("#84cc16","#365314"),
-  makeAvatar("#a855f7","#581c87"),
-  makeAvatar("#f97316","#7c2d12"),
-  makeAvatar("#14b8a6","#134e4a"),
-  makeAvatar("#e11d48","#881337"),
-  makeAvatar("#6366f1","#312e81"),
-  makeAvatar("#0ea5e9","#0c4a6e"),
-  makeAvatar("#7c3aed","#4c1d95"),
-  makeAvatar("#db2777","#831843"),
-  makeAvatar("#059669","#064e3b"),
-  makeAvatar("#ca8a04","#713f12"),
-  makeAvatar("#dc2626","#7f1d1d"),
-  makeAvatar("#4f46e5","#312e81")
+const AVATAR_STYLES = [
+  ["Персонаж 1", "adventurer"],
+  ["Персонаж 2", "lorelei"],
+  ["Пиксельный", "pixel-art"],
+  ["Робот", "bottts"],
+  ["Мультяшный", "avataaars"],
+  ["Смайлик", "fun-emoji"],
+  ["Большие уши", "big-ears"],
+  ["Мини-персонаж", "miniavs"],
+  ["Рисованный", "open-peeps"],
+  ["Отпечаток", "identicon"]
 ];
+
+function avatarUrl(style, seed){
+  return `https://api.dicebear.com/10.x/${style}/svg?seed=${encodeURIComponent(seed)}`;
+}
+
+const AVATARS = AVATAR_STYLES.map((item,index)=>
+  avatarUrl(item[1], "Delyvex-avatar-"+(index+1))
+);
 
 selectedAvatar = AVATARS[0];
 
@@ -1001,15 +1019,8 @@ async function loadProfile(){
     currentUser.user_metadata?.name ||
     "Пользователь";
 
-  let avatar =
-    data?.avatar_url;
-
-  if(
-    !avatar ||
-    !avatar.startsWith("data:image")
-  ){
-    avatar = AVATARS[0];
-  }
+  let avatar = data?.avatar_url;
+  if(!avatar) avatar = avatarUrl(AVATAR_STYLES[0][1], currentUser.id);
 
   selectedAvatar = avatar;
 
@@ -1032,57 +1043,30 @@ async function loadProfile(){
 
 
 function renderAvatars(){
-
-  const grid =
-    document.getElementById("avatarGrid");
-
+  const grid = document.getElementById("avatarGrid");
   if(!grid) return;
-
   grid.innerHTML = "";
 
-  AVATARS.forEach(
-    (avatar,index)=>{
+  AVATARS.forEach((avatar,index)=>{
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "avatar-option"+(selectedAvatar === avatar ? " selected" : "");
+    button.title = AVATAR_STYLES[index][0];
 
-      const button =
-        document.createElement("button");
+    const img = document.createElement("img");
+    img.src = avatar;
+    img.alt = AVATAR_STYLES[index][0];
+    img.loading = "lazy";
+    button.appendChild(img);
 
-      button.type = "button";
-
-      button.className =
-        "avatar-option"+
-        (
-          selectedAvatar === avatar
-            ? " selected"
-            : ""
-        );
-
-      const img =
-        document.createElement("img");
-
-      img.src = avatar;
-      img.alt = "Аватар "+(index+1);
-
-      button.appendChild(img);
-
-      button.onclick = ()=>{
-
-        selectedAvatar = avatar;
-
-        document.getElementById(
-          "selectedAvatarPreview"
-        ).src = avatar;
-
-        renderAvatars();
-
-      };
-
-      grid.appendChild(button);
-
-    }
-  );
-
+    button.onclick = ()=>{
+      selectedAvatar = avatar;
+      document.getElementById("selectedAvatarPreview").src = avatar;
+      renderAvatars();
+    };
+    grid.appendChild(button);
+  });
 }
-
 
 async function saveProfile(){
 
@@ -1558,7 +1542,9 @@ async function renderListings(items){
 
           <div>
 
-            <div class="seller-name">
+            <div class="seller-name" role="button" tabindex="0"
+              onclick="viewSellerProfile('${escapeJs(listing.seller_id)}')"
+              onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();viewSellerProfile('${escapeJs(listing.seller_id)}')}">
               👤 ${escapeHtml(sellerName)}
             </div>
 
@@ -1583,6 +1569,69 @@ async function renderListings(items){
 
   });
 
+}
+
+
+let previousSectionBeforeSeller = "home";
+
+function goBackFromSellerProfile(){
+  showSection(previousSectionBeforeSeller || "home");
+}
+
+async function viewSellerProfile(sellerId){
+  const active = document.querySelector(".section.active");
+  if(active && active.id !== "publicSellerProfile") previousSectionBeforeSeller = active.id;
+  document.querySelectorAll(".section").forEach(el=>el.classList.remove("active"));
+  document.getElementById("publicSellerProfile").classList.add("active");
+  const container = document.getElementById("publicSellerProfileContent");
+  container.innerHTML = `<div class="empty">Загрузка профиля продавца...</div>`;
+
+  const {data:infoData,error:infoError} = await sb.rpc("get_public_seller_info", {p_seller_ids:[sellerId]});
+  if(infoError){
+    console.error("Не удалось загрузить профиль продавца:",infoError);
+    container.innerHTML = `<div class="empty">Не удалось загрузить профиль. Проверь SQL-настройки Supabase.</div>`;
+    return;
+  }
+  const info = (infoData || []).find(x=>String(x.id)===String(sellerId));
+  if(!info){
+    container.innerHTML = `<div class="empty">Профиль не найден или продавец ещё не создал профиль.</div>`;
+    return;
+  }
+
+  const {data:reviewsData,error:reviewsError} = await sb.rpc("get_public_seller_reviews", {p_seller_id:sellerId});
+  if(reviewsError) console.error("Не удалось загрузить отзывы:",reviewsError);
+  const reviews = reviewsData || [];
+  const dateText = info.created_at ? new Date(info.created_at).toLocaleDateString("ru-RU",{day:"numeric",month:"long",year:"numeric"}) : "Неизвестно";
+  const ratingValue = Number(info.average_rating || 0);
+  const rating = ratingValue.toFixed(1);
+  const roundedRating = Math.max(0, Math.min(5, Math.round(ratingValue)));
+  const stars = "★".repeat(roundedRating) + "☆".repeat(5-roundedRating);
+  const avatar = info.avatar_url || avatarUrl(AVATAR_STYLES[0][1], sellerId);
+
+  container.innerHTML = `
+    <div class="public-profile-top">
+      <img class="public-profile-avatar" src="${escapeHtml(avatar)}" alt="Аватар продавца">
+      <div>
+        <div class="profile-name">${escapeHtml(info.nickname || "Пользователь")}</div>
+        <div class="public-profile-meta">⭐ ${rating} · ${getReviewText(Number(info.review_count || 0))}<br>📅 На Delyvex с ${escapeHtml(dateText)}</div>
+      </div>
+    </div>
+    <div class="rating-box">
+      <div class="rating-number">${rating}</div>
+      <div class="rating-stars">${stars}</div>
+      <div class="rating-count">${getReviewText(Number(info.review_count || 0))}</div>
+    </div>
+    <h2 style="margin-top:24px">Отзывы покупателей</h2>
+    ${reviewsError ? `<div class="empty">Не удалось загрузить отзывы. Проверь SQL-настройки Supabase.</div>` : reviews.length ? reviews.map(review=>`
+      <div class="public-review">
+        <div class="public-review-head">
+          <span class="public-review-author">${escapeHtml(review.buyer_nickname || "Покупатель")}</span>
+          <span class="public-review-date">${review.created_at ? escapeHtml(new Date(review.created_at).toLocaleDateString("ru-RU")) : ""}</span>
+        </div>
+        <div style="color:#fbbf24;margin-top:5px">${"★".repeat(Math.max(0,Math.min(5,Number(review.rating)||0)))}${"☆".repeat(5-Math.max(0,Math.min(5,Number(review.rating)||0)))}</div>
+        <div class="public-review-text">${escapeHtml(review.review || "Покупатель не оставил текстовый комментарий.")}</div>
+      </div>`).join("") : `<div class="empty">У этого продавца пока нет отзывов.</div>`}
+  `;
 }
 
 
@@ -3341,7 +3390,6 @@ function escapeJs(value){
 
 initialize();
 
-</script>
 </script>
 
 <footer style="
