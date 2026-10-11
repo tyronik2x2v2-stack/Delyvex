@@ -163,6 +163,12 @@ main{max-width:1100px;margin:auto;padding:25px 18px 100px}
 
 .profile-name{font-size:24px;font-weight:800}
 .profile-email{color:#999;margin-top:5px}
+.profile-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:18px 0 24px}
+.profile-stat{background:#130d1f;border:1px solid #30203f;border-radius:14px;padding:14px;text-align:center;min-width:0}
+.profile-stat-value{font-size:22px;font-weight:800;color:#d8b4fe}
+.profile-stat-label{font-size:12px;color:#aaa;margin-top:5px}
+@media(max-width:480px){.profile-stats{gap:6px}.profile-stat{padding:10px 5px}.profile-stat-value{font-size:18px}.profile-stat-label{font-size:11px}}
+
 
 .rating-box{
   background:#100b1a;border:1px solid #2b1b3d;border-radius:15px;
@@ -605,6 +611,12 @@ main{max-width:1100px;margin:auto;padding:25px 18px 100px}
         0 отзывов
       </div>
 
+    </div>
+
+    <div class="profile-stats" aria-label="Статистика продавца">
+      <div class="profile-stat"><div id="profileSalesCount" class="profile-stat-value">—</div><div class="profile-stat-label">Продаж завершено</div></div>
+      <div class="profile-stat"><div id="profileActiveListings" class="profile-stat-value">—</div><div class="profile-stat-label">Объявлений</div></div>
+      <div class="profile-stat"><div id="profileCompletedPurchases" class="profile-stat-value">—</div><div class="profile-stat-label">Покупок завершено</div></div>
     </div>
 
     <div class="form-group">
@@ -1219,7 +1231,10 @@ async function loadProfile(){
 
   renderAvatars();
 
-  await loadProfileRating(currentUser.id);
+  await Promise.all([
+    loadProfileRating(currentUser.id),
+    loadProfileStats(currentUser.id)
+  ]);
 
 }
 
@@ -1352,6 +1367,31 @@ async function saveProfile(){
 /* =========================================
    RATING
 ========================================= */
+
+async function loadProfileStats(userId){
+  const salesEl=document.getElementById("profileSalesCount");
+  const listingsEl=document.getElementById("profileActiveListings");
+  const purchasesEl=document.getElementById("profileCompletedPurchases");
+  if(!salesEl || !listingsEl || !purchasesEl) return;
+  salesEl.textContent="—"; listingsEl.textContent="—"; purchasesEl.textContent="—";
+  try{
+    const [salesResult, listingsResult, purchasesResult] = await Promise.all([
+      sb.from("purchases").select("id",{count:"exact",head:true}).eq("seller_id",userId).eq("status","completed"),
+      sb.from("listings").select("id",{count:"exact",head:true}).eq("seller_id",userId),
+      sb.from("purchases").select("id",{count:"exact",head:true}).eq("buyer_id",userId).eq("status","completed")
+    ]);
+    if(salesResult.error) throw salesResult.error;
+    if(listingsResult.error) throw listingsResult.error;
+    if(purchasesResult.error) throw purchasesResult.error;
+    salesEl.textContent=String(salesResult.count ?? 0);
+    listingsEl.textContent=String(listingsResult.count ?? 0);
+    purchasesEl.textContent=String(purchasesResult.count ?? 0);
+  }catch(error){
+    console.warn("Не удалось загрузить статистику профиля:",error?.message||error);
+    salesEl.textContent="0"; listingsEl.textContent="0"; purchasesEl.textContent="0";
+  }
+}
+
 
 async function loadProfileRating(userId){
 
@@ -1760,6 +1800,8 @@ async function renderListings(items){
         class="listing-image"
         src="${escapeHtml(image)}"
         alt="Товар"
+        loading="lazy"
+        decoding="async"
       >
 
       <div class="listing-info">
@@ -1784,6 +1826,9 @@ async function renderListings(items){
 
           <img
             src="${escapeHtml(sellerAvatar)}"
+            loading="lazy"
+            decoding="async"
+            alt="Аватар продавца"
             style="
               width:36px;
               height:36px;
