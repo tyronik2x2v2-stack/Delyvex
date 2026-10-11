@@ -397,10 +397,67 @@ main{max-width:1100px;margin:auto;padding:25px 18px 100px}
 .phone-verify-card input{width:100%;box-sizing:border-box;padding:13px 14px;border-radius:10px;border:1px solid #4c435d;background:#0e0c14;color:#fff;font-size:16px;margin:7px 0 12px}
 .phone-verify-actions{display:flex;gap:10px;flex-wrap:wrap}.phone-verify-actions button{flex:1;min-width:135px}.phone-verify-error{color:#fca5a5;min-height:22px;font-size:14px;margin:8px 0}
 
+
+/* Подсказка повернуть телефон: активна только на мобильных устройствах в портретной ориентации */
+#phoneRotatePrompt{display:none;position:fixed;inset:0;z-index:12000;background:rgba(8,5,14,.96);align-items:center;justify-content:center;padding:24px;text-align:center}
+#phoneRotatePrompt.show{display:flex}
+.phone-rotate-card{width:100%;max-width:390px;background:#130d1f;border:1px solid #6d3cc7;border-radius:22px;padding:28px 22px;box-shadow:0 20px 60px #0009}
+.phone-rotate-icon{font-size:58px;line-height:1.2;margin-bottom:14px}
+.phone-rotate-card h2{margin:0 0 12px;color:#e9d5ff;font-size:23px}
+.phone-rotate-card p{margin:0 0 20px;color:#c4b5d4;line-height:1.5}
+.phone-rotate-actions{display:grid;gap:10px}
+.phone-rotate-actions button{width:100%;border:0;border-radius:12px;padding:13px 16px;font-weight:800}
+#phoneRotateButton{background:#8b5cf6;color:#fff}
+#phoneRotateContinue{background:#2a2035;color:#ddd;border:1px solid #463354}
+#phoneRotateHelp{display:none;color:#fcd34d;font-size:13px;margin-top:13px;line-height:1.45}
 </style>
 </head>
 
 <body>
+<div id="phoneRotatePrompt" role="dialog" aria-modal="true" aria-labelledby="phoneRotateTitle">
+  <div class="phone-rotate-card">
+    <div class="phone-rotate-icon" aria-hidden="true">📱 ↻</div>
+    <h2 id="phoneRotateTitle">Поверни телефон</h2>
+    <p>Для более удобного пользования Delyvex рекомендуем повернуть телефон горизонтально.</p>
+    <div class="phone-rotate-actions">
+      <button id="phoneRotateButton" type="button">Попробовать повернуть</button>
+      <button id="phoneRotateContinue" type="button">Продолжить без поворота</button>
+    </div>
+    <div id="phoneRotateHelp">Если экран не повернулся, включи «Автоповорот» в настройках телефона и поверни его боком.</div>
+  </div>
+</div>
+<script>
+(function(){
+  const prompt=document.getElementById('phoneRotatePrompt');
+  const rotateBtn=document.getElementById('phoneRotateButton');
+  const continueBtn=document.getElementById('phoneRotateContinue');
+  const help=document.getElementById('phoneRotateHelp');
+  if(!prompt || !rotateBtn || !continueBtn) return;
+  let dismissed=false;
+  const isPhone=()=>((window.matchMedia && window.matchMedia('(pointer: coarse)').matches) || (navigator.maxTouchPoints||0)>0) && Math.min(window.innerWidth,window.innerHeight)<=600 && window.innerWidth<=767;
+  const isPortrait=()=>window.matchMedia ? window.matchMedia('(orientation: portrait)').matches : window.innerHeight>window.innerWidth;
+  function updatePrompt(){
+    if(!dismissed && isPhone() && isPortrait()) prompt.classList.add('show');
+    else prompt.classList.remove('show');
+  }
+  rotateBtn.addEventListener('click',async()=>{
+    help.style.display='block';
+    try{
+      if(screen.orientation && typeof screen.orientation.lock==='function'){
+        await screen.orientation.lock('landscape');
+        help.style.display='none';
+      }
+    }catch(e){ /* Most mobile browsers require fullscreen before orientation lock. */ }
+    updatePrompt();
+  });
+  continueBtn.addEventListener('click',()=>{dismissed=true;prompt.classList.remove('show');});
+  window.addEventListener('resize',updatePrompt,{passive:true});
+  window.addEventListener('orientationchange',()=>setTimeout(updatePrompt,150),{passive:true});
+  if(window.visualViewport) window.visualViewport.addEventListener('resize',updatePrompt,{passive:true});
+  updatePrompt();
+})();
+</script>
+
 
 <div id="authGate" class="hidden">
   <div class="auth-box">
