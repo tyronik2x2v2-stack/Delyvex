@@ -350,6 +350,23 @@ main{max-width:1100px;margin:auto;padding:25px 18px 100px}
 .admin-status{display:inline-block;padding:5px 9px;border-radius:8px;background:#eee;color:#222;font-size:12px}
 #adminReportFilter{padding:10px;border-radius:9px;max-width:100%;margin:8px 0}
 
+
+.admin-user-tools h2{margin:0 0 10px;color:#e9d5ff}
+.admin-user-tools p{color:#aaa;line-height:1.5}
+.admin-user-result{background:#100b1a;border:1px solid #39264c;border-radius:14px;padding:15px;margin:12px 0;overflow-wrap:anywhere}
+.admin-user-result h3{margin:0 0 7px;color:#e9d5ff}
+.admin-user-result .admin-user-id{font-size:12px;color:#999;word-break:break-all;margin:7px 0 12px}
+.admin-user-controls{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.admin-user-controls label{display:block;color:#c4b5fd;font-size:13px;margin-bottom:6px}
+.admin-user-controls select,.admin-user-controls input{width:100%;min-width:0;background:#0b0812;border:1px solid #49335f;color:#fff;padding:10px;border-radius:9px}
+.admin-user-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.admin-user-actions button{border:0;border-radius:9px;padding:10px 12px;font-weight:700}
+.admin-restrict-btn{background:#dc2626;color:#fff}
+.admin-unsell-btn{background:#7c3aed;color:#fff}
+.admin-unrestrict-btn{background:#166534;color:#fff}
+.admin-user-active{font-size:13px;color:#fbbf24;margin-top:8px;line-height:1.5}
+@media(max-width:600px){.admin-user-controls{grid-template-columns:1fr}}
+
 </style>
 </head>
 
@@ -513,8 +530,22 @@ main{max-width:1100px;margin:auto;padding:25px 18px 100px}
 
 
 <section id="admin" class="section">
-  <h1 class="page-title">🛡️ Панель жалоб</h1>
-  <p>Просматривай жалобы на объявления и отмечай результат проверки.</p>
+  <h1 class="page-title">🛡️ Панель администратора</h1>
+
+  <div class="card admin-user-tools">
+    <h2>Управление пользователями</h2>
+    <p>Найди пользователя по нику и выбери временную блокировку аккаунта или запрет продаж.</p>
+    <div class="form-group">
+      <label for="adminUserSearch">Никнейм пользователя</label>
+      <input id="adminUserSearch" type="text" placeholder="Введи никнейм" autocomplete="off">
+    </div>
+    <button class="primary-btn" type="button" onclick="searchAdminUsers()">Найти пользователя</button>
+    <div id="adminUsersContainer" class="admin-reports"><p>Здесь появятся найденные пользователи.</p></div>
+  </div>
+
+  <div class="card">
+    <h2>Жалобы на объявления</h2>
+    <p>Просматривай жалобы на объявления и отмечай результат проверки.</p>
   <label for="adminReportFilter">Фильтр жалоб:</label><br>
   <select id="adminReportFilter" onchange="loadAdminReports()">
     <option value="all">Все жалобы</option>
@@ -524,6 +555,7 @@ main{max-width:1100px;margin:auto;padding:25px 18px 100px}
     <option value="rejected">Отклонённые</option>
   </select>
   <div id="adminReportsContainer" class="admin-reports"><p>Открой раздел, чтобы загрузить жалобы.</p></div>
+  </div>
 </section>
 
 <section id="profile" class="section">
@@ -893,6 +925,14 @@ async function initialize(){
 
   currentUser =
     data.session.user;
+
+  const restriction = await getMyDelyvexRestriction();
+  if(restriction && restriction.restriction_type === "ban"){
+    const until = restriction.expires_at ? new Date(restriction.expires_at).toLocaleString("ru-RU") : "без срока";
+    alert("Аккаунт временно заблокирован до: " + until + (restriction.reason ? "\nПричина: " + restriction.reason : ""));
+    await sb.auth.signOut();
+    return;
+  }
 
   hideAuthGate();
 
@@ -1990,6 +2030,18 @@ async function createListing(){
     showAuthGate();
     return;
 
+  }
+
+  const restriction = await getMyDelyvexRestriction();
+  if(restriction && restriction.restriction_type === "ban"){
+    alert("Твой аккаунт временно заблокирован администратором." + (restriction.reason ? " Причина: " + restriction.reason : ""));
+    await sb.auth.signOut();
+    return;
+  }
+  if(restriction && restriction.restriction_type === "no_sell"){
+    const until = restriction.expires_at ? new Date(restriction.expires_at).toLocaleString("ru-RU") : "без срока";
+    alert("Тебе временно запрещено продавать на Delyvex до: " + until + (restriction.reason ? "\nПричина: " + restriction.reason : ""));
+    return;
   }
 
   const game =
@@ -3838,12 +3890,89 @@ function escapeJs(value){
 
 
 /* =========================================
-   ADMIN: ЖАЛОБЫ НА ОБЪЯВЛЕНИЯ
+   ADMIN: УПРАВЛЕНИЕ ПОЛЬЗОВАТЕЛЯМИ И ЖАЛОБЫ
 ========================================= */
 function adminEscape(value){
   return String(value ?? "").replace(/[&<>\"']/g, ch => ({
     "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;"
   })[ch]);
+}
+
+async function getMyDelyvexRestriction(){
+  if(!currentUser) return null;
+  try{
+    const {data,error}=await sb.from("user_restrictions")
+      .select("id,user_id,restriction_type,expires_at,reason")
+      .eq("user_id",currentUser.id)
+      .or("expires_at.is.null,expires_at.gt."+new Date().toISOString())
+      .order("created_at",{ascending:false})
+      .limit(10);
+    if(error){
+      // A missing table/policy must not crash the rest of the site.
+      console.warn("Проверка ограничений пользователя:",error.message);
+      return null;
+    }
+    return (data||[]).find(x=>x.restriction_type==="ban") || (data||[]).find(x=>x.restriction_type==="no_sell") || null;
+  }catch(e){console.warn(e);return null;}
+}
+
+async function searchAdminUsers(){
+  const container=document.getElementById("adminUsersContainer");
+  const input=document.getElementById("adminUserSearch");
+  if(!container || !input) return;
+  if(!currentUser || !(await isDelyvexAdmin())){container.innerHTML="<p>⛔ Доступ закрыт: нужен аккаунт администратора.</p>";return;}
+  const term=input.value.trim();
+  if(term.length<2){container.innerHTML="<p>Введи минимум 2 символа ника.</p>";return;}
+  container.innerHTML="<p>Ищем пользователей...</p>";
+  try{
+    const {data:users,error}=await sb.from("profiles").select("id,nickname").ilike("nickname","%"+term.replace(/[%,]/g," ")+"%").limit(20);
+    if(error) throw error;
+    if(!users || !users.length){container.innerHTML="<p>Пользователи не найдены. Проверь никнейм или права доступа к таблице profiles.</p>";return;}
+    const cards=[];
+    for(const user of users){
+      if(String(user.id)===String(currentUser.id)) continue;
+      const {data:restrictions,error:re}=await sb.from("user_restrictions").select("restriction_type,expires_at,reason").eq("user_id",user.id).or("expires_at.is.null,expires_at.gt."+new Date().toISOString()).order("created_at",{ascending:false}).limit(10);
+      const active=!re && restrictions && restrictions.length ? restrictions[0] : null;
+      const activeText=active ? `<div class="admin-user-active">Активно: ${adminEscape(active.restriction_type==="ban"?"Блокировка аккаунта":"Запрет продаж")} до ${adminEscape(active.expires_at?new Date(active.expires_at).toLocaleString("ru-RU"):"без срока")}${active.reason?". Причина: "+adminEscape(active.reason):""}</div>` : `<div class="admin-user-active" style="color:#86efac">Активных ограничений нет</div>`;
+      cards.push(`<article class="admin-user-result"><h3>${adminEscape(user.nickname||"Без никнейма")}</h3><div class="admin-user-id">ID: ${adminEscape(user.id)}</div>${activeText}
+        <div class="admin-user-controls">
+          <div><label for="restrictionType_${adminEscape(user.id)}">Что ограничить</label><select id="restrictionType_${adminEscape(user.id)}"><option value="ban">Заблокировать аккаунт</option><option value="no_sell">Запретить продавать</option></select></div>
+          <div><label for="restrictionDuration_${adminEscape(user.id)}">Срок</label><select id="restrictionDuration_${adminEscape(user.id)}"><option value="1h">1 час</option><option value="24h" selected>24 часа</option><option value="3d">3 дня</option><option value="7d">7 дней</option><option value="30d">30 дней</option><option value="forever">Бессрочно</option></select></div>
+        </div>
+        <div class="form-group" style="margin-top:12px;margin-bottom:0"><label for="restrictionReason_${adminEscape(user.id)}">Причина (необязательно)</label><input id="restrictionReason_${adminEscape(user.id)}" type="text" maxlength="300" placeholder="Например, нарушение правил"></div>
+        <div class="admin-user-actions"><button class="admin-restrict-btn" onclick="applyDelyvexRestriction('${escapeJs(String(user.id))}')">Применить ограничение</button><button class="admin-unrestrict-btn" onclick="clearDelyvexRestriction('${escapeJs(String(user.id))}')">Снять ограничения</button></div>
+      </article>`);
+    }
+    container.innerHTML=cards.length?cards.join(""):"<p>Другие пользователи с таким ником не найдены.</p>";
+  }catch(e){
+    console.error("Поиск пользователей для администратора:",e);
+    container.innerHTML=`<div class="admin-report-error"><strong>Не удалось найти пользователя.</strong><br>${adminEscape(e?.message||"Неизвестная ошибка")}<br>Проверь SQL для user_restrictions и доступ администратора к profiles.</div>`;
+  }
+}
+
+async function applyDelyvexRestriction(userId){
+  if(!currentUser || !(await isDelyvexAdmin())){alert("Нет доступа администратора.");return;}
+  const type=document.getElementById("restrictionType_"+userId)?.value;
+  const duration=document.getElementById("restrictionDuration_"+userId)?.value;
+  const reason=(document.getElementById("restrictionReason_"+userId)?.value||"").trim();
+  if(!["ban","no_sell"].includes(type)){alert("Выбери ограничение.");return;}
+  const labels={ban:"заблокировать аккаунт",no_sell:"запретить пользователю продавать"};
+  if(!confirm("Точно "+labels[type]+"?")) return;
+  const durations={"1h":3600000,"24h":86400000,"3d":259200000,"7d":604800000,"30d":2592000000};
+  const expires=duration==="forever"?null:new Date(Date.now()+durations[duration]).toISOString();
+  const {error}=await sb.from("user_restrictions").insert({user_id:userId,restriction_type:type,expires_at:expires,reason,created_by:currentUser.id});
+  if(error){console.error(error);alert("Не удалось применить ограничение: "+error.message+"\nПроверь SQL-политики таблицы user_restrictions.");return;}
+  alert("Ограничение применено.");
+  await searchAdminUsers();
+}
+
+async function clearDelyvexRestriction(userId){
+  if(!currentUser || !(await isDelyvexAdmin())){alert("Нет доступа администратора.");return;}
+  if(!confirm("Снять все ограничения с этого пользователя?")) return;
+  const {error}=await sb.from("user_restrictions").delete().eq("user_id",userId);
+  if(error){alert("Не удалось снять ограничения: "+error.message);return;}
+  alert("Ограничения сняты.");
+  await searchAdminUsers();
 }
 
 async function isDelyvexAdmin(){
