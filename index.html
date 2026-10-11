@@ -222,27 +222,35 @@ main{max-width:1100px;margin:auto;padding:25px 18px 100px}
 }
 
 .chat-item{
-  background:#130d1f;border:1px solid #241733;padding:16px;
-  border-radius:15px;cursor:pointer;margin-bottom:10px
+  display:flex;align-items:center;gap:14px;background:linear-gradient(135deg,#171020,#110b19);
+  border:1px solid #2b1b3d;padding:15px;border-radius:17px;cursor:pointer;margin-bottom:11px;
+  transition:transform .15s,border-color .15s,background .15s
 }
-
-.chat-item:hover{border-color:#8b5cf6}
-
-.chat-window{max-width:750px;margin:auto}
-
-.chat-messages{
-  min-height:350px;max-height:500px;overflow-y:auto;
-  background:#100b1a;border:1px solid #241733;border-radius:16px;
-  padding:15px;margin-bottom:12px
-}
-
-.message{
-  max-width:75%;padding:10px 13px;border-radius:14px;
-  margin-bottom:10px;line-height:1.4
-}
-
-.message.mine{margin-left:auto;background:#6d3cc7}
-.message.theirs{background:#241733}
+.chat-item:hover{border-color:#8b5cf6;transform:translateY(-1px);background:#1b1028}
+.chat-list-avatar{width:54px;height:54px;flex:0 0 54px;border-radius:50%;object-fit:cover;border:2px solid #6d3cc7;background:#100b1a}
+.chat-list-main{min-width:0;flex:1}
+.chat-list-top{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.chat-list-name{font-weight:800;color:#f5eaff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.chat-list-time{font-size:12px;color:#82778e;white-space:nowrap}
+.chat-list-preview{font-size:14px;color:#a99eb6;margin-top:7px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.chat-window{max-width:800px;margin:auto}
+.chat-topbar{display:flex;align-items:center;gap:12px;padding:14px 16px;margin:12px 0;background:linear-gradient(135deg,#1b1029,#120c1b);border:1px solid #332044;border-radius:17px;box-shadow:0 8px 25px #0002}
+.chat-top-avatar{width:52px;height:52px;flex:0 0 52px;object-fit:cover;border-radius:50%;border:2px solid #a78bfa;background:#100b1a}
+.chat-top-person{min-width:0;flex:1}
+.chat-top-name{padding:0;border:0;background:none;color:#fff;font-weight:800;font-size:18px;text-align:left;overflow-wrap:anywhere}
+.chat-top-name:hover{color:#c084fc;text-decoration:underline;text-underline-offset:4px}
+.chat-top-status{font-size:12px;color:#9c8bad;margin-top:4px}
+.chat-messages{height:min(55vh,520px);min-height:300px;overflow-y:auto;scroll-behavior:smooth;background:radial-gradient(ellipse at top,#1a1025 0%,#100b1a 65%);border:1px solid #2b1b3d;border-radius:18px;padding:18px;margin-bottom:12px;display:flex;flex-direction:column;gap:10px}
+.message{max-width:min(78%,560px);padding:11px 14px;border-radius:17px;margin:0;line-height:1.5;overflow-wrap:anywhere;white-space:pre-wrap;box-shadow:0 2px 7px #0002}
+.message.mine{align-self:flex-end;background:linear-gradient(135deg,#8052dc,#6334ad);border-bottom-right-radius:5px}
+.message.theirs{align-self:flex-start;background:#261a33;border:1px solid #362344;border-bottom-left-radius:5px}
+.message-time{display:block;font-size:10px;opacity:.68;text-align:right;margin-top:5px}
+.chat-compose{display:flex;gap:9px;align-items:center;padding:9px;background:#130d1f;border:1px solid #30203f;border-radius:16px;position:sticky;bottom:8px}
+.chat-send{display:flex;gap:8px;flex:1;min-width:0}
+.chat-send input{flex:1;min-width:0;background:#0b0812;color:#fff;border:1px solid #30203f;border-radius:12px;padding:14px;outline:none}
+.chat-send input:focus{border-color:#8b5cf6;box-shadow:0 0 0 3px #8b5cf622}
+.chat-send .primary-btn{white-space:nowrap}
+.chat-back{flex-shrink:0}
 
 .system-message{
   max-width:90%;margin:12px auto;text-align:center;background:#1d1230;
@@ -272,6 +280,15 @@ main{max-width:1100px;margin:auto;padding:25px 18px 100px}
   .avatar-grid{grid-template-columns:repeat(4,1fr)}
   .search-box{flex-direction:column}
   .home-balance{align-items:flex-start;flex-direction:column}
+  .chat-topbar{padding:11px;gap:10px}
+  .chat-top-avatar{width:45px;height:45px;flex-basis:45px}
+  .chat-top-name{font-size:16px}
+  .chat-messages{height:55vh;min-height:260px;padding:12px}
+  .message{max-width:88%;padding:10px 12px}
+  .chat-compose{padding:6px;gap:5px}
+  .chat-send .primary-btn{padding:12px 13px}
+  .chat-item{padding:12px;gap:11px}
+  .chat-list-avatar{width:48px;height:48px;flex-basis:48px}
 
   .mobile-nav{
     position:fixed;bottom:0;left:0;right:0;height:65px;
@@ -540,30 +557,25 @@ main{max-width:1100px;margin:auto;padding:25px 18px 100px}
 <section id="chatWindow" class="section">
 
   <div class="chat-window">
-
-    <button class="nav-btn" onclick="showSection('chats')">
-      ← Назад
-    </button>
-
-    <h2 id="chatTitle">Чат</h2>
+    <div class="chat-topbar">
+      <button class="nav-btn chat-back" onclick="showSection('chats')" aria-label="Назад к чатам">←</button>
+      <img id="chatHeaderAvatar" class="chat-top-avatar" src="" alt="Аватар собеседника">
+      <div class="chat-top-person">
+        <button id="chatTitle" class="chat-top-name" onclick="openChatPartnerProfile()">Собеседник</button>
+        <div class="chat-top-status">Нажми на никнейм, чтобы открыть профиль</div>
+      </div>
+      <button class="nav-btn" onclick="openChatPartnerProfile()" title="Профиль">👤</button>
+    </div>
 
     <div id="chatMessages" class="chat-messages"></div>
 
-    <div class="chat-send">
-
-      <input
-        id="chatInput"
-        type="text"
-        placeholder="Написать сообщение..."
-        onkeydown="if(event.key==='Enter'){sendMessage()}"
-      >
-
-      <button class="primary-btn" onclick="sendMessage()">
-        Отправить
-      </button>
-
+    <div class="chat-compose">
+      <div class="chat-send">
+        <input id="chatInput" type="text" maxlength="2000" autocomplete="off"
+          placeholder="Написать сообщение..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMessage()}" />
+        <button class="primary-btn" id="sendMessageButton" onclick="sendMessage()">➤</button>
+      </div>
     </div>
-
   </div>
 
 </section>
@@ -3047,131 +3059,109 @@ async function createWithdrawal(){
    CHATS
 ========================================= */
 
-async function loadChats(){
-
-  if(!currentUser)
-    return;
-
-  const container =
-    document.getElementById("chatsContainer");
-
-  container.innerHTML =
-    `<div class="empty">Загрузка чатов...</div>`;
-
-  const {
-    data,
-    error
-  } =
-    await sb
-      .from("messages")
-      .select("*")
-      .or(
-        `sender_id.eq.${currentUser.id},receiver_id.eq.${currentUser.id}`
-      )
-      .order("created_at",{ascending:false});
-
-  if(error){
-
-    console.error(error);
-
-    container.innerHTML =
-      `<div class="empty">Ошибка загрузки чатов.</div>`;
-
-    return;
-
-  }
-
-  if(!data?.length){
-
-    container.innerHTML =
-      `<div class="empty">У тебя пока нет чатов.</div>`;
-
-    return;
-
-  }
-
-  const chats =
-    new Map();
-
-  data.forEach(message=>{
-
-    const other =
-      message.sender_id === currentUser.id
-        ? message.receiver_id
-        : message.sender_id;
-
-    if(!chats.has(other)){
-      chats.set(other,message);
+async function getPublicChatUser(userId){
+  const fallbackAvatar = avatarUrl(AVATAR_STYLES[0][1], userId || "Delyvex");
+  try {
+    const {data, error} = await sb.rpc("get_public_seller_info", {p_seller_ids:[userId]});
+    if(!error && Array.isArray(data)){
+      const found = data.find(row => String(row.id) === String(userId));
+      if(found) return {
+        id:found.id,
+        nickname:found.nickname || "Пользователь",
+        avatar_url:found.avatar_url || fallbackAvatar
+      };
     }
-
-  });
-
-  container.innerHTML = "";
-
-  chats.forEach((message,otherId)=>{
-
-    const item =
-      document.createElement("div");
-
-    item.className = "chat-item";
-
-    const isSystem =
-      String(message.message || "")
-        .startsWith("SYSTEM_PURCHASE|");
-
-    item.innerHTML = `
-
-      <strong>💬 Чат</strong>
-
-      <div style="
-        color:#999;
-        margin-top:6px;
-      ">
-        ${
-          isSystem
-            ? formatSystemMessage(message.message)
-            : escapeHtml(message.message)
-        }
-      </div>
-
-    `;
-
-    item.onclick = ()=>{
-
-      openChat(
-        message.listing_id,
-        otherId,
-        "Чат"
-      );
-
+  } catch(e){ console.warn("Публичный профиль собеседника не загрузился через RPC", e); }
+  try {
+    const {data} = await sb.from("profiles").select("id,nickname,avatar_url").eq("id",userId).maybeSingle();
+    if(data) return {
+      id:data.id,
+      nickname:data.nickname || "Пользователь",
+      avatar_url:data.avatar_url || fallbackAvatar
     };
-
-    container.appendChild(item);
-
-  });
-
+  } catch(e){ console.warn("Не удалось загрузить профиль из profiles", e); }
+  return {id:userId,nickname:"Пользователь",avatar_url:fallbackAvatar};
 }
 
+function chatTime(value){
+  if(!value) return "";
+  const date = new Date(value);
+  if(Number.isNaN(date.getTime())) return "";
+  const now = new Date();
+  if(date.toDateString() === now.toDateString()) return date.toLocaleTimeString("ru-RU",{hour:"2-digit",minute:"2-digit"});
+  return date.toLocaleDateString("ru-RU",{day:"2-digit",month:"2-digit"});
+}
 
-async function openChat(
-  listingId,
-  receiverId,
-  title
-){
+async function loadChats(){
+  if(!currentUser) return;
+  const container = document.getElementById("chatsContainer");
+  container.innerHTML = `<div class="empty">Загружаем переписки…</div>`;
+  const {data,error} = await sb.from("messages").select("*")
+    .or(`sender_id.eq.${currentUser.id},receiver_id.eq.${currentUser.id}`)
+    .order("created_at",{ascending:false});
+  if(error){
+    console.error(error);
+    container.innerHTML = `<div class="empty">Не удалось загрузить чаты. Попробуй обновить страницу.</div>`;
+    return;
+  }
+  if(!data?.length){
+    container.innerHTML = `<div class="empty">💬<br><br>Пока нет переписок.<br><span style="font-size:14px">Открой объявление и нажми «Написать продавцу».</span></div>`;
+    return;
+  }
+  const chats = new Map();
+  data.forEach(message=>{
+    const otherId = String(message.sender_id) === String(currentUser.id) ? message.receiver_id : message.sender_id;
+    const key = `${otherId}|${message.listing_id || "none"}`;
+    if(!chats.has(key)) chats.set(key,{message,otherId});
+  });
+  container.innerHTML = "";
+  const entries = Array.from(chats.values());
+  const userIds = [...new Set(entries.map(entry=>entry.otherId))];
+  const userProfiles = await Promise.all(userIds.map(async id=>[String(id),await getPublicChatUser(id)]));
+  const profileMap = new Map(userProfiles);
+  entries.forEach(({message,otherId})=>{
+    const person = profileMap.get(String(otherId)) || {nickname:"Пользователь",avatar_url:avatarUrl(AVATAR_STYLES[0][1],otherId)};
+    const rawText = String(message.message || "");
+    const preview = rawText.startsWith("SYSTEM_PURCHASE|") ? "🛒 Информация о покупке" : rawText;
+    const item = document.createElement("div");
+    item.className = "chat-item";
+    const img = document.createElement("img");
+    img.className = "chat-list-avatar"; img.src = person.avatar_url; img.alt = "";
+    img.onerror = ()=>{img.onerror=null;img.src=avatarUrl(AVATAR_STYLES[0][1],otherId);};
+    const main = document.createElement("div"); main.className = "chat-list-main";
+    const top = document.createElement("div"); top.className = "chat-list-top";
+    const name = document.createElement("div"); name.className = "chat-list-name"; name.textContent = person.nickname;
+    const time = document.createElement("div"); time.className = "chat-list-time"; time.textContent = chatTime(message.created_at);
+    const snippet = document.createElement("div"); snippet.className = "chat-list-preview";
+    snippet.textContent = (String(message.sender_id)===String(currentUser.id) ? "Вы: " : "") + preview;
+    top.append(name,time); main.append(top,snippet); item.append(img,main);
+    item.onclick = ()=>openChat(message.listing_id,otherId,person.nickname);
+    container.appendChild(item);
+  });
+}
 
+async function openChat(listingId,receiverId,title){
+  if(!currentUser) return;
   currentChat = listingId;
   currentReceiver = receiverId;
   currentListing = listingId;
-
-  document.getElementById("chatTitle").textContent =
-    title || "Чат";
-
+  const titleButton = document.getElementById("chatTitle");
+  titleButton.textContent = title || "Пользователь";
+  titleButton.disabled = false;
+  const avatar = document.getElementById("chatHeaderAvatar");
+  avatar.src = avatarUrl(AVATAR_STYLES[0][1],receiverId || "Delyvex");
+  avatar.onerror = ()=>{avatar.onerror=null;avatar.src=avatarUrl(AVATAR_STYLES[0][1],receiverId || "Delyvex");};
   showSection("chatWindow");
-
+  const person = await getPublicChatUser(receiverId);
+  titleButton.textContent = person.nickname || title || "Пользователь";
+  avatar.src = person.avatar_url || avatarUrl(AVATAR_STYLES[0][1],receiverId || "Delyvex");
   await loadMessages();
-
+  document.getElementById("chatInput").focus({preventScroll:true});
 }
 
+function openChatPartnerProfile(){
+  if(currentReceiver) viewSellerProfile(currentReceiver);
+}
 
 function formatSystemMessage(message){
 
@@ -3235,12 +3225,8 @@ async function loadMessages(){
   container.innerHTML = "";
 
   if(!data?.length){
-
-    container.innerHTML =
-      `<div class="empty">Начни общение.</div>`;
-
+    container.innerHTML = `<div class="empty" style="margin:auto;padding:25px">👋<br><br>Начни общение!<br><span style="font-size:13px">Не передавай пароли и личные данные.</span></div>`;
     return;
-
   }
 
   data.forEach(message=>{
@@ -3276,8 +3262,12 @@ async function loadMessages(){
           : "theirs"
       );
 
-    div.textContent = text;
-
+    const body = document.createElement("span");
+    body.textContent = text;
+    const time = document.createElement("span");
+    time.className = "message-time";
+    time.textContent = chatTime(message.created_at);
+    div.append(body,time);
     container.appendChild(div);
 
   });
@@ -3299,11 +3289,10 @@ async function sendMessage(){
   const input =
     document.getElementById("chatInput");
 
-  const message =
-    input.value.trim();
-
-  if(!message)
-    return;
+  const message = input.value.trim();
+  if(!message) return;
+  const sendButton = document.getElementById("sendMessageButton");
+  if(sendButton) sendButton.disabled = true;
 
   const {
     error
@@ -3320,19 +3309,15 @@ async function sendMessage(){
       });
 
   if(error){
-
-    alert(
-      "Ошибка отправки:\n\n"+
-      error.message
-    );
-
+    if(sendButton) sendButton.disabled = false;
+    alert("Не удалось отправить сообщение:\n\n"+error.message);
     return;
-
   }
 
   input.value = "";
-
+  if(sendButton) sendButton.disabled = false;
   await loadMessages();
+  input.focus({preventScroll:true});
 
 }
 
