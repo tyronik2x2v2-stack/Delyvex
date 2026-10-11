@@ -315,6 +315,20 @@ main{max-width:1100px;margin:auto;padding:25px 18px 100px}
     display:block;font-size:20px;margin-bottom:2px
   }
 }
+
+.report-btn{margin-top:10px;background:transparent;color:#fca5a5;border:1px solid #7f1d1d;border-radius:10px;padding:10px 13px;font-weight:700}
+.report-btn:hover{background:#35121a}
+#reportModal{position:fixed;inset:0;z-index:11000;background:#000b;display:none;align-items:center;justify-content:center;padding:18px}
+#reportModal.show{display:flex}
+.report-modal-box{width:100%;max-width:480px;background:#130d1f;border:1px solid #6d3cc7;border-radius:18px;padding:22px;box-shadow:0 20px 70px #000a}
+.report-modal-box h2{margin:0 0 8px;font-size:22px}
+.report-modal-box p{color:#aaa;line-height:1.45}
+.report-modal-box label{display:block;margin:14px 0 7px;color:#ddd;font-size:14px}
+.report-modal-box select,.report-modal-box textarea{width:100%;background:#0b0812;color:#fff;border:1px solid #38264a;border-radius:10px;padding:12px;outline:none}
+.report-modal-box textarea{resize:vertical;min-height:90px}
+.report-modal-actions{display:flex;gap:10px;margin-top:16px}
+.report-modal-actions button{flex:1}
+@media(max-width:700px){.report-modal-box{padding:18px}}
 </style>
 </head>
 
@@ -632,6 +646,30 @@ main{max-width:1100px;margin:auto;padding:25px 18px 100px}
 
 
 <div id="notificationToast" role="status" aria-live="polite" onclick="openNotificationTarget()"></div>
+
+<div id="reportModal" role="dialog" aria-modal="true" aria-labelledby="reportModalTitle" onclick="if(event.target===this)closeReportModal()">
+  <div class="report-modal-box">
+    <h2 id="reportModalTitle">🚩 Пожаловаться на товар</h2>
+    <p id="reportListingTitle">Расскажи, что не так с объявлением. Жалоба будет отправлена на проверку.</p>
+    <form id="reportForm" onsubmit="submitListingReport(event)">
+      <label for="reportReason">Причина жалобы</label>
+      <select id="reportReason" required>
+        <option value="Обман или мошенничество">Обман или мошенничество</option>
+        <option value="Запрещённый товар">Запрещённый товар</option>
+        <option value="Неверное описание или цена">Неверное описание или цена</option>
+        <option value="Неверная категория">Неверная категория</option>
+        <option value="Дубликат объявления">Дубликат объявления</option>
+        <option value="Другое">Другое</option>
+      </select>
+      <label for="reportDetails">Подробности (необязательно)</label>
+      <textarea id="reportDetails" maxlength="1000" placeholder="Опиши проблему, не указывая личные данные"></textarea>
+      <div class="report-modal-actions">
+        <button type="button" class="chat-btn" onclick="closeReportModal()">Отмена</button>
+        <button type="submit" id="reportSubmitBtn" class="primary-btn">Отправить жалобу</button>
+      </div>
+    </form>
+  </div>
+</div>
 
 <script>
 
@@ -1625,6 +1663,10 @@ async function renderListings(items){
 
     }
 
+    const reportAction = (!currentUser || String(listing.seller_id) !== String(currentUser.id))
+      ? `<button class="report-btn" type="button" onclick="openReportModal('${escapeJs(listing.id)}','${escapeJs(listing.title || "Товар")}')">🚩 Пожаловаться на товар</button>`
+      : "";
+
     card.innerHTML = `
 
       <img
@@ -1682,6 +1724,7 @@ async function renderListings(items){
         </div>
 
         ${actions}
+        ${reportAction}
 
       </div>
 
@@ -3620,6 +3663,84 @@ async function refreshNotificationBadges(allowToasts=true){
     console.warn("Не удалось обновить уведомления:",error);
   }finally{
     notificationPollBusy = false;
+  }
+}
+
+/* =========================================
+   LISTING REPORTS
+========================================= */
+let activeReportListingId = null;
+let activeReportListingTitle = "";
+
+function openReportModal(listingId, listingTitle){
+  if(!currentUser){
+    alert("Чтобы пожаловаться на товар, сначала войди в аккаунт.");
+    showAuthGate();
+    return;
+  }
+  if(String(listings.find(x=>String(x.id)===String(listingId))?.seller_id)===String(currentUser.id)){
+    alert("Нельзя пожаловаться на собственное объявление.");
+    return;
+  }
+  activeReportListingId = String(listingId);
+  activeReportListingTitle = String(listingTitle || "Товар");
+  document.getElementById("reportListingTitle").textContent = "Объявление: " + activeReportListingTitle + ". Жалоба будет отправлена на проверку.";
+  document.getElementById("reportReason").value = "Обман или мошенничество";
+  document.getElementById("reportDetails").value = "";
+  document.getElementById("reportModal").classList.add("show");
+}
+
+function closeReportModal(){
+  document.getElementById("reportModal")?.classList.remove("show");
+  activeReportListingId = null;
+}
+
+async function submitListingReport(event){
+  event.preventDefault();
+  if(!currentUser || !activeReportListingId){
+    alert("Войди в аккаунт и выбери объявление ещё раз.");
+    closeReportModal();
+    return;
+  }
+  const button = document.getElementById("reportSubmitBtn");
+  const reason = document.getElementById("reportReason").value;
+  const details = document.getElementById("reportDetails").value.trim();
+  const listing = listings.find(x=>String(x.id)===String(activeReportListingId));
+  if(!listing){
+    alert("Объявление уже недоступно. Обнови страницу и попробуй снова.");
+    closeReportModal();
+    return;
+  }
+  button.disabled = true;
+  button.textContent = "Отправка...";
+  try{
+    const {error} = await sb.from("listing_reports").insert({
+      listing_id: String(listing.id),
+      listing_title: String(listing.title || activeReportListingTitle || "Товар").slice(0,200),
+      seller_id: String(listing.seller_id),
+      reporter_id: currentUser.id,
+      reason,
+      details: details.slice(0,1000)
+    });
+    if(error){
+      console.error("Ошибка отправки жалобы:", error);
+      if(error.code === "42P01" || /listing_reports/i.test(error.message || "")){
+        alert("Таблица жалоб ещё не создана в Supabase. Создай её с помощью SQL из инструкции под файлом, затем попробуй снова.");
+      }else if(error.code === "42501" || error.code === "PGRST301"){
+        alert("Supabase запретил отправку жалобы. Проверь SQL-политики доступа для таблицы listing_reports.");
+      }else{
+        alert("Не удалось отправить жалобу: " + (error.message || "неизвестная ошибка"));
+      }
+      return;
+    }
+    closeReportModal();
+    alert("Жалоба отправлена. Спасибо, что помогаешь поддерживать Delyvex в порядке!");
+  }catch(error){
+    console.error(error);
+    alert("Не удалось отправить жалобу. Проверь подключение к интернету и попробуй ещё раз.");
+  }finally{
+    button.disabled = false;
+    button.textContent = "Отправить жалобу";
   }
 }
 
