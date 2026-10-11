@@ -1146,14 +1146,6 @@ async function showSection(section){
 
   }
 
-  if(section === "sell"){
-    const phoneOk = await isCurrentUserPhoneVerified();
-    if(!phoneOk){
-      openPhoneVerificationModal();
-      return;
-    }
-  }
-
   document
     .querySelectorAll(".section")
     .forEach(
@@ -2091,94 +2083,6 @@ async function deleteListing(listingId){
 
 
 /* =========================================
-   PHONE VERIFICATION (SMS.RU via Supabase Edge Function)
-========================================= */
-
-async function isCurrentUserPhoneVerified(){
-  if(!currentUser) return false;
-  const {data,error} = await sb.from("profiles")
-    .select("phone_e164,phone_verified_at")
-    .eq("id",currentUser.id)
-    .maybeSingle();
-  if(error){
-    console.warn("Phone verification status:", error.message);
-    alert("Не удалось проверить телефон. Сначала выполни SQL-настройку подтверждения телефона в Supabase.");
-    return false;
-  }
-  return !!(data?.phone_e164 && data?.phone_verified_at);
-}
-
-function openPhoneVerificationModal(){
-  if(!currentUser){ showAuthGate(); return; }
-  let overlay = document.getElementById("phoneVerifyOverlay");
-  if(!overlay){
-    overlay = document.createElement("div");
-    overlay.id = "phoneVerifyOverlay";
-    overlay.className = "phone-verify-overlay";
-    overlay.innerHTML = `
-      <div class="phone-verify-card" role="dialog" aria-modal="true" aria-labelledby="phoneVerifyTitle">
-        <h2 id="phoneVerifyTitle">📱 Подтверди телефон</h2>
-        <p>Чтобы продавать на Delyvex, подтверди российский номер телефона. Мы отправим SMS с кодом.</p>
-        <label for="phoneVerifyNumber">Номер телефона</label>
-        <input id="phoneVerifyNumber" type="tel" autocomplete="tel" placeholder="+7 900 123-45-67" maxlength="24">
-        <button type="button" class="primary-btn" id="phoneVerifySendBtn">Отправить SMS-код</button>
-        <label for="phoneVerifyCode">Код из SMS</label>
-        <input id="phoneVerifyCode" type="text" inputmode="numeric" autocomplete="one-time-code" placeholder="6 цифр" maxlength="6">
-        <div class="phone-verify-error" id="phoneVerifyError" role="status"></div>
-        <div class="phone-verify-actions">
-          <button type="button" class="primary-btn" id="phoneVerifyConfirmBtn">Подтвердить</button>
-          <button type="button" class="chat-btn" id="phoneVerifyCancelBtn">Позже</button>
-        </div>
-      </div>`;
-    document.body.appendChild(overlay);
-    document.getElementById("phoneVerifyCancelBtn").addEventListener("click",()=>overlay.remove());
-    document.getElementById("phoneVerifySendBtn").addEventListener("click",()=>submitPhoneVerification("send"));
-    document.getElementById("phoneVerifyConfirmBtn").addEventListener("click",()=>submitPhoneVerification("verify"));
-    overlay.addEventListener("click",e=>{if(e.target===overlay) overlay.remove();});
-  }
-  overlay.style.display="flex";
-  document.getElementById("phoneVerifyNumber")?.focus();
-}
-
-async function submitPhoneVerification(action){
-  const errorEl=document.getElementById("phoneVerifyError");
-  const sendBtn=document.getElementById("phoneVerifySendBtn");
-  const confirmBtn=document.getElementById("phoneVerifyConfirmBtn");
-  const phone=document.getElementById("phoneVerifyNumber")?.value.trim()||"";
-  const code=document.getElementById("phoneVerifyCode")?.value.trim()||"";
-  if(errorEl) errorEl.textContent="";
-  if(!currentUser){ if(errorEl) errorEl.textContent="Войди в аккаунт и попробуй снова."; return; }
-  if(action==="send" && sendBtn){sendBtn.disabled=true;sendBtn.textContent="Отправляем…";}
-  if(action==="verify" && confirmBtn){confirmBtn.disabled=true;confirmBtn.textContent="Проверяем…";}
-  try{
-    const {data:sessionData,error:sessionError}=await sb.auth.getSession();
-    const accessToken=sessionData?.session?.access_token;
-    if(sessionError||!accessToken) throw new Error("Сессия истекла. Войди снова.");
-    const response=await fetch(`${SUPABASE_URL}/functions/v1/phone-verification`,{
-      method:"POST",
-      headers:{"Content-Type":"application/json","apikey":SUPABASE_KEY,"Authorization":`Bearer ${accessToken}`},
-      body:JSON.stringify({action,phone,code})
-    });
-    const result=await response.json().catch(()=>({}));
-    if(!response.ok||!result.success) throw new Error(result.error||"Не удалось выполнить проверку телефона.");
-    if(action==="send"){
-      if(errorEl) errorEl.style.color="#86efac";
-      if(errorEl) errorEl.textContent=result.message||"SMS отправлено. Проверь сообщения.";
-      document.getElementById("phoneVerifyCode")?.focus();
-    }else{
-      alert(result.message||"Телефон подтверждён!");
-      document.getElementById("phoneVerifyOverlay")?.remove();
-      await showSection("sell");
-    }
-  }catch(error){
-    if(errorEl){errorEl.style.color="#fca5a5";errorEl.textContent=error?.message||"Ошибка проверки телефона.";}
-  }finally{
-    if(sendBtn){sendBtn.disabled=false;sendBtn.textContent="Отправить SMS-код";}
-    if(confirmBtn){confirmBtn.disabled=false;confirmBtn.textContent="Подтвердить";}
-  }
-}
-
-/* =========================================
    CREATE LISTING
 ========================================= */
 
@@ -2189,12 +2093,6 @@ async function createListing(){
     showAuthGate();
     return;
 
-  }
-
-  const phoneOk = await isCurrentUserPhoneVerified();
-  if(!phoneOk){
-    openPhoneVerificationModal();
-    return;
   }
 
   const restriction = await getMyDelyvexRestriction();
