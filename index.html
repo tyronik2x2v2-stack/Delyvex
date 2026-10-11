@@ -1370,54 +1370,37 @@ async function renderListings(items){
       uniqueItems.map(x=>x.seller_id)
     )];
 
-  let profiles = [];
-  let reviews = [];
+  /*
+    Получаем публичные данные продавцов через безопасную
+    SQL-функцию. Она должна быть создана в Supabase
+    (см. файл delyvex_seller_info.sql).
+    Обычные SELECT из profiles/reviews у гостя могут
+    блокироваться настройками RLS.
+  */
+  let sellerInfo = [];
 
   if(sellerIds.length){
-
     const {
-      data:profileData
-    } =
-      await sb
-        .from("profiles")
-        .select("id,nickname,avatar_url")
-        .in("id",sellerIds);
+      data,
+      error
+    } = await sb.rpc("get_public_seller_info", {
+      p_seller_ids: sellerIds
+    });
 
-    profiles = profileData || [];
-
-    const {
-      data:reviewData
-    } =
-      await sb
-        .from("reviews")
-        .select("seller_id,rating")
-        .in("seller_id",sellerIds);
-
-    reviews = reviewData || [];
-
+    if(error){
+      console.error("Ошибка публичных данных продавцов:", error);
+    }else{
+      sellerInfo = data || [];
+    }
   }
 
   if(token !== listingsRenderToken)
     return;
 
-  const profileMap = new Map();
+  const sellerInfoMap = new Map();
 
-  profiles.forEach(
-    p=>profileMap.set(p.id,p)
-  );
-
-  const reviewMap = new Map();
-
-  reviews.forEach(r=>{
-
-    if(!reviewMap.has(r.seller_id)){
-      reviewMap.set(r.seller_id,[]);
-    }
-
-    reviewMap
-      .get(r.seller_id)
-      .push(Number(r.rating));
-
+  sellerInfo.forEach(info=>{
+    sellerInfoMap.set(String(info.id), info);
   });
 
   uniqueItems.forEach(listing=>{
@@ -1425,32 +1408,20 @@ async function renderListings(items){
     if(token !== listingsRenderToken)
       return;
 
-    const profile =
-      profileMap.get(listing.seller_id);
+    const sellerInfo =
+      sellerInfoMap.get(String(listing.seller_id));
 
     const sellerName =
-      profile?.nickname || "Продавец";
+      sellerInfo?.nickname || "Профиль продавца";
 
     const sellerAvatar =
-      profile?.avatar_url || AVATARS[0];
+      sellerInfo?.avatar_url || AVATARS[0];
 
-    const ratings =
-      reviewMap.get(listing.seller_id) || [];
+    const reviewCount =
+      Number(sellerInfo?.review_count || 0);
 
-    const reviewCount = ratings.length;
-
-    let rating = 0;
-
-    if(reviewCount){
-
-      rating =
-        ratings.reduce((a,b)=>a+b,0) /
-        reviewCount;
-
-    }
-
-    rating =
-      Math.round(rating*10)/10;
+    const rating =
+      Math.round(Number(sellerInfo?.average_rating || 0)*10)/10;
 
     const price =
       Number(listing.price || 0);
