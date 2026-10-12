@@ -265,7 +265,7 @@ main{max-width:1100px;margin:auto;padding:25px 18px 100px}
 .chat-top-person{min-width:0;flex:1}
 .chat-top-name{padding:0;border:0;background:none;color:#fff;font-weight:800;font-size:18px;text-align:left;overflow-wrap:anywhere}
 .chat-top-name:hover{color:#c084fc;text-decoration:underline;text-underline-offset:4px}
-.chat-top-status{font-size:12px;color:#9c8bad;margin-top:4px}
+.chat-top-status{font-size:12px;color:#9c8bad;margin-top:4px;min-height:14px}.chat-top-status.typing{color:#c084fc}.message-read-status{display:block;font-size:10px;text-align:right;margin-top:3px;color:#e9d5ff;opacity:.9}.message-read-status.unread{color:#d6c9e8;opacity:.7}
 .admin-message-label{font-size:11px;font-weight:800;letter-spacing:.2px;color:#c4a7ff;margin-bottom:5px;display:block}
 .chat-messages{height:min(55vh,520px);min-height:300px;overflow-y:auto;scroll-behavior:smooth;background:radial-gradient(ellipse at top,#1a1025 0%,#100b1a 65%);border:1px solid #2b1b3d;border-radius:18px;padding:18px;margin-bottom:12px;display:flex;flex-direction:column;gap:10px}
 .message{max-width:min(78%,560px);padding:11px 14px;border-radius:17px;margin:0;line-height:1.5;overflow-wrap:anywhere;white-space:pre-wrap;box-shadow:0 2px 7px #0002}
@@ -768,7 +768,7 @@ main{max-width:1100px;margin:auto;padding:25px 18px 100px}
       <div id="chatHeaderAvatarWrap" class="avatar-ban-wrap"><img id="chatHeaderAvatar" class="chat-top-avatar" src="" alt="Аватар собеседника"><span id="chatHeaderBanBadge" class="avatar-ban-badge" hidden>БАН</span></div>
       <div class="chat-top-person">
         <button id="chatTitle" class="chat-top-name" onclick="openChatPartnerProfile()">Собеседник</button>
-        <div class="chat-top-status">Нажми на никнейм, чтобы открыть профиль</div>
+        <div class="chat-top-status" id="chatTypingStatus" aria-live="polite">Нажми на никнейм, чтобы открыть профиль</div>
       </div>
       <button class="nav-btn" onclick="openChatPartnerProfile()" title="Профиль">👤</button>
     </div>
@@ -785,7 +785,7 @@ main{max-width:1100px;margin:auto;padding:25px 18px 100px}
       <button type="button" class="chat-image-button" id="chatImageButton" onclick="document.getElementById('chatImageInput').click()" title="Прикрепить изображение до 5 МБ" aria-label="Прикрепить изображение">📎</button>
       <div class="chat-send">
         <input id="chatInput" type="text" maxlength="2000" autocomplete="off"
-          placeholder="Написать сообщение..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMessage()}" />
+          placeholder="Написать сообщение..." oninput="notifyChatTyping()" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMessage()}" />
         <button class="primary-btn" id="sendMessageButton" onclick="sendMessage()">➤</button>
       </div>
     </div>
@@ -894,6 +894,11 @@ let currentListing = null;
 let chatRefreshTimer = null;
 let lastMessagesSignature = "";
 let messagesLoading = false;
+let chatRealtimeChannel = null;
+let chatTypingResetTimer = null;
+let chatTypingHideTimer = null;
+let chatLastTypingSentAt = 0;
+let chatTypingActive = false;
 let appInitialized = false;
 let listingsLoading = false;
 let listingsRenderToken = 0;
@@ -1225,6 +1230,8 @@ function canAfford(price){
 ========================================= */
 
 async function showSection(section){
+
+  if(section !== "chatWindow") stopChatRealtime();
 
   if(!currentUser){
 
@@ -3699,17 +3706,94 @@ async function openChat(listingId,receiverId,title){
   titleButton.innerHTML = escapeHtml(person.nickname || title || "Пользователь") + (person.banned ? ' <span class="banned-name-label">Забанен</span>' : "");
   avatar.src = person.avatar_url || avatarUrl(AVATAR_STYLES[0][1],receiverId || "Delyvex");
   await loadMessages();
+  startChatRealtime();
+  // Резервная проверка на случай, если Realtime не включён в Supabase.
   chatRefreshTimer = setInterval(()=>{
     const chatSection = document.getElementById("chatWindow");
-    if(currentUser && currentReceiver && chatSection && chatSection.classList.contains("active")){
-      loadMessages();
-    }
-  }, 2000);
+    if(currentUser && currentReceiver && chatSection && chatSection.classList.contains("active")) loadMessages();
+  }, 10000);
   document.getElementById("chatInput").focus({preventScroll:true});
 }
 
 function openChatPartnerProfile(){
   if(currentReceiver) viewSellerProfile(currentReceiver);
+}
+
+function stopChatRealtime(){
+  if(chatRefreshTimer){ clearInterval(chatRefreshTimer); chatRefreshTimer=null; }
+  if(chatTypingResetTimer){ clearTimeout(chatTypingResetTimer); chatTypingResetTimer=null; }
+  if(chatTypingHideTimer){ clearTimeout(chatTypingHideTimer); chatTypingHideTimer=null; }
+  chatTypingActive=false;
+  chatLastTypingSentAt=0;
+  const status=document.getElementById("chatTypingStatus");
+  if(status){ status.classList.remove("typing"); status.textContent="Нажми на никнейм, чтобы открыть профиль"; }
+  if(chatRealtimeChannel){
+    const oldChannel=chatRealtimeChannel;
+    chatRealtimeChannel=null;
+    try{ sb.removeChannel(oldChannel); }catch(e){ console.warn("Не удалось закрыть канал чата:",e); }
+  }
+}
+
+function startChatRealtime(){
+  if(!currentUser || !currentReceiver || currentChat == null) return;
+  if(chatRealtimeChannel){ try{ sb.removeChannel(chatRealtimeChannel); }catch(e){} chatRealtimeChannel=null; }
+  const ids=[String(currentUser.id),String(currentReceiver)].sort();
+  const topic="delyvex-chat-"+String(currentChat)+"-"+ids.join("-");
+  const channel=sb.channel(topic,{config:{broadcast:{self:false}}});
+  channel
+    .on("postgres_changes",{event:"*",schema:"public",table:"messages",filter:"listing_id=eq."+String(currentChat)},payload=>{
+      const row=payload.new || payload.old || {};
+      const involved=[String(row.sender_id||""),String(row.receiver_id||"")];
+      if(involved.includes(String(currentUser.id)) && involved.includes(String(currentReceiver))){
+        lastMessagesSignature="";
+        loadMessages();
+        loadChats();
+      }
+    })
+    .on("broadcast",{event:"typing"},({payload})=>{
+      if(!payload || String(payload.user_id)===String(currentUser.id)) return;
+      const status=document.getElementById("chatTypingStatus");
+      if(!status) return;
+      if(chatTypingHideTimer) clearTimeout(chatTypingHideTimer);
+      if(payload.typing){
+        status.textContent="⌨️ Печатает…";
+        status.classList.add("typing");
+        chatTypingHideTimer=setTimeout(()=>{
+          status.classList.remove("typing");
+          status.textContent="Нажми на никнейм, чтобы открыть профиль";
+        },2500);
+      }else{
+        status.classList.remove("typing");
+        status.textContent="Нажми на никнейм, чтобы открыть профиль";
+      }
+    })
+    .subscribe(status=>{
+      if(status==="CHANNEL_ERROR" || status==="TIMED_OUT") console.warn("Supabase Realtime недоступен для чата:",status);
+    });
+  chatRealtimeChannel=channel;
+}
+
+function notifyChatTyping(){
+  if(!chatRealtimeChannel || !currentUser || !currentReceiver) return;
+  const input=document.getElementById("chatInput");
+  const typing=!!(input && input.value.trim());
+  const now=Date.now();
+  if(typing && (!chatTypingActive || now-chatLastTypingSentAt>900)){
+    chatTypingActive=true;
+    chatLastTypingSentAt=now;
+    chatRealtimeChannel.send({type:"broadcast",event:"typing",payload:{user_id:currentUser.id,typing:true}}).catch(()=>{});
+  }
+  if(chatTypingResetTimer) clearTimeout(chatTypingResetTimer);
+  chatTypingResetTimer=setTimeout(()=>stopTypingSignal(),1400);
+  if(!typing) stopTypingSignal();
+}
+
+function stopTypingSignal(){
+  if(chatTypingResetTimer){ clearTimeout(chatTypingResetTimer); chatTypingResetTimer=null; }
+  if(chatTypingActive && chatRealtimeChannel && currentUser){
+    chatRealtimeChannel.send({type:"broadcast",event:"typing",payload:{user_id:currentUser.id,typing:false}}).catch(()=>{});
+  }
+  chatTypingActive=false;
 }
 
 function formatSystemMessage(message){
@@ -3761,7 +3845,16 @@ async function loadMessages(){
     }
 
     const messages = data || [];
-    const signature = messages.map(m=>`${m.id || ""}:${m.created_at || ""}:${m.message || ""}`).join("|");
+    // Отмечаем входящие сообщения прочитанными через ограниченную RPC-функцию.
+    const unreadIncoming = messages.filter(m => String(m.sender_id) === String(currentReceiver) && String(m.receiver_id) === String(currentUser.id) && !m.read_at && !String(m.message || "").startsWith("SYSTEM_PURCHASE|"));
+    if(unreadIncoming.length){
+      try{
+        const {error:readError} = await sb.rpc("mark_chat_messages_read", {p_listing_id:String(currentChat), p_sender_id:currentReceiver});
+        if(readError) console.warn("Не удалось отметить сообщения прочитанными:", readError.message);
+        else unreadIncoming.forEach(m=>m.read_at = new Date().toISOString());
+      }catch(readErr){ console.warn("Отметки о прочтении пока не настроены:", readErr); }
+    }
+    const signature = messages.map(m=>`${m.id || ""}:${m.created_at || ""}:${m.message || ""}:${m.read_at || ""}`).join("|");
     if(signature === lastMessagesSignature) return;
 
     const wasAtBottom = container.scrollHeight - container.scrollTop - container.clientHeight < 90;
@@ -3837,6 +3930,12 @@ async function loadMessages(){
       time.className = "message-time";
       time.textContent = chatTime(message.created_at);
       div.appendChild(time);
+      if(String(message.sender_id) === String(currentUser.id)){
+        const receipt = document.createElement("span");
+        receipt.className = "message-read-status" + (message.read_at ? "" : " unread");
+        receipt.textContent = message.read_at ? "✓✓ Прочитано" : "✓ Отправлено";
+        div.appendChild(receipt);
+      }
       container.appendChild(div);
     });
 
@@ -3904,6 +4003,7 @@ async function sendMessage(){
     const {error}=await sb.from("messages").insert({listing_id:currentListing,sender_id:currentUser.id,receiver_id:currentReceiver,message});
     if(error) throw error;
     input.value="";
+    stopTypingSignal();
     if(imageFile) clearChatImage();
     lastMessagesSignature="";
     await loadMessages();
@@ -4116,7 +4216,7 @@ async function submitListingReport(event){
 
 async function logout(){
 
-  if(chatRefreshTimer){ clearInterval(chatRefreshTimer); chatRefreshTimer = null; }
+  stopChatRealtime();
   stopDelyvexNotifications();
   await sb.auth.signOut();
 
