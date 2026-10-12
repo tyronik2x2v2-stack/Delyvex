@@ -261,6 +261,9 @@ main{max-width:1100px;margin:auto;padding:25px 18px 100px}
 .chat-list-preview{font-size:14px;color:#a99eb6;margin-top:7px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .chat-window{max-width:800px;margin:auto}
 .chat-topbar{display:flex;align-items:center;gap:12px;padding:14px 16px;margin:12px 0;background:linear-gradient(135deg,#1b1029,#120c1b);border:1px solid #332044;border-radius:17px;box-shadow:0 8px 25px #0002}
+.chat-report-button{flex:0 0 auto;min-width:38px;padding:8px 10px;color:#fca5a5;border-color:#63313d}
+.chat-report-button:hover{background:#35121a}
+@media(max-width:520px){.chat-topbar{gap:6px}.chat-report-button{min-width:32px;padding:7px 8px}.chat-top-person{min-width:0;flex:1}.chat-top-name{max-width:100%;overflow:hidden;text-overflow:ellipsis}}
 .chat-top-avatar{width:52px;height:52px;flex:0 0 52px;object-fit:cover;border-radius:50%;border:2px solid #a78bfa;background:#100b1a}
 .chat-top-person{min-width:0;flex:1}
 .chat-top-name{padding:0;border:0;background:none;color:#fff;font-weight:800;font-size:18px;text-align:left;overflow-wrap:anywhere}
@@ -788,7 +791,9 @@ main{max-width:1100px;margin:auto;padding:25px 18px 100px}
         <button id="chatTitle" class="chat-top-name" onclick="openChatPartnerProfile()">Собеседник</button>
         <div class="chat-top-status" id="chatTypingStatus" aria-live="polite">Нажми на никнейм, чтобы открыть профиль</div>
       </div>
-      <button class="nav-btn" onclick="openChatPartnerProfile()" title="Профиль">👤</button>
+      <button class="nav-btn" onclick="openChatPartnerProfile()" title="Профиль собеседника">👤</button>
+      <button class="nav-btn chat-report-button" type="button" onclick="reportCurrentChatListing()" title="Пожаловаться на товар" aria-label="Пожаловаться на товар">🚩</button>
+      <button class="nav-btn chat-report-button" type="button" onclick="reportCurrentChatUser()" title="Пожаловаться на пользователя" aria-label="Пожаловаться на пользователя">🛡️</button>
     </div>
 
     <div id="chatMessages" class="chat-messages"></div>
@@ -3766,6 +3771,24 @@ async function openChat(listingId,receiverId,title){
     if(currentUser && currentReceiver && chatSection && chatSection.classList.contains("active")) loadMessages();
   }, 10000);
   document.getElementById("chatInput").focus({preventScroll:true});
+}
+
+function reportCurrentChatListing(){
+  if(!currentUser){alert("Войди в аккаунт, чтобы пожаловаться на товар.");showAuthGate();return;}
+  if(currentChat==null){alert("Не удалось определить объявление этого чата.");return;}
+  const listing=listings.find(item=>String(item.id)===String(currentChat));
+  if(!listing){
+    alert("Не удалось найти объявление, связанное с этим чатом. Открой товар на главной странице и нажми «Пожаловаться на товар».");
+    return;
+  }
+  openReportModal(listing.id,listing.title||"Товар");
+}
+
+function reportCurrentChatUser(){
+  if(!currentReceiver){alert("Не удалось определить собеседника.");return;}
+  const title=document.getElementById("chatTitle");
+  const nickname=(title?.textContent||"Пользователь").replace(/\s*Забанен\s*/g,"").trim();
+  openUserReportModal(currentReceiver,nickname);
 }
 
 function openChatPartnerProfile(){
