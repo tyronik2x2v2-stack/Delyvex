@@ -4,8 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>Delyvex</title>
-<link rel="icon" type="image/png" href="delyvex-logo.png">
-<meta name="theme-color" content="#0b0812">
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
@@ -27,9 +25,7 @@ button{cursor:pointer}
   text-align:center
 }
 
-.logo{display:flex;align-items:center;justify-content:center;gap:12px;font-size:36px;font-weight:900;color:#fff;margin-bottom:10px}
-.logo img{width:74px;height:74px;object-fit:contain;border-radius:16px}
-.logo span{letter-spacing:-1px;background:linear-gradient(90deg,#fff 0%,#dbeafe 55%,#22d3ee 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.logo{font-size:36px;font-weight:900;color:#c084fc;margin-bottom:10px}
 .auth-box p{color:#aaa;line-height:1.5;margin-bottom:25px}
 
 .auth-buttons{display:grid;grid-template-columns:1fr 1fr;gap:10px}
@@ -40,16 +36,14 @@ button{cursor:pointer}
 .google-btn{background:#fff;color:#111}
 .telegram-btn{background:#229ED9;color:#fff}
 .auth-provider-note{font-size:12px;color:#a9a1b6;margin-top:12px}
-@media(max-width:380px){.auth-buttons{grid-template-columns:1fr}.logo{font-size:30px}.logo img{width:62px;height:62px}}
+@media(max-width:380px){.auth-buttons{grid-template-columns:1fr}}
 
 header{
   height:70px;background:#100b1a;border-bottom:1px solid #241733;
   display:flex;align-items:center;padding:0 22px;position:sticky;top:0;z-index:100
 }
 
-.header-logo{display:flex;align-items:center;gap:9px;color:#fff;font-size:24px;font-weight:900;white-space:nowrap}
-.header-logo img{width:43px;height:43px;object-fit:contain;border-radius:10px}
-.header-logo span{letter-spacing:-.7px;background:linear-gradient(90deg,#fff 0%,#dbeafe 58%,#22d3ee 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.header-logo{color:#c084fc;font-size:24px;font-weight:900}
 .header-nav{display:flex;gap:5px;margin-left:auto}
 .nav-btn{background:transparent;color:#ddd;border:0;padding:10px 13px;border-radius:10px}
 .nav-btn:hover{background:#21152e}
@@ -143,12 +137,6 @@ main{max-width:1100px;margin:auto;padding:25px 18px 100px}
 .public-review-text{margin-top:9px;color:#ddd;line-height:1.5;white-space:pre-wrap;overflow-wrap:anywhere}
 .avatar-option img{background:#100b1a}
 .seller-rating{color:#fbbf24;font-size:14px;margin-top:3px}
-
-.seller-level{display:inline-flex;align-items:center;gap:5px;margin-top:6px;padding:5px 9px;border-radius:999px;font-size:12px;font-weight:800;border:1px solid #6d3cc7;background:#21152e;color:#e9d5ff}
-.seller-level.level-newbie{border-color:#64748b;background:#1e293b;color:#cbd5e1}
-.seller-level.level-experienced{border-color:#0d9488;background:#042f2e;color:#99f6e4}
-.seller-level.level-pro{border-color:#7c3aed;background:#2e1065;color:#ddd6fe}
-.seller-level.level-legend{border-color:#d97706;background:#451a03;color:#fde68a}
 .listing-actions{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
 
 .insufficient{margin-top:10px;color:#fca5a5;font-size:14px;font-weight:700}
@@ -364,15 +352,6 @@ main{max-width:1100px;margin:auto;padding:25px 18px 100px}
 .report-modal-actions button{flex:1}
 @media(max-width:700px){.report-modal-box{padding:18px}}
 
-
-.admin-report-tabs{display:flex;gap:10px;flex-wrap:wrap;margin:16px 0 20px}
-.admin-report-tab{border:1px solid #59416e;background:#21172d;color:#eee5ff;border-radius:11px;padding:12px 15px;font-weight:800;cursor:pointer;transition:background .15s,border-color .15s}
-.admin-report-tab:hover{background:#38234b}
-.admin-report-tab.active{background:#7c3aed;border-color:#a78bfa;color:#fff}
-.admin-report-panel[hidden]{display:none!important}
-.admin-report-panel h3{margin:8px 0 14px}
-@media(max-width:600px){.admin-report-tabs{display:grid;grid-template-columns:1fr}.admin-report-tab{text-align:left;width:100%}}
-
 /* Панель администратора: жалобы */
 .admin-reports{display:grid;gap:14px;margin-top:18px;color:#f4f0ff}
 #admin{color:#f4f0ff}
@@ -431,53 +410,6 @@ main{max-width:1100px;margin:auto;padding:25px 18px 100px}
 #phoneRotateButton{background:#8b5cf6;color:#fff}
 #phoneRotateContinue{background:#2a2035;color:#ddd;border:1px solid #463354}
 #phoneRotateHelp{display:none;color:#fcd34d;font-size:13px;margin-top:13px;line-height:1.45}
-
-
-/* Delyvex — мягкие интерфейсные анимации */
-:root{--motion-fast:160ms;--motion-normal:240ms;--motion-slow:420ms;--motion-ease:cubic-bezier(.2,.75,.25,1)}
-html{scroll-behavior:smooth}
-body{animation:dxPageIn .45s var(--motion-ease) both;background-image:radial-gradient(ellipse at 12% 0%,rgba(124,58,237,.09),transparent 34%),radial-gradient(ellipse at 90% 16%,rgba(34,211,238,.045),transparent 28%);background-attachment:fixed}
-@keyframes dxPageIn{from{opacity:.65}to{opacity:1}}
-#authGate{background:radial-gradient(ellipse at 50% 35%,rgba(124,58,237,.15),transparent 55%),#0b0812}
-.auth-box{animation:dxAuthIn .55s var(--motion-ease) both;box-shadow:0 20px 70px rgba(0,0,0,.18);transition:border-color var(--motion-normal),box-shadow var(--motion-normal),transform var(--motion-normal)}
-.auth-box:hover{border-color:#49305f;box-shadow:0 24px 80px rgba(0,0,0,.28),0 0 35px rgba(139,92,246,.06)}
-@keyframes dxAuthIn{from{opacity:0;transform:translateY(16px) scale(.985)}to{opacity:1;transform:translateY(0) scale(1)}}
-.logo img,.header-logo img{transition:transform 320ms var(--motion-ease),filter 320ms var(--motion-ease)}
-.logo:hover img,.header-logo:hover img{transform:rotate(-4deg) scale(1.055);filter:drop-shadow(0 0 12px rgba(139,92,246,.24))}
-header{transition:background-color var(--motion-normal),border-color var(--motion-normal),box-shadow var(--motion-normal);backdrop-filter:blur(14px)}
-header:hover{box-shadow:0 8px 28px rgba(0,0,0,.12)}
-.nav-btn{position:relative;transition:background-color var(--motion-fast),color var(--motion-fast),transform var(--motion-fast)}
-.nav-btn:hover{transform:translateY(-1px);color:#fff}
-.nav-btn:active{transform:scale(.97)}
-button{transition:transform var(--motion-fast) var(--motion-ease),filter var(--motion-fast),box-shadow var(--motion-fast),background-color var(--motion-fast),border-color var(--motion-fast)}
-button:hover{filter:brightness(1.07)}
-button:active{transform:scale(.975)}
-button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:2px solid #a78bfa;outline-offset:3px}
-.google-btn,.telegram-btn{box-shadow:0 4px 12px rgba(0,0,0,.12)}
-.google-btn:hover,.telegram-btn:hover{transform:translateY(-2px);box-shadow:0 8px 22px rgba(0,0,0,.2)}
-input,textarea,select{transition:border-color var(--motion-normal),box-shadow var(--motion-normal),background-color var(--motion-normal)}
-input:focus,textarea:focus,select:focus{border-color:#8b5cf6!important;box-shadow:0 0 0 3px rgba(139,92,246,.14)}
-.section.active{animation:dxSectionIn .32s var(--motion-ease) both}
-@keyframes dxSectionIn{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
-.page-title{animation:dxTitleIn .4s var(--motion-ease) both}
-@keyframes dxTitleIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
-/* Карточки товаров, сообщений и панелей — без вмешательства в их разметку */
-.product-card,.listing-card,.item-card,.chat-item,.chat-list-item,.order-card,.review-card,.admin-user-result,.phone-verify-card,.phone-rotate-card{transition:transform var(--motion-normal) var(--motion-ease),border-color var(--motion-normal),box-shadow var(--motion-normal)}
-.product-card:hover,.listing-card:hover,.item-card:hover,.order-card:hover,.review-card:hover{transform:translateY(-3px);border-color:rgba(167,139,250,.55);box-shadow:0 12px 28px rgba(0,0,0,.16)}
-.chat-item:hover,.chat-list-item:hover{border-color:rgba(167,139,250,.45)}
-.admin-user-result:hover{border-color:#65458a;box-shadow:0 8px 24px rgba(0,0,0,.16)}
-.header-avatar{transition:transform var(--motion-normal) var(--motion-ease),box-shadow var(--motion-normal)}
-.header-avatar:hover{transform:scale(1.06);box-shadow:0 0 0 4px rgba(139,92,246,.14)}
-#notificationToast.show{animation:dxToastIn .28s var(--motion-ease) both}
-@keyframes dxToastIn{from{opacity:0;transform:translateY(12px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
-.phone-verify-overlay{animation:dxOverlayIn .2s ease-out both}
-.phone-verify-card{animation:dxModalIn .28s var(--motion-ease) both}
-@keyframes dxOverlayIn{from{opacity:0}to{opacity:1}}
-@keyframes dxModalIn{from{opacity:0;transform:translateY(10px) scale(.985)}to{opacity:1;transform:translateY(0) scale(1)}}
-::selection{background:rgba(139,92,246,.38);color:#fff}
-@media(hover:none){.product-card:hover,.listing-card:hover,.item-card:hover,.order-card:hover,.review-card:hover{transform:none;box-shadow:none}}
-@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
-
 </style>
 </head>
 
@@ -529,7 +461,7 @@ input:focus,textarea:focus,select:focus{border-color:#8b5cf6!important;box-shado
 
 <div id="authGate" class="hidden">
   <div class="auth-box">
-    <div class="logo"><img src="delyvex-logo.png" alt="Логотип Delyvex"><span>Delyvex</span></div>
+    <div class="logo">Delyvex</div>
     <p>Войди в аккаунт, чтобы пользоваться Delyvex</p>
     <div class="auth-buttons">
       <button class="google-btn" onclick="loginWithGoogle()">
@@ -545,7 +477,7 @@ input:focus,textarea:focus,select:focus{border-color:#8b5cf6!important;box-shado
 
 <header>
 
-  <div class="header-logo"><img src="delyvex-logo.png" alt="Логотип Delyvex"><span>Delyvex</span></div>
+  <div class="header-logo">Delyvex</div>
 
   <div class="header-nav">
 
@@ -705,35 +637,23 @@ input:focus,textarea:focus,select:focus{border-color:#8b5cf6!important;box-shado
   </div>
 
   <div class="card">
-    <h2>🛡️ Центр жалоб</h2>
-    <p>Выбери нужный раздел. В карточках жалоб на пользователей доступна кнопка входа в общий чат обращения.</p>
-    <div class="admin-report-tabs" role="tablist" aria-label="Разделы жалоб">
-      <button type="button" class="admin-report-tab active" data-report-tab="listings" onclick="showAdminReportTab('listings')">📦 Жалобы на товары</button>
-      <button type="button" class="admin-report-tab" data-report-tab="users" onclick="showAdminReportTab('users')">👤 Жалобы на пользователей</button>
-      <button type="button" class="admin-report-tab" data-report-tab="chats" onclick="showAdminReportTab('chats')">💬 Чаты по жалобам</button>
-    </div>
-    <div id="adminListingReportsPanel" class="admin-report-panel">
-      <h3>📦 Жалобы на товары</h3>
-      <label for="adminReportFilter">Фильтр жалоб:</label><br>
-      <select id="adminReportFilter" onchange="loadAdminReports()">
-        <option value="all">Все жалобы</option>
-        <option value="new">Новые</option>
-        <option value="reviewing">На рассмотрении</option>
-        <option value="resolved">Рассмотренные</option>
-        <option value="rejected">Отклонённые</option>
-      </select>
-      <div id="adminReportsContainer" class="admin-reports"><p>Открой раздел, чтобы загрузить жалобы.</p></div>
-    </div>
-    <div id="adminUserReportsPanel" class="admin-report-panel" hidden>
-      <h3>👤 Жалобы на пользователей</h3>
-      <p>Здесь отображаются обращения на пользователей. Открой чат обращения, чтобы посмотреть переписку.</p>
-      <div id="adminSupportCasesContainer" class="admin-reports"><p>Загрузка обращений...</p></div>
-    </div>
-    <div id="adminReportChatsPanel" class="admin-report-panel" hidden>
-      <h3>💬 Чаты по жалобам</h3>
-      <p>Чтобы войти в общий чат, открой жалобы на пользователей и нажми «Зайти в общий чат» у нужного обращения.</p>
-      <button type="button" class="admin-report-link" onclick="showAdminReportTab('users')">Перейти к жалобам пользователей</button>
-    </div>
+    <h2>Жалобы на объявления</h2>
+    <p>Просматривай жалобы на объявления и отмечай результат проверки.</p>
+  <label for="adminReportFilter">Фильтр жалоб:</label><br>
+  <select id="adminReportFilter" onchange="loadAdminReports()">
+    <option value="all">Все жалобы</option>
+    <option value="new">Новые</option>
+    <option value="reviewing">На рассмотрении</option>
+    <option value="resolved">Рассмотренные</option>
+    <option value="rejected">Отклонённые</option>
+  </select>
+  <div id="adminReportsContainer" class="admin-reports"><p>Открой раздел, чтобы загрузить жалобы.</p></div>
+  </div>
+
+  <div class="card">
+    <h2>🚩 Жалобы на пользователей из чатов</h2>
+    <p>Здесь появляются обращения. Кнопка «Зайти в общий чат» открывает переписку, где могут писать заявитель, пользователь, на которого пожаловались, и администратор.</p>
+    <div id="adminSupportCasesContainer" class="admin-reports"><p>Загрузка обращений...</p></div>
   </div>
 </section>
 
@@ -753,9 +673,7 @@ input:focus,textarea:focus,select:focus{border-color:#8b5cf6!important;box-shado
           Пользователь
         </div>
 
-        <div id="profileSellerLevel" class="seller-level level-newbie">🌱 Новичок</div>
         <div id="profileEmail" class="profile-email"></div>
-          <div id="profileUserId" class="profile-email" style="font-size:12px;opacity:.8;overflow-wrap:anywhere">ID: —</div>
 
       </div>
 
@@ -854,7 +772,7 @@ input:focus,textarea:focus,select:focus{border-color:#8b5cf6!important;box-shado
         <div class="chat-top-status">Нажми на никнейм, чтобы открыть профиль</div>
       </div>
       <button class="nav-btn" onclick="openChatPartnerProfile()" title="Профиль">👤</button>
-      <button class="chat-btn" type="button" onclick="openReportChoiceMenu()" style="padding:9px 11px">🚩 Пожаловаться</button>
+      <button class="chat-btn" type="button" onclick="createSupportCaseFromChat()" style="padding:9px 11px">🚩 Пожаловаться</button>
     </div>
 
     <div id="chatMessages" class="chat-messages"></div>
@@ -877,21 +795,6 @@ input:focus,textarea:focus,select:focus{border-color:#8b5cf6!important;box-shado
 
 </section>
 
-<section id="adminListingReportChat" class="section">
-  <div class="chat-top">
-    <button class="nav-btn" type="button" onclick="closeAdminListingReportChat()">← Назад</button>
-    <div style="flex:1;min-width:0">
-      <div id="adminListingReportChatTitle" class="chat-top-name">Чат по жалобе на товар</div>
-      <div id="adminListingReportChatSubtitle" class="chat-top-status">Покупатель, продавец и администрация</div>
-    </div>
-  </div>
-  <div id="adminListingReportChatMessages" class="chat-messages"></div>
-  <div class="chat-compose">
-    <input id="adminListingReportChatInput" type="text" maxlength="2000" autocomplete="off" placeholder="Написать покупателю и продавцу..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendAdminListingReportChatMessage()}" />
-    <button class="primary-btn" id="adminListingReportChatSendButton" type="button" onclick="sendAdminListingReportChatMessage()">➤</button>
-  </div>
-</section>
-
 <section id="supportCaseChat" class="section">
   <div class="chat-window">
     <div class="chat-topbar">
@@ -899,10 +802,6 @@ input:focus,textarea:focus,select:focus{border-color:#8b5cf6!important;box-shado
       <div class="chat-top-person" style="flex:1;min-width:0">
         <div id="supportCaseTitle" class="chat-top-name">Чат по жалобе</div>
         <div id="supportCaseSubtitle" class="chat-top-status">Общий чат заявителя, пользователя и администрации</div>
-        <div id="supportCaseProfileButtons" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
-          <button id="supportCaseReporterProfileButton" class="nav-btn" type="button" style="font-size:12px;padding:6px 9px" hidden>👤 Профиль заявителя</button>
-          <button id="supportCaseReportedProfileButton" class="nav-btn" type="button" style="font-size:12px;padding:6px 9px" hidden>👤 Профиль пользователя</button>
-        </div>
       </div>
       <span>🛡️</span>
     </div>
@@ -950,42 +849,6 @@ input:focus,textarea:focus,select:focus{border-color:#8b5cf6!important;box-shado
 
 
 <div id="notificationToast" role="status" aria-live="polite" onclick="openNotificationTarget()"></div>
-
-<div id="reportChoiceModal" role="dialog" aria-modal="true" aria-labelledby="reportChoiceTitle" onclick="if(event.target===this)closeReportChoiceMenu()" style="position:fixed;inset:0;z-index:10999;background:#000b;display:none;align-items:center;justify-content:center;padding:18px">
-  <div class="report-modal-box">
-    <h2 id="reportChoiceTitle">🚩 Что хочешь пожаловаться?</h2>
-    <p>Выбери, на что отправить жалобу. Она попадёт модераторам Delyvex.</p>
-    <div style="display:grid;gap:10px;margin-top:16px">
-      <button type="button" class="primary-btn" onclick="chooseChatListingReport()">🚩 Пожаловаться на товар</button>
-      <button type="button" class="chat-btn" onclick="chooseChatUserReport()">🛡️ Пожаловаться на пользователя</button>
-      <button type="button" class="chat-btn" onclick="closeReportChoiceMenu()">Отмена</button>
-    </div>
-  </div>
-</div>
-
-<div id="userReportModal" role="dialog" aria-modal="true" aria-labelledby="userReportTitle" onclick="if(event.target===this)closeUserReportModal()" style="position:fixed;inset:0;z-index:11001;background:#000b;display:none;align-items:center;justify-content:center;padding:18px">
-  <div class="report-modal-box">
-    <h2 id="userReportTitle">🛡️ Пожаловаться на пользователя</h2>
-    <p id="userReportDescription">Сообщи, что вызывает подозрение. Жалоба попадёт модераторам.</p>
-    <form id="userReportForm" onsubmit="submitUserReport(event)">
-      <label for="userReportReason">Причина жалобы</label>
-      <select id="userReportReason" required>
-        <option value="Мошенничество или обман">Мошенничество или обман</option>
-        <option value="Просит оплату вне Delyvex">Просит оплату вне Delyvex</option>
-        <option value="Угрожает или оскорбляет">Угрожает или оскорбляет</option>
-        <option value="Спам или подозрительные ссылки">Спам или подозрительные ссылки</option>
-        <option value="Подозрительный аккаунт">Подозрительный аккаунт</option>
-        <option value="Другое">Другое</option>
-      </select>
-      <label for="userReportDetails">Подробности (необязательно)</label>
-      <textarea id="userReportDetails" maxlength="1000" placeholder="Опиши ситуацию, не указывая личные данные"></textarea>
-      <div class="report-modal-actions">
-        <button type="button" class="chat-btn" onclick="closeUserReportModal()">Отмена</button>
-        <button type="submit" id="userReportSubmitBtn" class="primary-btn">Отправить жалобу</button>
-      </div>
-    </form>
-  </div>
-</div>
 
 <div id="reportModal" role="dialog" aria-modal="true" aria-labelledby="reportModalTitle" onclick="if(event.target===this)closeReportModal()">
   <div class="report-modal-box">
@@ -1061,11 +924,6 @@ let supportCaseRefreshTimer = null;
 let supportCaseMessagesSignature = "";
 let supportCaseMessagesLoading = false;
 let supportCaseReturnSection = "admin";
-let activeAdminReportChat = null;
-let adminReportChatRefreshTimer = null;
-let adminReportChatSignature = "";
-let adminReportChatLoading = false;
-
 
 
 /* =========================================
@@ -1490,8 +1348,6 @@ async function loadProfile(){
   document.getElementById("nicknameInput").value = nickname;
   document.getElementById("profileNickname").textContent = nickname;
   document.getElementById("profileEmail").textContent = currentUser.email || "";
-   const profileIdEl=document.getElementById("profileUserId");
-   if(profileIdEl) profileIdEl.textContent="ID: "+currentUser.id;
   document.getElementById("profileAvatar").src = avatar;
   document.getElementById("selectedAvatarPreview").src = avatar;
   document.getElementById("headerAvatar").src = avatar;
@@ -1715,14 +1571,6 @@ async function loadProfileRating(userId){
   document.getElementById("profileReviewCount").textContent =
     getReviewText(count);
 
-  const levelEl = document.getElementById("profileSellerLevel");
-  if(levelEl){
-    const level = getSellerLevel(count, average);
-    levelEl.className = "seller-level " + level.cls;
-    levelEl.textContent = level.icon + " " + level.name;
-    levelEl.title = level.description;
-  }
-
 }
 
 
@@ -1736,21 +1584,6 @@ function getReviewText(count){
 
   return count+" отзывов";
 
-}
-
-// Уровень продавца рассчитывается по реальным отзывам и среднему рейтингу.
-function getSellerLevel(reviewCount, rating){
-  const count = Math.max(0, Number(reviewCount) || 0);
-  const score = Math.max(0, Number(rating) || 0);
-  if(count >= 500 && score >= 4.8) return {name:"Легенда", icon:"👑", cls:"level-legend", description:"500+ отзывов и рейтинг от 4,8"};
-  if(count >= 100 && score >= 4.5) return {name:"Профи", icon:"💎", cls:"level-pro", description:"100+ отзывов и рейтинг от 4,5"};
-  if(count >= 20 && score >= 4.0) return {name:"Опытный", icon:"⚡", cls:"level-experienced", description:"20+ отзывов и рейтинг от 4,0"};
-  return {name:"Новичок", icon:"🌱", cls:"level-newbie", description:"Набирает первые отзывы"};
-}
-
-function sellerLevelMarkup(reviewCount, rating){
-  const level = getSellerLevel(reviewCount, rating);
-  return `<span class="seller-level ${level.cls}" title="${level.description}">${level.icon} ${level.name}</span>`;
 }
 
 
@@ -1834,8 +1667,6 @@ async function loadListings(){
       await sb
         .from("listings")
         .select("*")
-        // Автоматически закреплённые товары показываются выше остальных
-        .order("is_pinned",{ascending:false})
         .order("bumped_at",{ascending:false,nullsFirst:false})
         .order("created_at",{ascending:false});
 
@@ -2030,6 +1861,8 @@ async function renderListings(items){
             💬 Чат
           </button>
 
+          <button class="secondary-btn" onclick="makePriceOffer('${escapeJs(listing.id)}')">🤝 Предложить цену</button>
+
         </div>
 
         ${
@@ -2151,7 +1984,6 @@ async function renderListings(items){
               ⭐ ${rating.toFixed(1)}
               · ${getReviewText(reviewCount)}
             </div>
-            ${sellerLevelMarkup(reviewCount, rating)}
 
           </div>
 
@@ -2216,8 +2048,6 @@ async function viewSellerProfile(sellerId){
       <div>
         <div class="profile-name">${escapeHtml(info.nickname || "Пользователь")}${sellerBanned ? '<span class="banned-name-label">Забанен</span>' : ''}</div>
         <div class="public-profile-meta">⭐ ${rating} · ${getReviewText(Number(info.review_count || 0))}<br>📅 На Delyvex с ${escapeHtml(dateText)}</div>
-        ${sellerLevelMarkup(Number(info.review_count || 0), ratingValue)}
-        ${currentUser && String(currentUser.id)!==String(sellerId) ? `<button class="report-btn" type="button" style="display:block;margin-top:12px" onclick="openUserReportModal('${escapeJs(String(sellerId))}','${escapeJs(String(info.nickname || 'Пользователь'))}')">🛡️ Пожаловаться на пользователя</button>` : ''}
       </div>
     </div>
     <div class="rating-box">
@@ -2894,8 +2724,48 @@ async function loadOrders(){
 
   }
 
+  await renderPriceOffers(container);
 }
 
+
+
+async function makePriceOffer(listingId){
+  if(!currentUser){ showAuthGate(); return; }
+  const listing=listings.find(x=>String(x.id)===String(listingId));
+  if(!listing){ alert("Объявление не найдено."); return; }
+  if(String(listing.seller_id)===String(currentUser.id)){ alert("Нельзя торговаться за свой товар."); return; }
+  const entered=prompt(`Текущая цена: ${Number(listing.price).toFixed(2)} ₽\nВведи свою цену:`);
+  if(entered===null) return;
+  const price=Number(String(entered).replace(",","."));
+  if(!Number.isFinite(price)||price<=0){ alert("Введи корректную цену больше нуля."); return; }
+  if(price>=Number(listing.price)){ alert("Предложенная цена должна быть ниже текущей."); return; }
+  const {error}=await sb.from("price_offers").insert({listing_id:Number(listing.id),buyer_id:currentUser.id,seller_id:listing.seller_id,offered_price:price});
+  if(error){ alert("Не удалось отправить предложение. Проверь SQL для торга.\n\n"+error.message); return; }
+  alert("Предложение отправлено продавцу!");
+  await loadOrders();
+}
+async function respondPriceOffer(offerId, decision){
+  const {data,error}=await sb.rpc("delyvex_respond_price_offer",{p_offer_id:Number(offerId),p_decision:decision});
+  if(error){ alert("Не удалось обработать предложение. Сначала выполни SQL-файл для торга.\n\n"+error.message); return; }
+  if(!data?.success){ alert(data?.message||"Предложение не обработано."); return; }
+  alert(decision==="accepted"?"Предложение принято.":"Предложение отклонено.");
+  await loadOrders();
+}
+async function renderPriceOffers(container){
+  if(!currentUser||!container) return;
+  const {data,error}=await sb.from("price_offers").select("*").or(`buyer_id.eq.${currentUser.id},seller_id.eq.${currentUser.id}`).order("created_at",{ascending:false}).limit(50);
+  if(error){ console.warn("Предложения цены:",error.message); return; }
+  if(!data?.length) return;
+  const heading=document.createElement("h3"); heading.textContent="🤝 Предложения цены"; heading.style.cssText="margin:24px 0 12px;color:#e9d5ff"; container.appendChild(heading);
+  for(const offer of data){
+    const {data:listing}=await sb.from("listings").select("title,price,game").eq("id",offer.listing_id).maybeSingle();
+    const buyer=String(offer.buyer_id)===String(currentUser.id), seller=String(offer.seller_id)===String(currentUser.id);
+    const labels={pending:"⏳ Ожидает ответа",accepted:"✅ Принято",rejected:"❌ Отклонено",cancelled:"Отменено"};
+    const card=document.createElement("div"); card.className="order-card";
+    card.innerHTML=`<div class="order-title">${escapeHtml(listing?.title||"Объявление")}</div><div class="small">${escapeHtml(listing?.game||"")}</div><div style="margin-top:8px;color:#c084fc;font-size:20px;font-weight:800">${Number(offer.offered_price).toFixed(2)} ₽</div><div class="small">Цена продавца: ${Number(listing?.price||0).toFixed(2)} ₽</div><div class="status">${escapeHtml(labels[offer.status]||offer.status)}</div><div class="small">${buyer?"Ты предложил эту цену.":"Покупатель предложил эту цену."}</div>${seller&&offer.status==="pending"?`<div class="listing-actions" style="margin-top:12px"><button class="primary-btn" onclick="respondPriceOffer('${offer.id}','accepted')">✅ Принять</button><button class="secondary-btn" onclick="respondPriceOffer('${offer.id}','rejected')">❌ Отклонить</button></div>`:""}`;
+    container.appendChild(card);
+  }
+}
 
 async function copyOrderNumber(orderNumber){
   try{
@@ -3934,46 +3804,20 @@ async function loadMessages(){
   if(!container) return;
   messagesLoading = true;
   try{
-    let { data, error } = await sb
+    const { data, error } = await sb
       .from("messages")
       .select("*")
       .eq("listing_id",currentChat)
       .or(`and(sender_id.eq.${currentUser.id},receiver_id.eq.${currentReceiver}),and(sender_id.eq.${currentReceiver},receiver_id.eq.${currentUser.id})`)
       .order("created_at",{ascending:true});
 
-    // Отдельно загружаем сообщения администрации для обеих сторон жалобы.
-    // Это выполняется даже если обычный запрос messages завершился ошибкой.
-    let normalRows = Array.isArray(data) ? data : [];
-    let sharedRows = [];
-    let sharedError = null;
-    if(currentChat != null){
-      try{
-        const result = await sb.rpc("delyvex_get_listing_report_chat_messages",{
-          p_listing_id:String(currentChat),
-          p_other_user_id:String(currentReceiver)
-        });
-        sharedRows = Array.isArray(result.data) ? result.data : [];
-        sharedError = result.error;
-        if(sharedError) console.error("Не удалось получить сообщения администрации:", sharedError);
-      }catch(sharedException){
-        sharedError = sharedException;
-        console.error("Ошибка RPC сообщений администрации:", sharedException);
-      }
-    }
-
-    if(error && normalRows.length === 0 && sharedRows.length === 0){
-      console.error("Ошибка загрузки обычных сообщений:",error);
-      if(sharedError) console.error("Ошибка загрузки сообщений администрации:",sharedError);
+    if(error){
+      console.error("Ошибка загрузки сообщений:",error);
       if(!container.children.length){
-        container.innerHTML = `<div class="empty">Не удалось загрузить сообщения. Проверь доступ к таблице messages и SQL-функции общего чата.</div>`;
+        container.innerHTML = `<div class="empty">Ошибка загрузки сообщений. Попробуй обновить страницу.</div>`;
       }
       return;
     }
-
-    // Объединяем обычную переписку и сообщения администрации без дублей.
-    const byId = new Map();
-    [...normalRows, ...sharedRows].forEach(row=>byId.set(String(row.id),row));
-    data = Array.from(byId.values()).sort((a,b)=>new Date(a.created_at)-new Date(b.created_at));
 
     const messages = data || [];
     const signature = messages.map(m=>`${m.id || ""}:${m.created_at || ""}:${m.message || ""}`).join("|");
@@ -4248,71 +4092,6 @@ async function refreshNotificationBadges(allowToasts=true){
 }
 
 /* =========================================
-   REPORT CHOOSER + USER REPORTS
-========================================= */
-let activeUserReportId = null;
-let activeUserReportNickname = "Пользователь";
-
-function openReportChoiceMenu(){
-  if(!currentUser){alert("Войди в аккаунт, чтобы отправить жалобу.");showAuthGate();return;}
-  document.getElementById("reportChoiceModal").style.display="flex";
-}
-function closeReportChoiceMenu(){
-  const modal=document.getElementById("reportChoiceModal");if(modal)modal.style.display="none";
-}
-function chooseChatListingReport(){
-  closeReportChoiceMenu();
-  if(!currentChat){alert("В этом чате не выбран товар. Открой чат, связанный с объявлением, или пожалуйся через карточку товара.");return;}
-  const listing=listings.find(x=>String(x.id)===String(currentChat));
-  if(!listing){alert("Не удалось найти товар для этой переписки. Открой товар в каталоге и нажми «Пожаловаться на товар».");return;}
-  openReportModal(listing.id,listing.title||"Товар");
-}
-function chooseChatUserReport(){
-  closeReportChoiceMenu();
-  if(!currentReceiver){alert("Не выбран собеседник.");return;}
-  openUserReportModal(currentReceiver,document.getElementById("chatTitle")?.textContent||"Пользователь");
-}
-function openUserReportModal(userId,nickname){
-  if(!currentUser){alert("Войди в аккаунт, чтобы пожаловаться на пользователя.");showAuthGate();return;}
-  if(String(currentUser.id)===String(userId)){alert("Нельзя пожаловаться на собственный аккаунт.");return;}
-  activeUserReportId=String(userId);
-  activeUserReportNickname=String(nickname||"Пользователь");
-  document.getElementById("userReportTitle").textContent="🛡️ Жалоба на пользователя: "+activeUserReportNickname;
-  document.getElementById("userReportReason").value="Мошенничество или обман";
-  document.getElementById("userReportDetails").value="";
-  document.getElementById("userReportModal").style.display="flex";
-}
-function closeUserReportModal(){
-  const modal=document.getElementById("userReportModal");if(modal)modal.style.display="none";
-  activeUserReportId=null;
-}
-async function submitUserReport(event){
-  event.preventDefault();
-  if(!currentUser||!activeUserReportId){alert("Открой профиль пользователя ещё раз.");closeUserReportModal();return;}
-  const button=document.getElementById("userReportSubmitBtn");
-  button.disabled=true;button.textContent="Отправка...";
-  try{
-    const reason=document.getElementById("userReportReason").value;
-    const details=document.getElementById("userReportDetails").value.trim().slice(0,1000);
-    const {data:caseId,error}=await sb.rpc("delyvex_create_support_case",{
-      p_reported_user_id:activeUserReportId,
-      p_related_listing_id:null,
-      p_reason:reason.slice(0,250),
-      p_details:details,
-      p_chat_listing_id:(currentReceiver && String(currentReceiver)===String(activeUserReportId) && currentChat!=null) ? String(currentChat) : null
-    });
-    if(error){
-      console.error("Жалоба на пользователя:",error);
-      alert("Не удалось отправить жалобу: "+(error.message||"ошибка Supabase")+". Проверь, что SQL-файл Delyvex_support_cases.sql выполнен в Supabase.");
-      return;
-    }
-    closeUserReportModal();
-    alert("Жалоба на пользователя отправлена и появилась в панели администратора.");
-  }catch(e){console.error(e);alert("Не удалось отправить жалобу. Проверь интернет и попробуй снова.");}
-  finally{button.disabled=false;button.textContent="Отправить жалобу";}
-}
-
-/* =========================================
    LISTING REPORTS
 ========================================= */
 let activeReportListingId = null;
@@ -4547,22 +4326,6 @@ async function isDelyvexAdmin(){
   return !!data;
 }
 
-function showAdminReportTab(tab){
-  const panels={
-    listings:document.getElementById("adminListingReportsPanel"),
-    users:document.getElementById("adminUserReportsPanel"),
-    chats:document.getElementById("adminReportChatsPanel")
-  };
-  Object.entries(panels).forEach(([key,panel])=>{if(panel) panel.hidden=key!==tab;});
-  document.querySelectorAll(".admin-report-tab").forEach(button=>{
-    const active=button.dataset.reportTab===tab;
-    button.classList.toggle("active",active);
-    button.setAttribute("aria-selected",active?"true":"false");
-  });
-  if(tab==="listings") loadAdminReports();
-  if(tab==="users") loadAdminSupportCases();
-}
-
 async function loadAdminReports(){
   const container=document.getElementById("adminReportsContainer");
   const filter=document.getElementById("adminReportFilter");
@@ -4584,13 +4347,13 @@ async function loadAdminReports(){
         <h3>${adminEscape(r.listing_title || "Объявление")}</h3>
         <div class="admin-report-meta">ID жалобы: ${adminEscape(r.id)}<br>ID товара: ${adminEscape(r.listing_id)}<br>Продавец: ${adminEscape(r.seller_id)}<br>Отправлена: ${adminEscape(date)}</div>
         <button class="admin-report-link" type="button" onclick="openReportedListing('${escapeJs(String(r.listing_id || ""))}')">↗ Перейти к товару</button>
-        <button class="admin-report-link" type="button" onclick="openAdminListingReportChat('${escapeJs(String(r.listing_id || ""))}','${escapeJs(String(r.reporter_id || ""))}','${escapeJs(String(r.seller_id || ""))}','${escapeJs(String(r.listing_title || "Товар"))}')">💬 Подключиться к чату</button>
         <p><strong>Причина:</strong> ${adminEscape(r.reason)}</p>
         <p class="admin-report-details"><strong>Подробности:</strong><br>${adminEscape(r.details || "Не указаны")}</p>
         <span class="admin-status">Статус: ${adminEscape(names[r.status] || r.status)}</span>
         ${open?`<div class="admin-report-actions"><button class="admin-resolve" onclick="setDelyvexReportStatus(${Number(r.id)},'resolved')">✓ Рассмотрено</button><button class="admin-reject" onclick="setDelyvexReportStatus(${Number(r.id)},'rejected')">✕ Отклонить</button></div>`:""}
       </article>`;
     }).join("");
+    await loadAdminSupportCases();
   }catch(e){
     console.error("Загрузка жалоб:",e);
     container.innerHTML=`<div class="admin-report-error"><strong>Не удалось загрузить жалобы.</strong><br>${adminEscape(e?.message || "Неизвестная ошибка")}<br><br>Проверь, что таблицы admin_users и listing_reports существуют, а для администратора настроены права Supabase.</div>`;
@@ -4650,7 +4413,7 @@ async function loadAdminSupportCases(){
         <p class="admin-report-details"><strong>Описание:</strong><br>${adminEscape(c.details||"Пользователь не добавил описание.")}</p>
         <span class="admin-status">Статус: ${adminEscape(labels[c.status]||c.status)}</span>
         <div class="admin-report-actions" style="margin-top:12px;flex-wrap:wrap">
-          <button class="admin-report-link" type="button" onclick="openSupportCaseChat(${Number(c.id)},'admin')">💬 Открыть чат по этой жалобе</button>
+          <button class="admin-report-link" type="button" onclick="openSupportCaseChat(${Number(c.id)},'admin')">💬 Зайти в общий чат</button>
           ${c.status!=="resolved"&&c.status!=="rejected"?`<button class="admin-resolve" type="button" onclick="setSupportCaseStatus(${Number(c.id)},'resolved')">✓ Рассмотрено</button><button class="admin-reject" type="button" onclick="setSupportCaseStatus(${Number(c.id)},'rejected')">✕ Отклонить</button>`:""}
         </div>
       </article>`;
@@ -4659,11 +4422,6 @@ async function loadAdminSupportCases(){
     console.error("Загрузка жалоб пользователей:",e);
     container.innerHTML=`<div class="admin-report-error"><strong>Не удалось загрузить жалобы пользователей.</strong><br>${adminEscape(e.message||"Ошибка")}<br><br>Проверь, что SQL-файл Delyvex_support_cases.sql выполнен и этот аккаунт добавлен в admin_users.</div>`;
   }
-}
-
-function openSupportCaseProfile(userId){
-  if(!userId) return;
-  viewSellerProfile(String(userId));
 }
 
 async function openSupportCaseChat(caseId,returnSection="admin"){
@@ -4688,15 +4446,7 @@ async function openSupportCaseChat(caseId,returnSection="admin"){
     const reporter=names[String(caseRow.reporter_id)]||"Заявитель";
     const reported=names[String(caseRow.reported_user_id)]||"Пользователь";
     document.getElementById("supportCaseTitle").textContent="Жалоба №"+caseRow.id+": "+String(caseRow.reason||"Обращение").slice(0,90);
-    document.getElementById("supportCaseSubtitle").textContent="Заявитель: "+reporter+" · Пользователь: "+reported+" · Это отдельный чат именно по этой жалобе. Администратор может отвечать здесь";
-    const reporterButton=document.getElementById("supportCaseReporterProfileButton");
-    const reportedButton=document.getElementById("supportCaseReportedProfileButton");
-    reporterButton.textContent="👤 Профиль: "+reporter;
-    reporterButton.hidden=false;
-    reporterButton.onclick=()=>openSupportCaseProfile(caseRow.reporter_id);
-    reportedButton.textContent="👤 Профиль: "+reported;
-    reportedButton.hidden=false;
-    reportedButton.onclick=()=>openSupportCaseProfile(caseRow.reported_user_id);
+    document.getElementById("supportCaseSubtitle").textContent="Заявитель: "+reporter+" · Пользователь: "+reported+" · Администратор может отвечать здесь";
     showSection("supportCaseChat");
     await loadSupportCaseMessages();
     supportCaseRefreshTimer=setInterval(()=>{
@@ -4774,80 +4524,6 @@ async function setSupportCaseStatus(caseId,status){
   const {error}=await sb.from("support_cases").update({status}).eq("id",caseId);
   if(error){alert("Не удалось изменить статус: "+error.message);return;}
   await loadAdminSupportCases();
-}
-
-async function openAdminListingReportChat(listingId,reporterId,sellerId,title){
-  if(!currentUser || !(await isDelyvexAdmin())){alert("Доступ только для администратора.");return;}
-  if(!listingId || !reporterId || !sellerId){alert("В этой жалобе не хватает ID покупателя или продавца. Проверь, что таблица listing_reports содержит reporter_id и seller_id.");return;}
-  if(String(reporterId)===String(sellerId)){alert("Покупатель и продавец совпадают — открыть общий чат нельзя.");return;}
-  activeAdminReportChat={listingId:String(listingId),reporterId:String(reporterId),sellerId:String(sellerId),title:String(title||"Товар")};
-  adminReportChatSignature="";
-  if(adminReportChatRefreshTimer){clearInterval(adminReportChatRefreshTimer);adminReportChatRefreshTimer=null;}
-  document.getElementById("adminListingReportChatTitle").textContent="Жалоба: "+activeAdminReportChat.title;
-  document.getElementById("adminListingReportChatSubtitle").textContent="Покупатель и продавец увидят сообщения администрации в исходном чате";
-  showSection("adminListingReportChat");
-  await loadAdminListingReportChatMessages();
-  adminReportChatRefreshTimer=setInterval(()=>{
-    const sec=document.getElementById("adminListingReportChat");
-    if(currentUser&&activeAdminReportChat&&sec&&sec.classList.contains("active"))loadAdminListingReportChatMessages();
-  },3000);
-  document.getElementById("adminListingReportChatInput").focus({preventScroll:true});
-}
-
-async function loadAdminListingReportChatMessages(){
-  if(!currentUser||!activeAdminReportChat||adminReportChatLoading)return;
-  const container=document.getElementById("adminListingReportChatMessages");
-  if(!container)return;
-  adminReportChatLoading=true;
-  try{
-    const {data,error}=await sb.rpc("delyvex_admin_get_listing_report_chat",{
-      p_listing_id:activeAdminReportChat.listingId,
-      p_reporter_id:activeAdminReportChat.reporterId,
-      p_seller_id:activeAdminReportChat.sellerId
-    });
-    if(error)throw error;
-    const rows=data||[];
-    const sig=rows.map(m=>`${m.id}:${m.created_at}:${m.message}`).join("|");
-    if(sig===adminReportChatSignature)return;
-    const atBottom=container.scrollHeight-container.scrollTop-container.clientHeight<90;
-    adminReportChatSignature=sig;container.innerHTML="";
-    if(!rows.length)container.innerHTML='<div class="empty" style="margin:auto;padding:25px">В этой переписке пока нет сообщений.</div>';
-    rows.forEach(m=>{
-      const div=document.createElement("div");div.className="message "+(String(m.sender_id)===String(currentUser.id)?"mine":"theirs");
-      const label=document.createElement("div");label.className="admin-message-label";
-      label.textContent=String(m.sender_id)===String(currentUser.id)?"🛡️ Вы — администратор":(m.is_admin_message?"🛡️ Администратор":(String(m.sender_id)===String(activeAdminReportChat.reporterId)?"Покупатель":"Продавец"));
-      div.appendChild(label);
-      const body=document.createElement("div");body.textContent=String(m.message||"");div.appendChild(body);
-      const time=document.createElement("span");time.className="message-time";time.textContent=chatTime(m.created_at);div.appendChild(time);container.appendChild(div);
-    });
-    if(atBottom||rows.length<=1)container.scrollTop=container.scrollHeight;
-  }catch(e){
-    console.error("Чат по жалобе на товар:",e);
-    if(!container.children.length)container.innerHTML='<div class="empty">Не удалось загрузить переписку. Проверь SQL для общего чата жалобы и доступ администратора.</div>';
-  }finally{adminReportChatLoading=false;}
-}
-
-async function sendAdminListingReportChatMessage(){
-  if(!currentUser||!activeAdminReportChat||!(await isDelyvexAdmin()))return;
-  const input=document.getElementById("adminListingReportChatInput");
-  const message=(input.value||"").trim();if(!message)return;
-  const button=document.getElementById("adminListingReportChatSendButton");if(button)button.disabled=true;
-  try{
-    const {error}=await sb.rpc("delyvex_admin_send_listing_report_chat_message",{
-      p_listing_id:activeAdminReportChat.listingId,
-      p_reporter_id:activeAdminReportChat.reporterId,
-      p_seller_id:activeAdminReportChat.sellerId,
-      p_message:message.slice(0,2000)
-    });
-    if(error)throw error;
-    input.value="";adminReportChatSignature="";await loadAdminListingReportChatMessages();input.focus({preventScroll:true});
-  }catch(e){console.error(e);alert("Не удалось отправить сообщение. Проверь SQL.\n\n"+(e.message||"Ошибка"));}
-  finally{if(button)button.disabled=false;}
-}
-
-function closeAdminListingReportChat(){
-  if(adminReportChatRefreshTimer){clearInterval(adminReportChatRefreshTimer);adminReportChatRefreshTimer=null;}
-  activeAdminReportChat=null;showSection("admin");loadAdminReports();
 }
 
 async function openReportedListing(listingId){
