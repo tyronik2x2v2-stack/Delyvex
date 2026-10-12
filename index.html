@@ -895,7 +895,7 @@ input:focus,textarea:focus,select:focus{border-color:#8b5cf6!important;box-shado
       <button type="button" class="chat-image-button" id="chatImageButton" onclick="document.getElementById('chatImageInput').click()" title="Прикрепить изображение до 5 МБ" aria-label="Прикрепить изображение">📎</button>
       <div class="chat-send">
         <input id="chatInput" type="text" maxlength="2000" autocomplete="off"
-          placeholder="Написать сообщение..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMessage()}" />
+          placeholder="Написать сообщение..." oninput="notifyChatTyping()" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMessage()}" />
         <button class="primary-btn" id="sendMessageButton" onclick="sendMessage()">➤</button>
       </div>
     </div>
@@ -3917,9 +3917,95 @@ function chatTime(value){
   return date.toLocaleDateString("ru-RU",{day:"2-digit",month:"2-digit"});
 }
 
-// Список пользователей, чей статус присутствия известен этой вкладке.
-// Пока нет активного presence-канала, все собеседники отображаются как «Не в сети».
+// Реальное присутствие и индикатор набора текста через Supabase Realtime.
 const onlineChatUsers = new Set();
+let chatGlobalPresenceChannel = null;
+let chatTypingChannel = null;
+let chatTypingTimeout = null;
+let chatTypingClearTimeout = null;
+let chatTypingLastSent = 0;
+let chatTypingOtherId = null;
+
+function refreshChatListPresence(){
+  const container = document.getElementById("chatsContainer");
+  if(!container) return;
+  container.querySelectorAll(".chat-list-item-status").forEach(el=>{
+    const id=String(el.dataset.userId || "");
+    const online=onlineChatUsers.has(id);
+    el.innerHTML=online?'<span class="chat-online-dot"></span>В сети':'<span class="chat-offline-dot"></span>Не в сети';
+  });
+}
+
+function startGlobalChatPresence(){
+  if(!currentUser || !sb?.channel) return;
+  if(chatGlobalPresenceChannel) return;
+  chatGlobalPresenceChannel = sb.channel("delyvex-global-presence", {config:{presence:{key:String(currentUser.id)}}});
+  chatGlobalPresenceChannel
+    .on("presence", {event:"sync"}, ()=>{
+      onlineChatUsers.clear();
+      const state=chatGlobalPresenceChannel.presenceState() || {};
+      Object.entries(state).forEach(([key,entries])=>{
+        if(String(key)!==String(currentUser.id) && Array.isArray(entries) && entries.length) onlineChatUsers.add(String(key));
+        (entries||[]).forEach(entry=>{ if(entry?.user_id && String(entry.user_id)!==String(currentUser.id)) onlineChatUsers.add(String(entry.user_id)); });
+      });
+      refreshChatListPresence();
+      updateChatHeaderStatus();
+    })
+    .subscribe(async status=>{
+      if(status==="SUBSCRIBED"){
+        try{ await chatGlobalPresenceChannel.track({user_id:String(currentUser.id),online_at:new Date().toISOString()}); }
+        catch(error){ console.warn("Не удалось отметить пользователя в сети",error); }
+      }
+    });
+}
+
+function stopChatTypingChannel(){
+  if(chatTypingTimeout){clearTimeout(chatTypingTimeout);chatTypingTimeout=null;}
+  if(chatTypingClearTimeout){clearTimeout(chatTypingClearTimeout);chatTypingClearTimeout=null;}
+  if(chatTypingChannel){ try{sb.removeChannel(chatTypingChannel);}catch(e){} chatTypingChannel=null; }
+  chatTypingOtherId=null;
+}
+
+function startChatPresence(receiverId){
+  startGlobalChatPresence();
+  stopChatTypingChannel();
+  if(!currentUser || !receiverId || !sb?.channel) return;
+  const ids=[String(currentUser.id),String(receiverId)].sort();
+  chatTypingOtherId=String(receiverId);
+  const topic="delyvex-typing-"+ids.join("-");
+  chatTypingChannel=sb.channel(topic,{config:{broadcast:{self:false}}});
+  chatTypingChannel
+    .on("broadcast",{event:"typing"},({payload})=>{
+      if(!payload || String(payload.user_id)===String(currentUser.id)) return;
+      const status=document.querySelector("#chatWindow .chat-top-status");
+      if(!status) return;
+      status.textContent=payload.typing ? "✍️ Печатает…" : (onlineChatUsers.has(String(receiverId)) ? "🟢 В сети" : "Не в сети");
+      if(chatTypingClearTimeout) clearTimeout(chatTypingClearTimeout);
+      if(payload.typing) chatTypingClearTimeout=setTimeout(updateChatHeaderStatus,4000);
+    })
+    .subscribe();
+  updateChatHeaderStatus();
+}
+
+function updateChatHeaderStatus(){
+  const status=document.querySelector("#chatWindow .chat-top-status");
+  if(!status || !currentReceiver) return;
+  status.textContent=onlineChatUsers.has(String(currentReceiver)) ? "🟢 В сети" : "Не в сети";
+}
+
+async function notifyChatTyping(){
+  if(!currentUser || !currentReceiver || !chatTypingChannel) return;
+  const input=document.getElementById("chatInput");
+  const typing=!!input && input.value.trim().length>0;
+  const now=Date.now();
+  if(typing && now-chatTypingLastSent<1200) return;
+  chatTypingLastSent=now;
+  try{await chatTypingChannel.send({type:"broadcast",event:"typing",payload:{user_id:String(currentUser.id),typing}});}catch(e){console.warn("Не удалось отправить статус набора текста",e);}
+  if(chatTypingTimeout) clearTimeout(chatTypingTimeout);
+  if(typing) chatTypingTimeout=setTimeout(async()=>{
+    try{await chatTypingChannel?.send({type:"broadcast",event:"typing",payload:{user_id:String(currentUser.id),typing:false}});}catch(e){}
+  },2200);
+}
 
 // Локальные отметки прочтения для списка чатов.
 // Хранятся отдельно для каждого пользователя и собеседника.
@@ -3937,6 +4023,7 @@ function setChatSeenAt(otherId, listingId, timestamp = Date.now()){
 
 async function loadChats(){
   if(!currentUser) return;
+  startGlobalChatPresence();
   const container = document.getElementById("chatsContainer");
   if(!container) return;
   container.innerHTML = `<div class="empty">Загружаем переписки…</div>`;
@@ -4001,7 +4088,7 @@ async function loadChats(){
       const snippet = document.createElement("div"); snippet.className = "chat-list-preview"+(unreadCount?" unread":"");
       snippet.textContent = (String(message.sender_id)===String(currentUser.id) ? "Вы: " : "") + preview;
       const bottom=document.createElement("div");bottom.className="chat-list-bottom";bottom.append(snippet);
-      const onlineLabel=document.createElement("span");onlineLabel.style.cssText="font-size:11px;color:#9c8bad;white-space:nowrap";
+      const onlineLabel=document.createElement("span");onlineLabel.className="chat-list-item-status";onlineLabel.dataset.userId=String(otherId);onlineLabel.style.cssText="font-size:11px;color:#9c8bad;white-space:nowrap";
       onlineLabel.innerHTML=onlineChatUsers.has(String(otherId))?'<span class="chat-online-dot"></span>В сети':'<span class="chat-offline-dot"></span>Не в сети';
       bottom.appendChild(onlineLabel);
       top.append(name,meta); main.append(top,bottom); item.append(avatarWrap,main);
