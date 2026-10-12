@@ -3826,7 +3826,7 @@ async function openChat(listingId,receiverId,title){
     if(currentUser && currentReceiver && chatSection && chatSection.classList.contains("active")){
       loadMessages();
     }
-  }, 2000);
+  }, 5000);
   document.getElementById("chatInput").focus({preventScroll:true});
 }
 
@@ -4095,7 +4095,7 @@ function startDelyvexNotifications(){
   if(!localStorage.getItem(orderKey)) localStorage.setItem(orderKey,now);
   notificationPollStartedAt = now;
   refreshNotificationBadges(false);
-  notificationTimer = setInterval(()=>refreshNotificationBadges(true),20000);
+  notificationTimer = setInterval(()=>refreshNotificationBadges(true),30000);
 }
 
 function stopDelyvexNotifications(){
