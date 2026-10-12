@@ -270,6 +270,14 @@ main{max-width:1100px;margin:auto;padding:25px 18px 100px}
 .chat-list-name{font-weight:800;color:#f5eaff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .chat-list-time{font-size:12px;color:#82778e;white-space:nowrap}
 .chat-list-preview{font-size:14px;color:#a99eb6;margin-top:7px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* Дополнительные элементы списка чатов: непрочитанные и присутствие */
+.chat-list-meta{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.chat-unread-badge{display:inline-flex;align-items:center;justify-content:center;min-width:21px;height:21px;padding:0 6px;border-radius:999px;background:#a78bfa;color:#160d22;font-size:11px;font-weight:900}
+.chat-list-bottom{display:flex;align-items:center;justify-content:space-between;gap:8px;min-width:0}
+.chat-list-preview.unread{color:#f5eaff;font-weight:800}
+.chat-online-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#22c55e;box-shadow:0 0 0 3px #22c55e20;margin-right:5px;vertical-align:middle}
+.chat-offline-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#82778e;margin-right:5px;vertical-align:middle}
+.message-status{display:block;font-size:10px;opacity:.78;text-align:right;margin-top:3px}
 .chat-window{max-width:800px;margin:auto}
 .chat-topbar{display:flex;align-items:center;gap:12px;padding:14px 16px;margin:12px 0;background:linear-gradient(135deg,#1b1029,#120c1b);border:1px solid #332044;border-radius:17px;box-shadow:0 8px 25px #0002}
 .chat-top-avatar{width:52px;height:52px;flex:0 0 52px;object-fit:cover;border-radius:50%;border:2px solid #a78bfa;background:#100b1a}
@@ -431,58 +439,6 @@ main{max-width:1100px;margin:auto;padding:25px 18px 100px}
 #phoneRotateButton{background:#8b5cf6;color:#fff}
 #phoneRotateContinue{background:#2a2035;color:#ddd;border:1px solid #463354}
 #phoneRotateHelp{display:none;color:#fcd34d;font-size:13px;margin-top:13px;line-height:1.45}
-
-
-/* Delyvex — мягкие интерфейсные анимации */
-:root{--motion-fast:160ms;--motion-normal:240ms;--motion-slow:420ms;--motion-ease:cubic-bezier(.2,.75,.25,1)}
-html{scroll-behavior:smooth}
-body{animation:dxPageIn .45s var(--motion-ease) both;background-image:radial-gradient(ellipse at 12% 0%,rgba(124,58,237,.09),transparent 34%),radial-gradient(ellipse at 90% 16%,rgba(34,211,238,.045),transparent 28%);background-attachment:fixed}
-@keyframes dxPageIn{from{opacity:.65}to{opacity:1}}
-#authGate{background:radial-gradient(ellipse at 50% 35%,rgba(124,58,237,.15),transparent 55%),#0b0812}
-.auth-box{animation:dxAuthIn .55s var(--motion-ease) both;box-shadow:0 20px 70px rgba(0,0,0,.18);transition:border-color var(--motion-normal),box-shadow var(--motion-normal),transform var(--motion-normal)}
-.auth-box:hover{border-color:#49305f;box-shadow:0 24px 80px rgba(0,0,0,.28),0 0 35px rgba(139,92,246,.06)}
-@keyframes dxAuthIn{from{opacity:0;transform:translateY(16px) scale(.985)}to{opacity:1;transform:translateY(0) scale(1)}}
-.logo img,.header-logo img{transition:transform 320ms var(--motion-ease),filter 320ms var(--motion-ease)}
-.logo:hover img,.header-logo:hover img{transform:rotate(-4deg) scale(1.055);filter:drop-shadow(0 0 12px rgba(139,92,246,.24))}
-header{transition:background-color var(--motion-normal),border-color var(--motion-normal),box-shadow var(--motion-normal);backdrop-filter:blur(14px)}
-header:hover{box-shadow:0 8px 28px rgba(0,0,0,.12)}
-.nav-btn{position:relative;transition:background-color var(--motion-fast),color var(--motion-fast),transform var(--motion-fast)}
-.nav-btn:hover{transform:translateY(-1px);color:#fff}
-.nav-btn:active{transform:scale(.97)}
-button{transition:transform var(--motion-fast) var(--motion-ease),filter var(--motion-fast),box-shadow var(--motion-fast),background-color var(--motion-fast),border-color var(--motion-fast)}
-button:hover{filter:brightness(1.07)}
-button:active{transform:scale(.975)}
-button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:2px solid #a78bfa;outline-offset:3px}
-.google-btn,.telegram-btn{box-shadow:0 4px 12px rgba(0,0,0,.12)}
-.google-btn:hover,.telegram-btn:hover{transform:translateY(-2px);box-shadow:0 8px 22px rgba(0,0,0,.2)}
-input,textarea,select{transition:border-color var(--motion-normal),box-shadow var(--motion-normal),background-color var(--motion-normal)}
-input:focus,textarea:focus,select:focus{border-color:#8b5cf6!important;box-shadow:0 0 0 3px rgba(139,92,246,.14)}
-.section.active{animation:dxSectionIn .32s var(--motion-ease) both}
-@keyframes dxSectionIn{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
-.page-title{animation:dxTitleIn .4s var(--motion-ease) both}
-@keyframes dxTitleIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
-/* Карточки товаров, сообщений и панелей — без вмешательства в их разметку */
-.product-card,.listing-card,.item-card,.chat-item,.chat-list-item,.order-card,.review-card,.admin-user-result,.phone-verify-card,.phone-rotate-card{transition:transform var(--motion-normal) var(--motion-ease),border-color var(--motion-normal),box-shadow var(--motion-normal)}
-.product-card:hover,.listing-card:hover,.item-card:hover,.order-card:hover,.review-card:hover{transform:translateY(-3px);border-color:rgba(167,139,250,.55);box-shadow:0 12px 28px rgba(0,0,0,.16)}
-.chat-item:hover,.chat-list-item:hover{border-color:rgba(167,139,250,.45)}
-.admin-user-result:hover{border-color:#65458a;box-shadow:0 8px 24px rgba(0,0,0,.16)}
-.header-avatar{transition:transform var(--motion-normal) var(--motion-ease),box-shadow var(--motion-normal)}
-.header-avatar:hover{transform:scale(1.06);box-shadow:0 0 0 4px rgba(139,92,246,.14)}
-#notificationToast.show{animation:dxToastIn .28s var(--motion-ease) both}
-@keyframes dxToastIn{from{opacity:0;transform:translateY(12px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
-.phone-verify-overlay{animation:dxOverlayIn .2s ease-out both}
-.phone-verify-card{animation:dxModalIn .28s var(--motion-ease) both}
-@keyframes dxOverlayIn{from{opacity:0}to{opacity:1}}
-@keyframes dxModalIn{from{opacity:0;transform:translateY(10px) scale(.985)}to{opacity:1;transform:translateY(0) scale(1)}}
-::selection{background:rgba(139,92,246,.38);color:#fff}
-@media(hover:none){.product-card:hover,.listing-card:hover,.item-card:hover,.order-card:hover,.review-card:hover{transform:none;box-shadow:none}}
-@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
-
-
-
-/* Delyvex — прозрачность сделки */
-.deal-center{margin:18px 0 22px;padding:20px;border:1px solid rgba(117,91,255,.28);border-radius:18px;background:linear-gradient(135deg,rgba(111,76,255,.10),rgba(28,190,170,.06));}
-.deal-center h2{margin:0 0 8px;font-size:20px}.deal-center-intro{margin:0 0 16px;opacity:.82;line-height:1.5}.deal-steps{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}.deal-step{padding:12px;border-radius:12px;background:rgba(127,127,127,.08);border:1px solid rgba(127,127,127,.14)}.deal-step b{display:block;margin-bottom:5px}.deal-step span{font-size:13px;line-height:1.4;opacity:.8}.deal-center-note{margin:14px 0 0;font-size:12px;opacity:.72;line-height:1.5}.deal-center details{margin-top:12px}.deal-center summary{cursor:pointer;font-weight:600}.deal-checklist{margin:10px 0 0;padding-left:20px;line-height:1.7}@media(max-width:650px){.deal-steps{grid-template-columns:repeat(2,minmax(0,1fr))}.deal-center{padding:15px}}
 </style>
 </head>
 
@@ -680,27 +636,6 @@ input:focus,textarea:focus,select:focus{border-color:#8b5cf6!important;box-shado
 
   <h1 class="page-title">Мои заказы</h1>
 
-    <div class="deal-center" aria-label="Центр безопасности сделки">
-    <h2>🛡️ Центр безопасности сделки</h2>
-    <p class="deal-center-intro">Понятные этапы сделки помогают покупателю и продавцу знать, что делать дальше.</p>
-    <div class="deal-steps">
-      <div class="deal-step"><b>1. Заказ</b><span>Уточните условия и состав товара в чате до оплаты.</span></div>
-      <div class="deal-step"><b>2. Оплата</b><span>Платите только через официальный способ, показанный на сайте.</span></div>
-      <div class="deal-step"><b>3. Получение</b><span>Проверьте товар и сохраните переписку по заказу.</span></div>
-      <div class="deal-step"><b>4. Проблема?</b><span>Сначала свяжитесь со второй стороной и сохраните подтверждения.</span></div>
-    </div>
-    <details>
-      <summary>Памятка покупателю и продавцу</summary>
-      <ul class="deal-checklist">
-        <li>Не передавайте пароль от своего аккаунта и коды подтверждения.</li>
-        <li>Не переходите по подозрительным ссылкам и не отправляйте деньги в обход сайта.</li>
-        <li>Перед подтверждением получения проверьте, что товар соответствует описанию.</li>
-        <li>Если возник спор, сохраните номер заказа, переписку и доказательства.</li>
-      </ul>
-    </details>
-    <p class="deal-center-note">Важно: этот раздел — памятка, а не гарантия безопасной сделки или автоматический эскроу. Реальная обработка оплаты и возвратов зависит от подключённых платёжных и серверных механизмов.</p>
-  </div>
-
   <div id="ordersContainer"></div>
 
 </section>
@@ -877,7 +812,7 @@ input:focus,textarea:focus,select:focus{border-color:#8b5cf6!important;box-shado
       <div id="chatHeaderAvatarWrap" class="avatar-ban-wrap"><img id="chatHeaderAvatar" class="chat-top-avatar" src="" alt="Аватар собеседника"><span id="chatHeaderBanBadge" class="avatar-ban-badge" hidden>БАН</span></div>
       <div class="chat-top-person">
         <button id="chatTitle" class="chat-top-name" onclick="openChatPartnerProfile()">Собеседник</button>
-        <div class="chat-top-status">Нажми на никнейм, чтобы открыть профиль</div>
+        <div id="chatPartnerPresence" class="chat-top-status"><span class="chat-offline-dot"></span>Статус подключения</div>
       </div>
       <button class="nav-btn" onclick="openChatPartnerProfile()" title="Профиль">👤</button>
       <button class="chat-btn" type="button" onclick="openReportChoiceMenu()" style="padding:9px 11px">🚩 Пожаловаться</button>
@@ -1072,6 +1007,8 @@ let currentChat = null;
 let currentReceiver = null;
 let currentListing = null;
 let chatRefreshTimer = null;
+let chatPresenceChannel = null;
+let onlineChatUsers = new Set();
 let lastMessagesSignature = "";
 let messagesLoading = false;
 let appInitialized = false;
@@ -1249,6 +1186,7 @@ async function initialize(){
 
   currentUser =
     data.session.user;
+  startChatPresence(currentUser.id);
 
   const restriction = await getMyDelyvexRestriction();
   if(restriction && restriction.restriction_type === "ban"){
@@ -1291,6 +1229,7 @@ sb.auth.onAuthStateChange(
       listings = [];
       currentBalance = 0;
       stopDelyvexNotifications();
+      stopChatPresence();
 
       hideAuthGate();
       loadListings();
@@ -1444,6 +1383,9 @@ async function showSection(section){
 
   if(target){
     target.classList.add("active");
+  }
+  if(section === "chats"){
+    loadChats();
   }
 
   if(section==="home"){
@@ -2093,13 +2035,6 @@ async function renderListings(items){
             ⬆️ ${canBump ? 'Поднять товар' : `Поднять через ${remainingMinutes} мин.`}
           </button>
           <button
-            class="secondary-btn"
-            style="border-radius:10px;padding:11px 14px;cursor:pointer;width:100%"
-            onclick="editListing('${escapeJs(listing.id)}')"
-          >
-            ✏️ Изменить товар
-          </button>
-          <button
             class="danger-btn"
             style="background:#dc2626;color:white;border:0;border-radius:10px;padding:11px 14px;cursor:pointer;width:100%"
             onclick="deleteListing('${escapeJs(listing.id)}')"
@@ -2362,75 +2297,6 @@ async function bumpListing(listingId){
   await renderListings(listings);
   alert("Готово! Твой товар поднят в самый верх. Повторно поднять его можно через час.");
 }
-
-/* =========================================
-   EDIT OWN LISTING
-========================================= */
-
-async function editListing(listingId){
-  if(!currentUser){
-    alert("Сначала войди в аккаунт.");
-    return;
-  }
-
-  const listing = listings.find(item => String(item.id) === String(listingId));
-  if(!listing){
-    alert("Товар не найден. Обнови страницу и попробуй ещё раз.");
-    return;
-  }
-  if(String(listing.seller_id) !== String(currentUser.id)){
-    alert("Можно изменять только свои товары.");
-    return;
-  }
-
-  const game = prompt("Игра / категория:", listing.game || "");
-  if(game === null) return;
-  const title = prompt("Название товара:", listing.title || "");
-  if(title === null) return;
-  const description = prompt("Описание товара:", listing.description || "");
-  if(description === null) return;
-  const priceText = prompt("Цена в рублях:", String(listing.price ?? ""));
-  if(priceText === null) return;
-
-  const cleanGame = game.trim();
-  const cleanTitle = title.trim();
-  const cleanDescription = description.trim();
-  const cleanPrice = Number(String(priceText).replace(",", ".").trim());
-
-  if(!cleanGame || !cleanTitle){
-    alert("Игра и название не могут быть пустыми.");
-    return;
-  }
-  if(!Number.isFinite(cleanPrice) || cleanPrice < 0){
-    alert("Укажи корректную цену — неотрицательное число.");
-    return;
-  }
-
-  const {data, error} = await sb
-    .from("listings")
-    .update({game:cleanGame, title:cleanTitle, description:cleanDescription, price:cleanPrice})
-    .eq("id", listingId)
-    .eq("seller_id", currentUser.id)
-    .select("id,game,title,description,price,seller_id")
-    .maybeSingle();
-
-  if(error){
-    console.error("Ошибка изменения товара:", error);
-    alert("Не удалось изменить товар. Проверь права UPDATE для своих объявлений в Supabase.\n\n" + error.message);
-    return;
-  }
-  if(!data){
-    alert("Supabase не вернул изменённое объявление. Возможно, политика RLS запрещает редактирование своих товаров.");
-    return;
-  }
-
-  const index = listings.findIndex(item => String(item.id) === String(listingId));
-  if(index !== -1) listings[index] = {...listings[index], ...data};
-  await loadListings();
-  alert("Товар успешно изменён!");
-}
-
-
 
 /* =========================================
    DELETE OWN LISTING
@@ -3917,6 +3783,45 @@ function chatTime(value){
   return date.toLocaleDateString("ru-RU",{day:"2-digit",month:"2-digit"});
 }
 
+function chatSeenKey(otherId, listingId){
+  return `delyvex_chat_seen_${String(currentUser?.id||"guest")}_${String(otherId||"")}_${String(listingId??"none")}`;
+}
+function getChatSeenAt(otherId, listingId){
+  try{return Number(localStorage.getItem(chatSeenKey(otherId,listingId))||0)}catch(e){return 0;}
+}
+function setChatSeenAt(otherId, listingId, timestamp=Date.now()){
+  try{localStorage.setItem(chatSeenKey(otherId,listingId),String(timestamp));}catch(e){}
+}
+function stopChatPresence(){
+  if(chatPresenceChannel){try{sb.removeChannel(chatPresenceChannel);}catch(e){} chatPresenceChannel=null;}
+  onlineChatUsers=new Set();
+}
+function startChatPresence(otherId){
+  if(chatPresenceChannel){
+    const status=document.getElementById("chatPartnerPresence");
+    if(status && currentReceiver){const online=onlineChatUsers.has(String(currentReceiver));status.innerHTML=(online?'<span class="chat-online-dot"></span>В сети':'<span class="chat-offline-dot"></span>Не в сети');}
+    return;
+  }
+  if(!currentUser || !sb.channel) return;
+  const channel=sb.channel("delyvex-chat-presence",{config:{presence:{key:String(currentUser.id)}}});
+  chatPresenceChannel=channel;
+  const refresh=()=>{
+    const state=channel.presenceState();
+    onlineChatUsers=new Set(Object.keys(state||{}).map(String));
+    const status=document.getElementById("chatPartnerPresence");
+    if(status && currentReceiver){
+      const online=onlineChatUsers.has(String(currentReceiver));
+      status.innerHTML=(online?'<span class="chat-online-dot"></span>В сети':'<span class="chat-offline-dot"></span>Не в сети');
+    }
+  };
+  channel.on("presence",{event:"sync"},refresh).on("presence",{event:"join"},refresh).on("presence",{event:"leave"},refresh).subscribe(async status=>{
+    if(status==="SUBSCRIBED"){
+      try{await channel.track({user_id:String(currentUser.id),online_at:new Date().toISOString()});}catch(e){console.warn("Presence не удалось включить",e);}
+      refresh();
+    }
+  });
+}
+
 async function loadChats(){
   if(!currentUser) return;
   const container = document.getElementById("chatsContainer");
@@ -3960,10 +3865,19 @@ async function loadChats(){
     const top = document.createElement("div"); top.className = "chat-list-top";
     const name = document.createElement("div"); name.className = "chat-list-name"; name.textContent = person.nickname + (person.banned ? " · Забанен" : "");
     if(person.banned) name.style.color = "#fca5a5";
+    const meta = document.createElement("div"); meta.className = "chat-list-meta";
     const time = document.createElement("div"); time.className = "chat-list-time"; time.textContent = chatTime(message.created_at);
-    const snippet = document.createElement("div"); snippet.className = "chat-list-preview";
+    const seenAt = getChatSeenAt(otherId,message.listing_id);
+    const unreadCount = data.filter(m=>String(m.sender_id)===String(otherId) && String((m.listing_id??"none"))===String((message.listing_id??"none")) && new Date(m.created_at||0).getTime()>seenAt).length;
+    if(unreadCount){const badge=document.createElement("span");badge.className="chat-unread-badge";badge.textContent=unreadCount>99?"99+":String(unreadCount);meta.appendChild(badge);}
+    meta.appendChild(time);
+    const snippet = document.createElement("div"); snippet.className = "chat-list-preview"+(unreadCount?" unread":"");
     snippet.textContent = (String(message.sender_id)===String(currentUser.id) ? "Вы: " : "") + preview;
-    top.append(name,time); main.append(top,snippet); item.append(avatarWrap,main);
+    const bottom=document.createElement("div");bottom.className="chat-list-bottom";bottom.append(snippet);
+    const onlineLabel=document.createElement("span");onlineLabel.style.cssText="font-size:11px;color:#9c8bad;white-space:nowrap";
+    onlineLabel.innerHTML=onlineChatUsers.has(String(otherId))?'<span class="chat-online-dot"></span>В сети':'<span class="chat-offline-dot"></span>Не в сети';
+    bottom.appendChild(onlineLabel);
+    top.append(name,meta); main.append(top,bottom); item.append(avatarWrap,main);
     item.onclick = ()=>openChat(message.listing_id,otherId,person.nickname);
     container.appendChild(item);
   });
@@ -3974,6 +3888,8 @@ async function openChat(listingId,receiverId,title){
   currentChat = listingId;
   currentReceiver = receiverId;
   currentListing = listingId;
+  setChatSeenAt(receiverId,listingId,Date.now());
+  startChatPresence(receiverId);
   lastMessagesSignature = "";
   if(chatRefreshTimer){ clearInterval(chatRefreshTimer); chatRefreshTimer = null; }
   const titleButton = document.getElementById("chatTitle");
@@ -4072,7 +3988,14 @@ async function loadMessages(){
     }
 
     const messages = data || [];
-    const signature = messages.map(m=>`${m.id || ""}:${m.created_at || ""}:${m.message || ""}`).join("|");
+    // Отметка прочтения включается после выполнения SQL-миграции с read_at.
+    const unreadIds=messages.filter(m=>String(m.receiver_id)===String(currentUser.id) && !m.read_at && m.id).map(m=>m.id);
+    if(unreadIds.length){
+      const readAt=new Date().toISOString();
+      const {error:readError}=await sb.from("messages").update({read_at:readAt}).in("id",unreadIds);
+      if(!readError){messages.forEach(m=>{if(unreadIds.includes(m.id))m.read_at=readAt;});setChatSeenAt(currentReceiver,currentChat,Date.now());}
+    }
+    const signature = messages.map(m=>`${m.id || ""}:${m.created_at || ""}:${m.message || ""}:${m.read_at||""}`).join("|");
     if(signature === lastMessagesSignature) return;
 
     const wasAtBottom = container.scrollHeight - container.scrollTop - container.clientHeight < 90;
@@ -4148,6 +4071,12 @@ async function loadMessages(){
       time.className = "message-time";
       time.textContent = chatTime(message.created_at);
       div.appendChild(time);
+      if(String(message.sender_id)===String(currentUser.id) && !String(message.message||"").startsWith("SYSTEM_PURCHASE|")){
+        const status=document.createElement("span");status.className="message-status";
+        status.textContent=message.read_at?"✓✓ Прочитано":"✓ Отправлено";
+        status.style.color=message.read_at?"#d8b4fe":"#e9d5ff";
+        div.appendChild(status);
+      }
       container.appendChild(div);
     });
 
@@ -4218,6 +4147,7 @@ async function sendMessage(){
     if(imageFile) clearChatImage();
     lastMessagesSignature="";
     await loadMessages();
+    loadChats();
     input.focus({preventScroll:true});
   }catch(error){
     console.error("Ошибка отправки сообщения/изображения:",error);
