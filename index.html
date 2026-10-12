@@ -3975,41 +3975,55 @@ async function loadChats(){
     onlineLabel.innerHTML=onlineChatUsers.has(String(otherId))?'<span class="chat-online-dot"></span>В сети':'<span class="chat-offline-dot"></span>Не в сети';
     bottom.appendChild(onlineLabel);
     top.append(name,meta); main.append(top,bottom); item.append(avatarWrap,main);
-    item.onclick = ()=>openChat(message.listing_id,otherId,person.nickname);
+    item.onclick = (event)=>{ event.preventDefault(); event.stopPropagation(); openChat(message.listing_id,otherId,person.nickname).catch(error=>{ console.error("Не удалось открыть чат:",error); alert("Не удалось открыть чат. Обнови страницу и попробуй снова."); }); };
     container.appendChild(item);
   });
 }
 
 async function openChat(listingId,receiverId,title){
   if(!currentUser) return;
-  currentChat = listingId;
+  if(!receiverId){ console.error("Не указан собеседник для чата"); return; }
+
+  // Открываем окно немедленно, чтобы ошибка статуса присутствия не блокировала чат.
+  currentChat = listingId ?? null;
   currentReceiver = receiverId;
-  currentListing = listingId;
-  setChatSeenAt(receiverId,"all",Date.now());
-  startChatPresence(receiverId);
+  currentListing = listingId ?? null;
   lastMessagesSignature = "";
   if(chatRefreshTimer){ clearInterval(chatRefreshTimer); chatRefreshTimer = null; }
+
   const titleButton = document.getElementById("chatTitle");
-  titleButton.textContent = title || "Пользователь";
-  titleButton.disabled = false;
   const avatar = document.getElementById("chatHeaderAvatar");
-  avatar.src = avatarUrl(AVATAR_STYLES[0][1],receiverId || "Delyvex");
-  avatar.onerror = ()=>{avatar.onerror=null;avatar.src=avatarUrl(AVATAR_STYLES[0][1],receiverId || "Delyvex");};
-  showSection("chatWindow");
-  const person = await getPublicChatUser(receiverId);
-  titleButton.textContent = person.nickname || title || "Пользователь";
-  const headerBanBadge=document.getElementById("chatHeaderBanBadge");
-  if(headerBanBadge) headerBanBadge.hidden = !person.banned;
-  titleButton.innerHTML = escapeHtml(person.nickname || title || "Пользователь") + (person.banned ? ' <span class="banned-name-label">Забанен</span>' : "");
-  avatar.src = person.avatar_url || avatarUrl(AVATAR_STYLES[0][1],receiverId || "Delyvex");
+  if(titleButton){ titleButton.textContent = title || "Пользователь"; titleButton.disabled = false; }
+  if(avatar){
+    avatar.src = avatarUrl(AVATAR_STYLES[0][1], String(receiverId));
+    avatar.onerror = ()=>{ avatar.onerror=null; avatar.src=avatarUrl(AVATAR_STYLES[0][1], String(receiverId)); };
+  }
+
+  await showSection("chatWindow");
+  const chatWindow = document.getElementById("chatWindow");
+  if(chatWindow) chatWindow.classList.add("active");
+
+  try{
+    const person = await getPublicChatUser(receiverId);
+    if(titleButton){
+      titleButton.innerHTML = escapeHtml(person.nickname || title || "Пользователь") + (person.banned ? ' <span class="banned-name-label">Забанен</span>' : "");
+    }
+    const headerBanBadge=document.getElementById("chatHeaderBanBadge");
+    if(headerBanBadge) headerBanBadge.hidden = !person.banned;
+    if(avatar) avatar.src = person.avatar_url || avatarUrl(AVATAR_STYLES[0][1], String(receiverId));
+  }catch(profileError){
+    console.warn("Не удалось загрузить профиль собеседника, чат продолжит открываться:",profileError);
+  }
+
+  try{ setChatSeenAt(receiverId,"all",Date.now()); }catch(e){ console.warn("Не удалось обновить отметку прочтения",e); }
+  try{ startChatPresence(receiverId); }catch(presenceError){ console.warn("Не удалось включить статус присутствия:",presenceError); }
+
   await loadMessages();
   chatRefreshTimer = setInterval(()=>{
-    const chatSection = document.getElementById("chatWindow");
-    if(currentUser && currentReceiver && chatSection && chatSection.classList.contains("active")){
-      loadMessages();
-    }
-  }, 2000);
-  document.getElementById("chatInput").focus({preventScroll:true});
+    const section = document.getElementById("chatWindow");
+    if(currentUser && currentReceiver && section && section.classList.contains("active")) loadMessages();
+  }, 3000);
+  document.getElementById("chatInput")?.focus({preventScroll:true});
 }
 
 function openChatPartnerProfile(){
