@@ -4550,7 +4550,7 @@ async function loadAdminSupportCases(){
         <p class="admin-report-details"><strong>Описание:</strong><br>${adminEscape(c.details||"Пользователь не добавил описание.")}</p>
         <span class="admin-status">Статус: ${adminEscape(labels[c.status]||c.status)}</span>
         <div class="admin-report-actions" style="margin-top:12px;flex-wrap:wrap">
-          <button class="admin-report-link" type="button" onclick="openSupportCaseChat(${Number(c.id)},'admin')">💬 Зайти в общий чат</button>
+          <button class="admin-report-link" type="button" onclick="openSupportCaseChat(${Number(c.id)},'admin')">💬 Открыть чат по этой жалобе</button>
           ${c.status!=="resolved"&&c.status!=="rejected"?`<button class="admin-resolve" type="button" onclick="setSupportCaseStatus(${Number(c.id)},'resolved')">✓ Рассмотрено</button><button class="admin-reject" type="button" onclick="setSupportCaseStatus(${Number(c.id)},'rejected')">✕ Отклонить</button>`:""}
         </div>
       </article>`;
@@ -4588,7 +4588,7 @@ async function openSupportCaseChat(caseId,returnSection="admin"){
     const reporter=names[String(caseRow.reporter_id)]||"Заявитель";
     const reported=names[String(caseRow.reported_user_id)]||"Пользователь";
     document.getElementById("supportCaseTitle").textContent="Жалоба №"+caseRow.id+": "+String(caseRow.reason||"Обращение").slice(0,90);
-    document.getElementById("supportCaseSubtitle").textContent="Заявитель: "+reporter+" · Пользователь: "+reported+" · Администратор может отвечать здесь";
+    document.getElementById("supportCaseSubtitle").textContent="Заявитель: "+reporter+" · Пользователь: "+reported+" · Это отдельный чат именно по этой жалобе. Администратор может отвечать здесь";
     const reporterButton=document.getElementById("supportCaseReporterProfileButton");
     const reportedButton=document.getElementById("supportCaseReportedProfileButton");
     reporterButton.textContent="👤 Профиль: "+reporter;
