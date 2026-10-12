@@ -2739,10 +2739,26 @@ async function makePriceOffer(listingId){
   const price=Number(String(entered).replace(",","."));
   if(!Number.isFinite(price)||price<=0){ alert("Введи корректную цену больше нуля."); return; }
   if(price>=Number(listing.price)){ alert("Предложенная цена должна быть ниже текущей."); return; }
-  const {error}=await sb.from("price_offers").insert({listing_id:Number(listing.id),buyer_id:currentUser.id,seller_id:listing.seller_id,offered_price:price});
-  if(error){ alert("Не удалось отправить предложение. Проверь SQL для торга.\n\n"+error.message); return; }
-  alert("Предложение отправлено продавцу!");
+  const {error:offerError}=await sb.from("price_offers").insert({listing_id:Number(listing.id),buyer_id:currentUser.id,seller_id:listing.seller_id,offered_price:price});
+  if(offerError){ alert("Не удалось отправить предложение. Проверь SQL для торга.\n\n"+offerError.message); return; }
+
+  // Дублируем предложение в обычный чат покупателя и продавца.
+  const offerMessage = `🤝 ПРЕДЛОЖЕНИЕ ЦЕНЫ\nТовар: ${String(listing.title || "Объявление")}\nЦена продавца: ${Number(listing.price).toFixed(2)} ₽\nМоё предложение: ${price.toFixed(2)} ₽\n\nОткрой раздел «Заказы» → «Предложения цены», чтобы принять или отклонить предложение.`;
+  const {error:messageError}=await sb.from("messages").insert({
+    listing_id:String(listing.id),
+    sender_id:currentUser.id,
+    receiver_id:listing.seller_id,
+    message:offerMessage
+  });
+  if(messageError){
+    console.error("Предложение сохранено, но не удалось отправить его в чат:",messageError);
+    alert("Предложение сохранено, но сообщение в чат не отправилось. Ошибка: " + messageError.message);
+    await loadOrders();
+    return;
+  }
+  alert("Предложение отправлено! Открываю чат с продавцом.");
   await loadOrders();
+  await openChat(String(listing.id), String(listing.seller_id), String(listing.title || "Чат с продавцом"));
 }
 async function respondPriceOffer(offerId, decision){
   const {data,error}=await sb.rpc("delyvex_respond_price_offer",{p_offer_id:Number(offerId),p_decision:decision});
