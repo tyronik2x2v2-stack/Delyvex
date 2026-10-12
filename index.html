@@ -2762,9 +2762,18 @@ async function makePriceOffer(listingId){
 }
 async function respondPriceOffer(offerId, decision){
   const {data,error}=await sb.rpc("delyvex_respond_price_offer",{p_offer_id:Number(offerId),p_decision:decision});
-  if(error){ alert("Не удалось обработать предложение. Сначала выполни SQL-файл для торга.\n\n"+error.message); return; }
+  if(error){ alert("Не удалось обработать предложение. Выполни обновлённый SQL-файл для торга.\n\n"+error.message); return; }
   if(!data?.success){ alert(data?.message||"Предложение не обработано."); return; }
-  alert(decision==="accepted"?"Предложение принято.":"Предложение отклонено.");
+  if(decision==="accepted"){
+    const oldPrice=Number(data.old_price||0);
+    const newPrice=Number(data.new_price||0);
+    const discount=Number(data.discount||Math.max(0,oldPrice-newPrice));
+    alert(`Предложение принято!\nЦена товара изменена: ${oldPrice.toFixed(2)} ₽ → ${newPrice.toFixed(2)} ₽\nМинус скидка: ${discount.toFixed(2)} ₽`);
+    // Refresh the listing cards so everyone sees the accepted price.
+    if(typeof loadListings === "function") await loadListings();
+  } else {
+    alert("Предложение отклонено.");
+  }
   await loadOrders();
 }
 async function renderPriceOffers(container){
