@@ -3941,40 +3941,39 @@ async function loadMessages(){
       .or(`and(sender_id.eq.${currentUser.id},receiver_id.eq.${currentReceiver}),and(sender_id.eq.${currentReceiver},receiver_id.eq.${currentUser.id})`)
       .order("created_at",{ascending:true});
 
-    // Сообщения администратора загружаются отдельным RPC даже если обычный
-    // запрос messages завершился ошибкой: ошибка обычной переписки не должна
-    // скрывать сообщения по жалобе.
-    let normalError = error;
-    const combined = new Map();
-    if(!normalError && Array.isArray(data)){
-      data.forEach(row=>combined.set(String(row.id),row));
-    }else{
-      console.error("Ошибка загрузки обычной переписки:",normalError);
-    }
-
-    if(currentChat != null && currentReceiver){
+    // Отдельно загружаем сообщения администрации для обеих сторон жалобы.
+    // Это выполняется даже если обычный запрос messages завершился ошибкой.
+    let normalRows = Array.isArray(data) ? data : [];
+    let sharedRows = [];
+    let sharedError = null;
+    if(currentChat != null){
       try{
-        const {data:sharedRows,error:sharedError}=await sb.rpc("delyvex_get_listing_report_chat_messages",{
+        const result = await sb.rpc("delyvex_get_listing_report_chat_messages",{
           p_listing_id:String(currentChat),
           p_other_user_id:String(currentReceiver)
         });
-        if(sharedError){
-          console.error("Не удалось получить сообщения администрации:", sharedError);
-        }else if(Array.isArray(sharedRows)){
-          sharedRows.forEach(row=>combined.set(String(row.id),row));
-        }
+        sharedRows = Array.isArray(result.data) ? result.data : [];
+        sharedError = result.error;
+        if(sharedError) console.error("Не удалось получить сообщения администрации:", sharedError);
       }catch(sharedException){
+        sharedError = sharedException;
         console.error("Ошибка RPC сообщений администрации:", sharedException);
       }
     }
 
-    data=Array.from(combined.values()).sort((a,b)=>new Date(a.created_at)-new Date(b.created_at));
-    if(normalError && !data.length){
+    if(error && normalRows.length === 0 && sharedRows.length === 0){
+      console.error("Ошибка загрузки обычных сообщений:",error);
+      if(sharedError) console.error("Ошибка загрузки сообщений администрации:",sharedError);
       if(!container.children.length){
-        container.innerHTML = `<div class="empty">Не удалось загрузить сообщения. Проверь подключение и права Supabase.</div>`;
+        container.innerHTML = `<div class="empty">Не удалось загрузить сообщения. Проверь доступ к таблице messages и SQL-функции общего чата.</div>`;
       }
       return;
     }
+
+    // Объединяем обычную переписку и сообщения администрации без дублей.
+    const byId = new Map();
+    [...normalRows, ...sharedRows].forEach(row=>byId.set(String(row.id),row));
+    data = Array.from(byId.values()).sort((a,b)=>new Date(a.created_at)-new Date(b.created_at));
 
     const messages = data || [];
     const signature = messages.map(m=>`${m.id || ""}:${m.created_at || ""}:${m.message || ""}`).join("|");
