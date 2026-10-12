@@ -1900,6 +1900,13 @@ async function renderListings(items){
             ⬆️ ${canBump ? 'Поднять товар' : `Поднять через ${remainingMinutes} мин.`}
           </button>
           <button
+            class="secondary-btn"
+            style="border-radius:10px;padding:11px 14px;cursor:pointer;width:100%"
+            onclick="editListing('${escapeJs(listing.id)}')"
+          >
+            ✏️ Изменить товар
+          </button>
+          <button
             class="danger-btn"
             style="background:#dc2626;color:white;border:0;border-radius:10px;padding:11px 14px;cursor:pointer;width:100%"
             onclick="deleteListing('${escapeJs(listing.id)}')"
@@ -2159,6 +2166,74 @@ async function bumpListing(listingId){
   await renderListings(listings);
   alert("Готово! Твой товар поднят в самый верх. Повторно поднять его можно через час.");
 }
+
+/* =========================================
+   EDIT OWN LISTING
+========================================= */
+
+async function editListing(listingId){
+  if(!currentUser){
+    alert("Сначала войди в аккаунт.");
+    return;
+  }
+
+  const listing = listings.find(item => String(item.id) === String(listingId));
+  if(!listing){
+    alert("Товар не найден. Обнови страницу и попробуй ещё раз.");
+    return;
+  }
+  if(String(listing.seller_id) !== String(currentUser.id)){
+    alert("Можно изменять только свои товары.");
+    return;
+  }
+
+  const game = prompt("Игра / категория:", listing.game || "");
+  if(game === null) return;
+  const title = prompt("Название товара:", listing.title || "");
+  if(title === null) return;
+  const description = prompt("Описание товара:", listing.description || "");
+  if(description === null) return;
+  const priceText = prompt("Цена в рублях:", String(listing.price ?? ""));
+  if(priceText === null) return;
+
+  const cleanGame = game.trim();
+  const cleanTitle = title.trim();
+  const cleanDescription = description.trim();
+  const cleanPrice = Number(String(priceText).replace(",", ".").trim());
+
+  if(!cleanGame || !cleanTitle){
+    alert("Игра и название не могут быть пустыми.");
+    return;
+  }
+  if(!Number.isFinite(cleanPrice) || cleanPrice < 0){
+    alert("Укажи корректную цену — неотрицательное число.");
+    return;
+  }
+
+  const {data, error} = await sb
+    .from("listings")
+    .update({game:cleanGame, title:cleanTitle, description:cleanDescription, price:cleanPrice})
+    .eq("id", listingId)
+    .eq("seller_id", currentUser.id)
+    .select("id,game,title,description,price,seller_id")
+    .maybeSingle();
+
+  if(error){
+    console.error("Ошибка изменения товара:", error);
+    alert("Не удалось изменить товар. Проверь права UPDATE для своих объявлений в Supabase.\n\n" + error.message);
+    return;
+  }
+  if(!data){
+    alert("Supabase не вернул изменённое объявление. Возможно, политика RLS запрещает редактирование своих товаров.");
+    return;
+  }
+
+  const index = listings.findIndex(item => String(item.id) === String(listingId));
+  if(index !== -1) listings[index] = {...listings[index], ...data};
+  await loadListings();
+  alert("Товар успешно изменён!");
+}
+
 
 /* =========================================
    DELETE OWN LISTING
