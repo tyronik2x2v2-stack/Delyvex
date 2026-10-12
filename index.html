@@ -681,6 +681,7 @@ main{max-width:1100px;margin:auto;padding:25px 18px 100px}
 
         <div id="profileSellerLevel" class="seller-level level-newbie">🌱 Новичок</div>
         <div id="profileEmail" class="profile-email"></div>
+          <div id="profileUserId" class="profile-email" style="font-size:12px;opacity:.8;overflow-wrap:anywhere">ID: —</div>
 
       </div>
 
@@ -779,7 +780,7 @@ main{max-width:1100px;margin:auto;padding:25px 18px 100px}
         <div class="chat-top-status">Нажми на никнейм, чтобы открыть профиль</div>
       </div>
       <button class="nav-btn" onclick="openChatPartnerProfile()" title="Профиль">👤</button>
-      <button class="chat-btn" type="button" onclick="createSupportCaseFromChat()" style="padding:9px 11px">🚩 Пожаловаться</button>
+      <button class="chat-btn" type="button" onclick="openReportChoiceMenu()" style="padding:9px 11px">🚩 Пожаловаться</button>
     </div>
 
     <div id="chatMessages" class="chat-messages"></div>
@@ -860,6 +861,42 @@ main{max-width:1100px;margin:auto;padding:25px 18px 100px}
 
 
 <div id="notificationToast" role="status" aria-live="polite" onclick="openNotificationTarget()"></div>
+
+<div id="reportChoiceModal" role="dialog" aria-modal="true" aria-labelledby="reportChoiceTitle" onclick="if(event.target===this)closeReportChoiceMenu()" style="position:fixed;inset:0;z-index:10999;background:#000b;display:none;align-items:center;justify-content:center;padding:18px">
+  <div class="report-modal-box">
+    <h2 id="reportChoiceTitle">🚩 Что хочешь пожаловаться?</h2>
+    <p>Выбери, на что отправить жалобу. Она попадёт модераторам Delyvex.</p>
+    <div style="display:grid;gap:10px;margin-top:16px">
+      <button type="button" class="primary-btn" onclick="chooseChatListingReport()">🚩 Пожаловаться на товар</button>
+      <button type="button" class="chat-btn" onclick="chooseChatUserReport()">🛡️ Пожаловаться на пользователя</button>
+      <button type="button" class="chat-btn" onclick="closeReportChoiceMenu()">Отмена</button>
+    </div>
+  </div>
+</div>
+
+<div id="userReportModal" role="dialog" aria-modal="true" aria-labelledby="userReportTitle" onclick="if(event.target===this)closeUserReportModal()" style="position:fixed;inset:0;z-index:11001;background:#000b;display:none;align-items:center;justify-content:center;padding:18px">
+  <div class="report-modal-box">
+    <h2 id="userReportTitle">🛡️ Пожаловаться на пользователя</h2>
+    <p id="userReportDescription">Сообщи, что вызывает подозрение. Жалоба попадёт модераторам.</p>
+    <form id="userReportForm" onsubmit="submitUserReport(event)">
+      <label for="userReportReason">Причина жалобы</label>
+      <select id="userReportReason" required>
+        <option value="Мошенничество или обман">Мошенничество или обман</option>
+        <option value="Просит оплату вне Delyvex">Просит оплату вне Delyvex</option>
+        <option value="Угрожает или оскорбляет">Угрожает или оскорбляет</option>
+        <option value="Спам или подозрительные ссылки">Спам или подозрительные ссылки</option>
+        <option value="Подозрительный аккаунт">Подозрительный аккаунт</option>
+        <option value="Другое">Другое</option>
+      </select>
+      <label for="userReportDetails">Подробности (необязательно)</label>
+      <textarea id="userReportDetails" maxlength="1000" placeholder="Опиши ситуацию, не указывая личные данные"></textarea>
+      <div class="report-modal-actions">
+        <button type="button" class="chat-btn" onclick="closeUserReportModal()">Отмена</button>
+        <button type="submit" id="userReportSubmitBtn" class="primary-btn">Отправить жалобу</button>
+      </div>
+    </form>
+  </div>
+</div>
 
 <div id="reportModal" role="dialog" aria-modal="true" aria-labelledby="reportModalTitle" onclick="if(event.target===this)closeReportModal()">
   <div class="report-modal-box">
@@ -1359,6 +1396,8 @@ async function loadProfile(){
   document.getElementById("nicknameInput").value = nickname;
   document.getElementById("profileNickname").textContent = nickname;
   document.getElementById("profileEmail").textContent = currentUser.email || "";
+   const profileIdEl=document.getElementById("profileUserId");
+   if(profileIdEl) profileIdEl.textContent="ID: "+currentUser.id;
   document.getElementById("profileAvatar").src = avatar;
   document.getElementById("selectedAvatarPreview").src = avatar;
   document.getElementById("headerAvatar").src = avatar;
@@ -2084,6 +2123,7 @@ async function viewSellerProfile(sellerId){
         <div class="profile-name">${escapeHtml(info.nickname || "Пользователь")}${sellerBanned ? '<span class="banned-name-label">Забанен</span>' : ''}</div>
         <div class="public-profile-meta">⭐ ${rating} · ${getReviewText(Number(info.review_count || 0))}<br>📅 На Delyvex с ${escapeHtml(dateText)}</div>
         ${sellerLevelMarkup(Number(info.review_count || 0), ratingValue)}
+        ${currentUser && String(currentUser.id)!==String(sellerId) ? `<button class="report-btn" type="button" style="display:block;margin-top:12px" onclick="openUserReportModal('${escapeJs(String(sellerId))}','${escapeJs(String(info.nickname || 'Пользователь'))}')">🛡️ Пожаловаться на пользователя</button>` : ''}
       </div>
     </div>
     <div class="rating-box">
@@ -4085,6 +4125,71 @@ async function refreshNotificationBadges(allowToasts=true){
   }finally{
     notificationPollBusy = false;
   }
+}
+
+/* =========================================
+   REPORT CHOOSER + USER REPORTS
+========================================= */
+let activeUserReportId = null;
+let activeUserReportNickname = "Пользователь";
+
+function openReportChoiceMenu(){
+  if(!currentUser){alert("Войди в аккаунт, чтобы отправить жалобу.");showAuthGate();return;}
+  document.getElementById("reportChoiceModal").style.display="flex";
+}
+function closeReportChoiceMenu(){
+  const modal=document.getElementById("reportChoiceModal");if(modal)modal.style.display="none";
+}
+function chooseChatListingReport(){
+  closeReportChoiceMenu();
+  if(!currentChat){alert("В этом чате не выбран товар. Открой чат, связанный с объявлением, или пожалуйся через карточку товара.");return;}
+  const listing=listings.find(x=>String(x.id)===String(currentChat));
+  if(!listing){alert("Не удалось найти товар для этой переписки. Открой товар в каталоге и нажми «Пожаловаться на товар».");return;}
+  openReportModal(listing.id,listing.title||"Товар");
+}
+function chooseChatUserReport(){
+  closeReportChoiceMenu();
+  if(!currentReceiver){alert("Не выбран собеседник.");return;}
+  openUserReportModal(currentReceiver,document.getElementById("chatTitle")?.textContent||"Пользователь");
+}
+function openUserReportModal(userId,nickname){
+  if(!currentUser){alert("Войди в аккаунт, чтобы пожаловаться на пользователя.");showAuthGate();return;}
+  if(String(currentUser.id)===String(userId)){alert("Нельзя пожаловаться на собственный аккаунт.");return;}
+  activeUserReportId=String(userId);
+  activeUserReportNickname=String(nickname||"Пользователь");
+  document.getElementById("userReportTitle").textContent="🛡️ Жалоба на пользователя: "+activeUserReportNickname;
+  document.getElementById("userReportReason").value="Мошенничество или обман";
+  document.getElementById("userReportDetails").value="";
+  document.getElementById("userReportModal").style.display="flex";
+}
+function closeUserReportModal(){
+  const modal=document.getElementById("userReportModal");if(modal)modal.style.display="none";
+  activeUserReportId=null;
+}
+async function submitUserReport(event){
+  event.preventDefault();
+  if(!currentUser||!activeUserReportId){alert("Открой профиль пользователя ещё раз.");closeUserReportModal();return;}
+  const button=document.getElementById("userReportSubmitBtn");
+  button.disabled=true;button.textContent="Отправка...";
+  try{
+    const reason=document.getElementById("userReportReason").value;
+    const details=document.getElementById("userReportDetails").value.trim().slice(0,1000);
+    const {data:caseId,error}=await sb.rpc("delyvex_create_support_case",{
+      p_reported_user_id:activeUserReportId,
+      p_related_listing_id:null,
+      p_reason:reason.slice(0,250),
+      p_details:details,
+      p_chat_listing_id:(currentReceiver && String(currentReceiver)===String(activeUserReportId) && currentChat!=null) ? String(currentChat) : null
+    });
+    if(error){
+      console.error("Жалоба на пользователя:",error);
+      alert("Не удалось отправить жалобу: "+(error.message||"ошибка Supabase")+". Проверь, что SQL-файл Delyvex_support_cases.sql выполнен в Supabase.");
+      return;
+    }
+    closeUserReportModal();
+    alert("Жалоба на пользователя отправлена и появилась в панели администратора.");
+  }catch(e){console.error(e);alert("Не удалось отправить жалобу. Проверь интернет и попробуй снова.");}
+  finally{button.disabled=false;button.textContent="Отправить жалобу";}
 }
 
 /* =========================================
