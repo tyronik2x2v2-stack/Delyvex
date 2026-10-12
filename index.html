@@ -3920,64 +3920,80 @@ function chatTime(value){
 async function loadChats(){
   if(!currentUser) return;
   const container = document.getElementById("chatsContainer");
+  if(!container) return;
   container.innerHTML = `<div class="empty">Загружаем переписки…</div>`;
-  const {data,error} = await sb.from("messages").select("*")
-    .or(`sender_id.eq.${currentUser.id},receiver_id.eq.${currentUser.id}`)
-    .order("created_at",{ascending:false});
-  if(error){
-    console.error(error);
-    container.innerHTML = `<div class="empty">Не удалось загрузить чаты. Попробуй обновить страницу.</div>`;
-    return;
+  try{
+    // Загружаем входящие и исходящие сообщения отдельно: это надёжнее,
+    // чем один OR-фильтр, и позволяет не потерять диалоги из-за фильтра.
+    const [sentResult, receivedResult] = await Promise.all([
+      sb.from("messages").select("*").eq("sender_id", currentUser.id).order("created_at", {ascending:false}),
+      sb.from("messages").select("*").eq("receiver_id", currentUser.id).order("created_at", {ascending:false})
+    ]);
+    const queryError = sentResult.error || receivedResult.error;
+    if(queryError){
+      console.error("Не удалось загрузить список чатов:", queryError);
+      container.innerHTML = `<div class="empty">Не удалось загрузить чаты.<br><span style="font-size:13px">${escapeHtml(queryError.message || "Проверь доступ к таблице messages в Supabase.")}</span><br><button class="secondary-btn" type="button" onclick="loadChats()">Повторить</button></div>`;
+      return;
+    }
+    const byMessageId = new Map();
+    [...(sentResult.data || []), ...(receivedResult.data || [])].forEach(message=>{
+      const key = message.id != null ? String(message.id) : `${message.sender_id}|${message.receiver_id}|${message.created_at}|${message.message}`;
+      byMessageId.set(key, message);
+    });
+    const data = Array.from(byMessageId.values()).sort((a,b)=>new Date(b.created_at||0)-new Date(a.created_at||0));
+    if(!data.length){
+      container.innerHTML = `<div class="empty">💬<br><br>Пока нет переписок.<br><span style="font-size:14px">Открой объявление и нажми «Написать продавцу».</span></div>`;
+      return;
+    }
+    // Один элемент списка на собеседника. История сообщений в базе не удаляется.
+    const chats = new Map();
+    data.forEach(message=>{
+      const otherId = String(message.sender_id) === String(currentUser.id) ? message.receiver_id : message.sender_id;
+      if(otherId == null || String(otherId) === String(currentUser.id)) return;
+      const key = String(otherId);
+      if(!chats.has(key)) chats.set(key,{message,otherId});
+    });
+    container.innerHTML = "";
+    const entries = Array.from(chats.values());
+    const userIds = [...new Set(entries.map(entry=>String(entry.otherId)))];
+    const userProfiles = await Promise.all(userIds.map(async id=>[id,await getPublicChatUser(id)]));
+    const profileMap = new Map(userProfiles);
+    entries.forEach(({message,otherId})=>{
+      const person = profileMap.get(String(otherId)) || {nickname:"Пользователь",avatar_url:avatarUrl(AVATAR_STYLES[0][1],otherId)};
+      const rawText = String(message.message || "");
+      const preview = rawText.startsWith("SYSTEM_PURCHASE|") ? "🛒 Информация о покупке" : rawText;
+      const item = document.createElement("div");
+      item.className = "chat-item";
+      const avatarWrap = document.createElement("div"); avatarWrap.className = "avatar-ban-wrap";
+      const img = document.createElement("img");
+      img.className = "chat-list-avatar"; img.src = person.avatar_url; img.alt = "";
+      img.onerror = ()=>{img.onerror=null;img.src=avatarUrl(AVATAR_STYLES[0][1],otherId);};
+      avatarWrap.appendChild(img);
+      if(person.banned){const stamp=document.createElement("span");stamp.className="avatar-ban-badge";stamp.textContent="БАН";avatarWrap.appendChild(stamp);}
+      const main = document.createElement("div"); main.className = "chat-list-main";
+      const top = document.createElement("div"); top.className = "chat-list-top";
+      const name = document.createElement("div"); name.className = "chat-list-name"; name.textContent = person.nickname + (person.banned ? " · Забанен" : "");
+      if(person.banned) name.style.color = "#fca5a5";
+      const meta = document.createElement("div"); meta.className = "chat-list-meta";
+      const time = document.createElement("div"); time.className = "chat-list-time"; time.textContent = chatTime(message.created_at);
+      const seenAt = getChatSeenAt(otherId,"all");
+      const unreadCount = data.filter(m=>String(m.sender_id)===String(otherId) && String(m.receiver_id)===String(currentUser.id) && new Date(m.created_at||0).getTime()>seenAt).length;
+      if(unreadCount){const badge=document.createElement("span");badge.className="chat-unread-badge";badge.textContent=unreadCount>99?"99+":String(unreadCount);meta.appendChild(badge);}
+      meta.appendChild(time);
+      const snippet = document.createElement("div"); snippet.className = "chat-list-preview"+(unreadCount?" unread":"");
+      snippet.textContent = (String(message.sender_id)===String(currentUser.id) ? "Вы: " : "") + preview;
+      const bottom=document.createElement("div");bottom.className="chat-list-bottom";bottom.append(snippet);
+      const onlineLabel=document.createElement("span");onlineLabel.style.cssText="font-size:11px;color:#9c8bad;white-space:nowrap";
+      onlineLabel.innerHTML=onlineChatUsers.has(String(otherId))?'<span class="chat-online-dot"></span>В сети':'<span class="chat-offline-dot"></span>Не в сети';
+      bottom.appendChild(onlineLabel);
+      top.append(name,meta); main.append(top,bottom); item.append(avatarWrap,main);
+      item.onclick = (event)=>{ event.preventDefault(); event.stopPropagation(); openChat(message.listing_id,otherId,person.nickname).catch(error=>{ console.error("Не удалось открыть чат:",error); alert("Не удалось открыть чат. Проверь консоль браузера и доступ к messages в Supabase."); }); };
+      container.appendChild(item);
+    });
+  }catch(error){
+    console.error("Ошибка списка чатов:",error);
+    container.innerHTML = `<div class="empty">Ошибка загрузки чатов.<br><span style="font-size:13px">${escapeHtml(error?.message || "Неизвестная ошибка")}</span><br><button class="secondary-btn" type="button" onclick="loadChats()">Повторить</button></div>`;
   }
-  if(!data?.length){
-    container.innerHTML = `<div class="empty">💬<br><br>Пока нет переписок.<br><span style="font-size:14px">Открой объявление и нажми «Написать продавцу».</span></div>`;
-    return;
-  }
-  // Один диалог на собеседника: не создаём отдельные строки из-за разных listing_id.
-  // Внутри диалога показываем последнюю активность по всей переписке с этим человеком.
-  const chats = new Map();
-  data.forEach(message=>{
-    const otherId = String(message.sender_id) === String(currentUser.id) ? message.receiver_id : message.sender_id;
-    const key = String(otherId);
-    if(!chats.has(key)) chats.set(key,{message,otherId});
-  });
-  container.innerHTML = "";
-  const entries = Array.from(chats.values());
-  const userIds = [...new Set(entries.map(entry=>entry.otherId))];
-  const userProfiles = await Promise.all(userIds.map(async id=>[String(id),await getPublicChatUser(id)]));
-  const profileMap = new Map(userProfiles);
-  entries.forEach(({message,otherId})=>{
-    const person = profileMap.get(String(otherId)) || {nickname:"Пользователь",avatar_url:avatarUrl(AVATAR_STYLES[0][1],otherId)};
-    const rawText = String(message.message || "");
-    const preview = rawText.startsWith("SYSTEM_PURCHASE|") ? "🛒 Информация о покупке" : rawText;
-    const item = document.createElement("div");
-    item.className = "chat-item";
-    const avatarWrap = document.createElement("div"); avatarWrap.className = "avatar-ban-wrap";
-    const img = document.createElement("img");
-    img.className = "chat-list-avatar"; img.src = person.avatar_url; img.alt = "";
-    img.onerror = ()=>{img.onerror=null;img.src=avatarUrl(AVATAR_STYLES[0][1],otherId);};
-    avatarWrap.appendChild(img);
-    if(person.banned){const stamp=document.createElement("span");stamp.className="avatar-ban-badge";stamp.textContent="БАН";avatarWrap.appendChild(stamp);}
-    const main = document.createElement("div"); main.className = "chat-list-main";
-    const top = document.createElement("div"); top.className = "chat-list-top";
-    const name = document.createElement("div"); name.className = "chat-list-name"; name.textContent = person.nickname + (person.banned ? " · Забанен" : "");
-    if(person.banned) name.style.color = "#fca5a5";
-    const meta = document.createElement("div"); meta.className = "chat-list-meta";
-    const time = document.createElement("div"); time.className = "chat-list-time"; time.textContent = chatTime(message.created_at);
-    const seenAt = getChatSeenAt(otherId,"all");
-    const unreadCount = data.filter(m=>String(m.sender_id)===String(otherId) && new Date(m.created_at||0).getTime()>seenAt).length;
-    if(unreadCount){const badge=document.createElement("span");badge.className="chat-unread-badge";badge.textContent=unreadCount>99?"99+":String(unreadCount);meta.appendChild(badge);}
-    meta.appendChild(time);
-    const snippet = document.createElement("div"); snippet.className = "chat-list-preview"+(unreadCount?" unread":"");
-    snippet.textContent = (String(message.sender_id)===String(currentUser.id) ? "Вы: " : "") + preview;
-    const bottom=document.createElement("div");bottom.className="chat-list-bottom";bottom.append(snippet);
-    const onlineLabel=document.createElement("span");onlineLabel.style.cssText="font-size:11px;color:#9c8bad;white-space:nowrap";
-    onlineLabel.innerHTML=onlineChatUsers.has(String(otherId))?'<span class="chat-online-dot"></span>В сети':'<span class="chat-offline-dot"></span>Не в сети';
-    bottom.appendChild(onlineLabel);
-    top.append(name,meta); main.append(top,bottom); item.append(avatarWrap,main);
-    item.onclick = (event)=>{ event.preventDefault(); event.stopPropagation(); openChat(message.listing_id,otherId,person.nickname).catch(error=>{ console.error("Не удалось открыть чат:",error); alert("Не удалось открыть чат. Обнови страницу и попробуй снова."); }); };
-    container.appendChild(item);
-  });
 }
 
 async function openChat(listingId,receiverId,title){
