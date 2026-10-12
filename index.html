@@ -3941,9 +3941,18 @@ async function loadMessages(){
       .or(`and(sender_id.eq.${currentUser.id},receiver_id.eq.${currentReceiver}),and(sender_id.eq.${currentReceiver},receiver_id.eq.${currentUser.id})`)
       .order("created_at",{ascending:true});
 
-    // Если товар фигурирует в жалобе, добавляем сообщения администрации,
-    // адресованные участникам исходного чата.
-    if(!error && currentChat != null){
+    // Сообщения администратора загружаются отдельным RPC даже если обычный
+    // запрос messages завершился ошибкой: ошибка обычной переписки не должна
+    // скрывать сообщения по жалобе.
+    let normalError = error;
+    const combined = new Map();
+    if(!normalError && Array.isArray(data)){
+      data.forEach(row=>combined.set(String(row.id),row));
+    }else{
+      console.error("Ошибка загрузки обычной переписки:",normalError);
+    }
+
+    if(currentChat != null && currentReceiver){
       try{
         const {data:sharedRows,error:sharedError}=await sb.rpc("delyvex_get_listing_report_chat_messages",{
           p_listing_id:String(currentChat),
@@ -3952,19 +3961,17 @@ async function loadMessages(){
         if(sharedError){
           console.error("Не удалось получить сообщения администрации:", sharedError);
         }else if(Array.isArray(sharedRows)){
-          const byId=new Map((data||[]).map(row=>[String(row.id),row]));
-          sharedRows.forEach(row=>byId.set(String(row.id),row));
-          data=Array.from(byId.values()).sort((a,b)=>new Date(a.created_at)-new Date(b.created_at));
+          sharedRows.forEach(row=>combined.set(String(row.id),row));
         }
       }catch(sharedException){
         console.error("Ошибка RPC сообщений администрации:", sharedException);
       }
     }
 
-    if(error){
-      console.error("Ошибка загрузки сообщений:",error);
+    data=Array.from(combined.values()).sort((a,b)=>new Date(a.created_at)-new Date(b.created_at));
+    if(normalError && !data.length){
       if(!container.children.length){
-        container.innerHTML = `<div class="empty">Ошибка загрузки сообщений. Попробуй обновить страницу.</div>`;
+        container.innerHTML = `<div class="empty">Не удалось загрузить сообщения. Проверь подключение и права Supabase.</div>`;
       }
       return;
     }
