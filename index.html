@@ -137,6 +137,12 @@ main{max-width:1100px;margin:auto;padding:25px 18px 100px}
 .public-review-text{margin-top:9px;color:#ddd;line-height:1.5;white-space:pre-wrap;overflow-wrap:anywhere}
 .avatar-option img{background:#100b1a}
 .seller-rating{color:#fbbf24;font-size:14px;margin-top:3px}
+
+.seller-level{display:inline-flex;align-items:center;gap:5px;margin-top:6px;padding:5px 9px;border-radius:999px;font-size:12px;font-weight:800;border:1px solid #6d3cc7;background:#21152e;color:#e9d5ff}
+.seller-level.level-newbie{border-color:#64748b;background:#1e293b;color:#cbd5e1}
+.seller-level.level-experienced{border-color:#0d9488;background:#042f2e;color:#99f6e4}
+.seller-level.level-pro{border-color:#7c3aed;background:#2e1065;color:#ddd6fe}
+.seller-level.level-legend{border-color:#d97706;background:#451a03;color:#fde68a}
 .listing-actions{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
 
 .insufficient{margin-top:10px;color:#fca5a5;font-size:14px;font-weight:700}
@@ -410,11 +416,6 @@ main{max-width:1100px;margin:auto;padding:25px 18px 100px}
 #phoneRotateButton{background:#8b5cf6;color:#fff}
 #phoneRotateContinue{background:#2a2035;color:#ddd;border:1px solid #463354}
 #phoneRotateHelp{display:none;color:#fcd34d;font-size:13px;margin-top:13px;line-height:1.45}
-
-/* Delyvex — прозрачность сделки */
-.deal-center{margin:18px 0 22px;padding:20px;border:1px solid rgba(117,91,255,.28);border-radius:18px;background:linear-gradient(135deg,rgba(111,76,255,.10),rgba(28,190,170,.06));}
-.deal-center h2{margin:0 0 8px;font-size:20px}.deal-center-intro{margin:0 0 16px;opacity:.82;line-height:1.5}.deal-steps{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}.deal-step{padding:12px;border-radius:12px;background:rgba(127,127,127,.08);border:1px solid rgba(127,127,127,.14)}.deal-step b{display:block;margin-bottom:5px}.deal-step span{font-size:13px;line-height:1.4;opacity:.8}.deal-center-note{margin:14px 0 0;font-size:12px;opacity:.72;line-height:1.5}.deal-center details{margin-top:12px}.deal-center summary{cursor:pointer;font-weight:600}.deal-checklist{margin:10px 0 0;padding-left:20px;line-height:1.7}@media(max-width:650px){.deal-steps{grid-template-columns:repeat(2,minmax(0,1fr))}.deal-center{padding:15px}}
-
 </style>
 </head>
 
@@ -612,27 +613,6 @@ main{max-width:1100px;margin:auto;padding:25px 18px 100px}
 
   <h1 class="page-title">Мои заказы</h1>
 
-  <div class="deal-center" aria-label="Центр безопасности сделки">
-    <h2>🛡️ Центр безопасности сделки</h2>
-    <p class="deal-center-intro">Понятные этапы сделки помогают покупателю и продавцу знать, что делать дальше.</p>
-    <div class="deal-steps">
-      <div class="deal-step"><b>1. Заказ</b><span>Уточните условия и состав товара в чате до оплаты.</span></div>
-      <div class="deal-step"><b>2. Оплата</b><span>Платите только через официальный способ, показанный на сайте.</span></div>
-      <div class="deal-step"><b>3. Получение</b><span>Проверьте товар и сохраните переписку по заказу.</span></div>
-      <div class="deal-step"><b>4. Проблема?</b><span>Сначала свяжитесь со второй стороной и сохраните подтверждения.</span></div>
-    </div>
-    <details>
-      <summary>Памятка покупателю и продавцу</summary>
-      <ul class="deal-checklist">
-        <li>Не передавайте пароль от своего аккаунта и коды подтверждения.</li>
-        <li>Не переходите по подозрительным ссылкам и не отправляйте деньги в обход сайта.</li>
-        <li>Перед подтверждением получения проверьте, что товар соответствует описанию.</li>
-        <li>Если возник спор, сохраните номер заказа, переписку и доказательства.</li>
-      </ul>
-    </details>
-    <p class="deal-center-note">Важно: этот раздел — памятка, а не гарантия безопасной сделки или автоматический эскроу. Реальная обработка оплаты и возвратов зависит от подключённых платёжных и серверных механизмов.</p>
-  </div>
-
   <div id="ordersContainer"></div>
 
 </section>
@@ -699,6 +679,7 @@ main{max-width:1100px;margin:auto;padding:25px 18px 100px}
           Пользователь
         </div>
 
+        <div id="profileSellerLevel" class="seller-level level-newbie">🌱 Новичок</div>
         <div id="profileEmail" class="profile-email"></div>
 
       </div>
@@ -798,7 +779,7 @@ main{max-width:1100px;margin:auto;padding:25px 18px 100px}
         <div class="chat-top-status">Нажми на никнейм, чтобы открыть профиль</div>
       </div>
       <button class="nav-btn" onclick="openChatPartnerProfile()" title="Профиль">👤</button>
-      <button class="chat-btn" type="button" onclick="createSupportCaseFromChat()" style="padding:9px 11px">🚩 Пожаловаться</button>
+      <button class="chat-btn" type="button" onclick="openReportChoiceMenu()" style="padding:9px 11px">🚩 Пожаловаться</button>
     </div>
 
     <div id="chatMessages" class="chat-messages"></div>
@@ -828,6 +809,10 @@ main{max-width:1100px;margin:auto;padding:25px 18px 100px}
       <div class="chat-top-person" style="flex:1;min-width:0">
         <div id="supportCaseTitle" class="chat-top-name">Чат по жалобе</div>
         <div id="supportCaseSubtitle" class="chat-top-status">Общий чат заявителя, пользователя и администрации</div>
+        <div id="supportCaseProfileButtons" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
+          <button id="supportCaseReporterProfileButton" class="nav-btn" type="button" style="font-size:12px;padding:6px 9px" hidden>👤 Профиль заявителя</button>
+          <button id="supportCaseReportedProfileButton" class="nav-btn" type="button" style="font-size:12px;padding:6px 9px" hidden>👤 Профиль пользователя</button>
+        </div>
       </div>
       <span>🛡️</span>
     </div>
@@ -875,6 +860,42 @@ main{max-width:1100px;margin:auto;padding:25px 18px 100px}
 
 
 <div id="notificationToast" role="status" aria-live="polite" onclick="openNotificationTarget()"></div>
+
+<div id="reportChoiceModal" role="dialog" aria-modal="true" aria-labelledby="reportChoiceTitle" onclick="if(event.target===this)closeReportChoiceMenu()" style="position:fixed;inset:0;z-index:10999;background:#000b;display:none;align-items:center;justify-content:center;padding:18px">
+  <div class="report-modal-box">
+    <h2 id="reportChoiceTitle">🚩 Что хочешь пожаловаться?</h2>
+    <p>Выбери, на что отправить жалобу. Она попадёт модераторам Delyvex.</p>
+    <div style="display:grid;gap:10px;margin-top:16px">
+      <button type="button" class="primary-btn" onclick="chooseChatListingReport()">🚩 Пожаловаться на товар</button>
+      <button type="button" class="chat-btn" onclick="chooseChatUserReport()">🛡️ Пожаловаться на пользователя</button>
+      <button type="button" class="chat-btn" onclick="closeReportChoiceMenu()">Отмена</button>
+    </div>
+  </div>
+</div>
+
+<div id="userReportModal" role="dialog" aria-modal="true" aria-labelledby="userReportTitle" onclick="if(event.target===this)closeUserReportModal()" style="position:fixed;inset:0;z-index:11001;background:#000b;display:none;align-items:center;justify-content:center;padding:18px">
+  <div class="report-modal-box">
+    <h2 id="userReportTitle">🛡️ Пожаловаться на пользователя</h2>
+    <p id="userReportDescription">Сообщи, что вызывает подозрение. Жалоба попадёт модераторам.</p>
+    <form id="userReportForm" onsubmit="submitUserReport(event)">
+      <label for="userReportReason">Причина жалобы</label>
+      <select id="userReportReason" required>
+        <option value="Мошенничество или обман">Мошенничество или обман</option>
+        <option value="Просит оплату вне Delyvex">Просит оплату вне Delyvex</option>
+        <option value="Угрожает или оскорбляет">Угрожает или оскорбляет</option>
+        <option value="Спам или подозрительные ссылки">Спам или подозрительные ссылки</option>
+        <option value="Подозрительный аккаунт">Подозрительный аккаунт</option>
+        <option value="Другое">Другое</option>
+      </select>
+      <label for="userReportDetails">Подробности (необязательно)</label>
+      <textarea id="userReportDetails" maxlength="1000" placeholder="Опиши ситуацию, не указывая личные данные"></textarea>
+      <div class="report-modal-actions">
+        <button type="button" class="chat-btn" onclick="closeUserReportModal()">Отмена</button>
+        <button type="submit" id="userReportSubmitBtn" class="primary-btn">Отправить жалобу</button>
+      </div>
+    </form>
+  </div>
+</div>
 
 <div id="reportModal" role="dialog" aria-modal="true" aria-labelledby="reportModalTitle" onclick="if(event.target===this)closeReportModal()">
   <div class="report-modal-box">
@@ -1597,6 +1618,14 @@ async function loadProfileRating(userId){
   document.getElementById("profileReviewCount").textContent =
     getReviewText(count);
 
+  const levelEl = document.getElementById("profileSellerLevel");
+  if(levelEl){
+    const level = getSellerLevel(count, average);
+    levelEl.className = "seller-level " + level.cls;
+    levelEl.textContent = level.icon + " " + level.name;
+    levelEl.title = level.description;
+  }
+
 }
 
 
@@ -1610,6 +1639,21 @@ function getReviewText(count){
 
   return count+" отзывов";
 
+}
+
+// Уровень продавца рассчитывается по реальным отзывам и среднему рейтингу.
+function getSellerLevel(reviewCount, rating){
+  const count = Math.max(0, Number(reviewCount) || 0);
+  const score = Math.max(0, Number(rating) || 0);
+  if(count >= 500 && score >= 4.8) return {name:"Легенда", icon:"👑", cls:"level-legend", description:"500+ отзывов и рейтинг от 4,8"};
+  if(count >= 100 && score >= 4.5) return {name:"Профи", icon:"💎", cls:"level-pro", description:"100+ отзывов и рейтинг от 4,5"};
+  if(count >= 20 && score >= 4.0) return {name:"Опытный", icon:"⚡", cls:"level-experienced", description:"20+ отзывов и рейтинг от 4,0"};
+  return {name:"Новичок", icon:"🌱", cls:"level-newbie", description:"Набирает первые отзывы"};
+}
+
+function sellerLevelMarkup(reviewCount, rating){
+  const level = getSellerLevel(reviewCount, rating);
+  return `<span class="seller-level ${level.cls}" title="${level.description}">${level.icon} ${level.name}</span>`;
 }
 
 
@@ -1693,6 +1737,8 @@ async function loadListings(){
       await sb
         .from("listings")
         .select("*")
+        // Автоматически закреплённые товары показываются выше остальных
+        .order("is_pinned",{ascending:false})
         .order("bumped_at",{ascending:false,nullsFirst:false})
         .order("created_at",{ascending:false});
 
@@ -1887,8 +1933,6 @@ async function renderListings(items){
             💬 Чат
           </button>
 
-          <button class="secondary-btn" onclick="makePriceOffer('${escapeJs(listing.id)}')">🤝 Предложить цену</button>
-
         </div>
 
         ${
@@ -1924,13 +1968,6 @@ async function renderListings(items){
             onclick="bumpListing('${escapeJs(listing.id)}')"
           >
             ⬆️ ${canBump ? 'Поднять товар' : `Поднять через ${remainingMinutes} мин.`}
-          </button>
-          <button
-            class="secondary-btn"
-            style="border-radius:10px;padding:11px 14px;cursor:pointer;width:100%"
-            onclick="editListing('${escapeJs(listing.id)}')"
-          >
-            ✏️ Изменить товар
           </button>
           <button
             class="danger-btn"
@@ -2017,6 +2054,7 @@ async function renderListings(items){
               ⭐ ${rating.toFixed(1)}
               · ${getReviewText(reviewCount)}
             </div>
+            ${sellerLevelMarkup(reviewCount, rating)}
 
           </div>
 
@@ -2081,6 +2119,8 @@ async function viewSellerProfile(sellerId){
       <div>
         <div class="profile-name">${escapeHtml(info.nickname || "Пользователь")}${sellerBanned ? '<span class="banned-name-label">Забанен</span>' : ''}</div>
         <div class="public-profile-meta">⭐ ${rating} · ${getReviewText(Number(info.review_count || 0))}<br>📅 На Delyvex с ${escapeHtml(dateText)}</div>
+        ${sellerLevelMarkup(Number(info.review_count || 0), ratingValue)}
+        ${currentUser && String(currentUser.id)!==String(sellerId) ? `<button class="report-btn" type="button" style="display:block;margin-top:12px" onclick="openUserReportModal('${escapeJs(String(sellerId))}','${escapeJs(String(info.nickname || 'Пользователь'))}')">🛡️ Пожаловаться на пользователя</button>` : ''}
       </div>
     </div>
     <div class="rating-box">
@@ -2192,74 +2232,6 @@ async function bumpListing(listingId){
   await renderListings(listings);
   alert("Готово! Твой товар поднят в самый верх. Повторно поднять его можно через час.");
 }
-
-/* =========================================
-   EDIT OWN LISTING
-========================================= */
-
-async function editListing(listingId){
-  if(!currentUser){
-    alert("Сначала войди в аккаунт.");
-    return;
-  }
-
-  const listing = listings.find(item => String(item.id) === String(listingId));
-  if(!listing){
-    alert("Товар не найден. Обнови страницу и попробуй ещё раз.");
-    return;
-  }
-  if(String(listing.seller_id) !== String(currentUser.id)){
-    alert("Можно изменять только свои товары.");
-    return;
-  }
-
-  const game = prompt("Игра / категория:", listing.game || "");
-  if(game === null) return;
-  const title = prompt("Название товара:", listing.title || "");
-  if(title === null) return;
-  const description = prompt("Описание товара:", listing.description || "");
-  if(description === null) return;
-  const priceText = prompt("Цена в рублях:", String(listing.price ?? ""));
-  if(priceText === null) return;
-
-  const cleanGame = game.trim();
-  const cleanTitle = title.trim();
-  const cleanDescription = description.trim();
-  const cleanPrice = Number(String(priceText).replace(",", ".").trim());
-
-  if(!cleanGame || !cleanTitle){
-    alert("Игра и название не могут быть пустыми.");
-    return;
-  }
-  if(!Number.isFinite(cleanPrice) || cleanPrice < 0){
-    alert("Укажи корректную цену — неотрицательное число.");
-    return;
-  }
-
-  const {data, error} = await sb
-    .from("listings")
-    .update({game:cleanGame, title:cleanTitle, description:cleanDescription, price:cleanPrice})
-    .eq("id", listingId)
-    .eq("seller_id", currentUser.id)
-    .select("id,game,title,description,price,seller_id")
-    .maybeSingle();
-
-  if(error){
-    console.error("Ошибка изменения товара:", error);
-    alert("Не удалось изменить товар. Проверь права UPDATE для своих объявлений в Supabase.\n\n" + error.message);
-    return;
-  }
-  if(!data){
-    alert("Supabase не вернул изменённое объявление. Возможно, политика RLS запрещает редактирование своих товаров.");
-    return;
-  }
-
-  const index = listings.findIndex(item => String(item.id) === String(listingId));
-  if(index !== -1) listings[index] = {...listings[index], ...data};
-  await loadListings();
-  alert("Товар успешно изменён!");
-}
-
 
 /* =========================================
    DELETE OWN LISTING
@@ -2615,13 +2587,16 @@ async function loadOrders(){
 
   }
 
-  // Даже если покупок ещё нет, предложения цены всё равно должны отображаться.
-  container.innerHTML = "";
   if(!data?.length){
-    container.innerHTML = `<div class="empty">Покупок пока нет.</div>`;
-    await renderPriceOffers(container);
+
+    container.innerHTML =
+      `<div class="empty">Заказов пока нет.</div>`;
+
     return;
+
   }
+
+  container.innerHTML = "";
 
   for(const order of data){
 
@@ -2822,72 +2797,8 @@ async function loadOrders(){
 
   }
 
-  await renderPriceOffers(container);
 }
 
-
-
-async function makePriceOffer(listingId){
-  if(!currentUser){ showAuthGate(); return; }
-  const listing=listings.find(x=>String(x.id)===String(listingId));
-  if(!listing){ alert("Объявление не найдено."); return; }
-  if(String(listing.seller_id)===String(currentUser.id)){ alert("Нельзя торговаться за свой товар."); return; }
-  const entered=prompt(`Текущая цена: ${Number(listing.price).toFixed(2)} ₽\nВведи свою цену:`);
-  if(entered===null) return;
-  const price=Number(String(entered).replace(",","."));
-  if(!Number.isFinite(price)||price<=0){ alert("Введи корректную цену больше нуля."); return; }
-  if(price>=Number(listing.price)){ alert("Предложенная цена должна быть ниже текущей."); return; }
-  const {error:offerError}=await sb.from("price_offers").insert({listing_id:Number(listing.id),buyer_id:currentUser.id,seller_id:listing.seller_id,offered_price:price});
-  if(offerError){ alert("Не удалось отправить предложение. Проверь SQL для торга.\n\n"+offerError.message); return; }
-
-  // Одно сообщение в существующей переписке; не создаём второй диалог.
-  const offerMessage = `🤝 ПРЕДЛОЖЕНИЕ ЦЕНЫ\nТовар: ${String(listing.title || "Объявление")}\nЦена продавца: ${Number(listing.price).toFixed(2)} ₽\nМоё предложение: ${price.toFixed(2)} ₽\n\nПродавец может принять или отклонить предложение в разделе «Заказы» → «Предложения цены».`;
-  const {error:messageError}=await sb.from("messages").insert({
-    listing_id:listing.id,
-    sender_id:currentUser.id,
-    receiver_id:listing.seller_id,
-    message:offerMessage
-  });
-  if(messageError){
-    console.error("Предложение сохранено, но сообщение в чат не отправилось:",messageError);
-    alert("Предложение сохранено, но сообщение в чат не отправилось: " + messageError.message);
-  } else {
-    alert("Предложение отправлено продавцу. Оно появится в его разделе «Заказы» → «Предложения цены» и в переписке.");
-  }
-  await loadOrders();
-  await loadChats();
-}
-async function respondPriceOffer(offerId, decision){
-  const {data,error}=await sb.rpc("delyvex_respond_price_offer",{p_offer_id:Number(offerId),p_decision:decision});
-  if(error){ alert("Не удалось обработать предложение. Выполни обновлённый SQL-файл для торга.\n\n"+error.message); return; }
-  if(!data?.success){ alert(data?.message||"Предложение не обработано."); return; }
-  if(decision==="accepted"){
-    const oldPrice=Number(data.old_price||0);
-    const newPrice=Number(data.new_price||0);
-    const discount=Number(data.discount||Math.max(0,oldPrice-newPrice));
-    alert(`Предложение принято!\nЦена товара изменена: ${oldPrice.toFixed(2)} ₽ → ${newPrice.toFixed(2)} ₽\nМинус скидка: ${discount.toFixed(2)} ₽`);
-    // Refresh the listing cards so everyone sees the accepted price.
-    if(typeof loadListings === "function") await loadListings();
-  } else {
-    alert("Предложение отклонено.");
-  }
-  await loadOrders();
-}
-async function renderPriceOffers(container){
-  if(!currentUser||!container) return;
-  const {data,error}=await sb.from("price_offers").select("*").or(`buyer_id.eq.${currentUser.id},seller_id.eq.${currentUser.id}`).order("created_at",{ascending:false}).limit(50);
-  if(error){ console.warn("Предложения цены:",error.message); return; }
-  if(!data?.length) return;
-  const heading=document.createElement("h3"); heading.textContent="🤝 Предложения цены"; heading.style.cssText="margin:24px 0 12px;color:#e9d5ff"; container.appendChild(heading);
-  for(const offer of data){
-    const {data:listing}=await sb.from("listings").select("title,price,game").eq("id",offer.listing_id).maybeSingle();
-    const buyer=String(offer.buyer_id)===String(currentUser.id), seller=String(offer.seller_id)===String(currentUser.id);
-    const labels={pending:"⏳ Ожидает ответа",accepted:"✅ Принято",rejected:"❌ Отклонено",cancelled:"Отменено"};
-    const card=document.createElement("div"); card.className="order-card";
-    card.innerHTML=`<div class="order-title">${escapeHtml(listing?.title||"Объявление")}</div><div class="small">${escapeHtml(listing?.game||"")}</div><div style="margin-top:8px;color:#c084fc;font-size:20px;font-weight:800">${Number(offer.offered_price).toFixed(2)} ₽</div><div class="small">Цена продавца: ${Number(listing?.price||0).toFixed(2)} ₽</div><div class="status">${escapeHtml(labels[offer.status]||offer.status)}</div><div class="small">${buyer?"Ты предложил эту цену.":"Покупатель предложил эту цену."}</div>${seller&&offer.status==="pending"?`<div class="listing-actions" style="margin-top:12px"><button class="primary-btn" onclick="respondPriceOffer('${offer.id}','accepted')">✅ Принять</button><button class="secondary-btn" onclick="respondPriceOffer('${offer.id}','rejected')">❌ Отклонить</button></div>`:""}`;
-    container.appendChild(card);
-  }
-}
 
 async function copyOrderNumber(orderNumber){
   try{
@@ -4214,6 +4125,71 @@ async function refreshNotificationBadges(allowToasts=true){
 }
 
 /* =========================================
+   REPORT CHOOSER + USER REPORTS
+========================================= */
+let activeUserReportId = null;
+let activeUserReportNickname = "Пользователь";
+
+function openReportChoiceMenu(){
+  if(!currentUser){alert("Войди в аккаунт, чтобы отправить жалобу.");showAuthGate();return;}
+  document.getElementById("reportChoiceModal").style.display="flex";
+}
+function closeReportChoiceMenu(){
+  const modal=document.getElementById("reportChoiceModal");if(modal)modal.style.display="none";
+}
+function chooseChatListingReport(){
+  closeReportChoiceMenu();
+  if(!currentChat){alert("В этом чате не выбран товар. Открой чат, связанный с объявлением, или пожалуйся через карточку товара.");return;}
+  const listing=listings.find(x=>String(x.id)===String(currentChat));
+  if(!listing){alert("Не удалось найти товар для этой переписки. Открой товар в каталоге и нажми «Пожаловаться на товар».");return;}
+  openReportModal(listing.id,listing.title||"Товар");
+}
+function chooseChatUserReport(){
+  closeReportChoiceMenu();
+  if(!currentReceiver){alert("Не выбран собеседник.");return;}
+  openUserReportModal(currentReceiver,document.getElementById("chatTitle")?.textContent||"Пользователь");
+}
+function openUserReportModal(userId,nickname){
+  if(!currentUser){alert("Войди в аккаунт, чтобы пожаловаться на пользователя.");showAuthGate();return;}
+  if(String(currentUser.id)===String(userId)){alert("Нельзя пожаловаться на собственный аккаунт.");return;}
+  activeUserReportId=String(userId);
+  activeUserReportNickname=String(nickname||"Пользователь");
+  document.getElementById("userReportTitle").textContent="🛡️ Жалоба на пользователя: "+activeUserReportNickname;
+  document.getElementById("userReportReason").value="Мошенничество или обман";
+  document.getElementById("userReportDetails").value="";
+  document.getElementById("userReportModal").style.display="flex";
+}
+function closeUserReportModal(){
+  const modal=document.getElementById("userReportModal");if(modal)modal.style.display="none";
+  activeUserReportId=null;
+}
+async function submitUserReport(event){
+  event.preventDefault();
+  if(!currentUser||!activeUserReportId){alert("Открой профиль пользователя ещё раз.");closeUserReportModal();return;}
+  const button=document.getElementById("userReportSubmitBtn");
+  button.disabled=true;button.textContent="Отправка...";
+  try{
+    const reason=document.getElementById("userReportReason").value;
+    const details=document.getElementById("userReportDetails").value.trim().slice(0,1000);
+    const {data:caseId,error}=await sb.rpc("delyvex_create_support_case",{
+      p_reported_user_id:activeUserReportId,
+      p_related_listing_id:null,
+      p_reason:reason.slice(0,250),
+      p_details:details,
+      p_chat_listing_id:(currentReceiver && String(currentReceiver)===String(activeUserReportId) && currentChat!=null) ? String(currentChat) : null
+    });
+    if(error){
+      console.error("Жалоба на пользователя:",error);
+      alert("Не удалось отправить жалобу: "+(error.message||"ошибка Supabase")+". Проверь, что SQL-файл Delyvex_support_cases.sql выполнен в Supabase.");
+      return;
+    }
+    closeUserReportModal();
+    alert("Жалоба на пользователя отправлена и появилась в панели администратора.");
+  }catch(e){console.error(e);alert("Не удалось отправить жалобу. Проверь интернет и попробуй снова.");}
+  finally{button.disabled=false;button.textContent="Отправить жалобу";}
+}
+
+/* =========================================
    LISTING REPORTS
 ========================================= */
 let activeReportListingId = null;
@@ -4546,6 +4522,11 @@ async function loadAdminSupportCases(){
   }
 }
 
+function openSupportCaseProfile(userId){
+  if(!userId) return;
+  viewSellerProfile(String(userId));
+}
+
 async function openSupportCaseChat(caseId,returnSection="admin"){
   if(!currentUser) return;
   try{
@@ -4569,6 +4550,14 @@ async function openSupportCaseChat(caseId,returnSection="admin"){
     const reported=names[String(caseRow.reported_user_id)]||"Пользователь";
     document.getElementById("supportCaseTitle").textContent="Жалоба №"+caseRow.id+": "+String(caseRow.reason||"Обращение").slice(0,90);
     document.getElementById("supportCaseSubtitle").textContent="Заявитель: "+reporter+" · Пользователь: "+reported+" · Администратор может отвечать здесь";
+    const reporterButton=document.getElementById("supportCaseReporterProfileButton");
+    const reportedButton=document.getElementById("supportCaseReportedProfileButton");
+    reporterButton.textContent="👤 Профиль: "+reporter;
+    reporterButton.hidden=false;
+    reporterButton.onclick=()=>openSupportCaseProfile(caseRow.reporter_id);
+    reportedButton.textContent="👤 Профиль: "+reported;
+    reportedButton.hidden=false;
+    reportedButton.onclick=()=>openSupportCaseProfile(caseRow.reported_user_id);
     showSection("supportCaseChat");
     await loadSupportCaseMessages();
     supportCaseRefreshTimer=setInterval(()=>{
