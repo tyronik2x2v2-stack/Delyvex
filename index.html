@@ -3887,42 +3887,47 @@ async function loadMessages(){
   if(!container) return;
   messagesLoading = true;
   try{
-    let { data, error } = await sb
+    let { data: regularRows, error: regularError } = await sb
       .from("messages")
       .select("*")
       .eq("listing_id",currentChat)
       .or(`and(sender_id.eq.${currentUser.id},receiver_id.eq.${currentReceiver}),and(sender_id.eq.${currentReceiver},receiver_id.eq.${currentUser.id})`)
       .order("created_at",{ascending:true});
 
-    // Если товар фигурирует в жалобе, добавляем сообщения администрации,
-    // адресованные участникам исходного чата.
-    if(!error && currentChat != null){
+    // Даже если обычный запрос не вернул строки или завершился ошибкой,
+    // отдельно запрашиваем сообщения администрации для участника жалобы.
+    let sharedRows = [];
+    let sharedError = null;
+    if(currentChat != null){
       try{
-        const {data:sharedRows,error:sharedError}=await sb.rpc("delyvex_get_listing_report_chat_messages",{
+        const result = await sb.rpc("delyvex_get_listing_report_chat_messages",{
           p_listing_id:String(currentChat),
           p_other_user_id:String(currentReceiver)
         });
-        if(sharedError){
-          console.error("Не удалось получить сообщения администрации:", sharedError);
-        }else if(Array.isArray(sharedRows)){
-          const byId=new Map((data||[]).map(row=>[String(row.id),row]));
-          sharedRows.forEach(row=>byId.set(String(row.id),row));
-          data=Array.from(byId.values()).sort((a,b)=>new Date(a.created_at)-new Date(b.created_at));
-        }
+        sharedRows = Array.isArray(result.data) ? result.data : [];
+        sharedError = result.error || null;
+        if(sharedError) console.error("Не удалось получить сообщения администрации:", sharedError);
       }catch(sharedException){
+        sharedError = sharedException;
         console.error("Ошибка RPC сообщений администрации:", sharedException);
       }
     }
 
-    if(error){
-      console.error("Ошибка загрузки сообщений:",error);
+    if(regularError){
+      console.error("Ошибка загрузки обычных сообщений:",regularError);
+    }
+    if(regularError && sharedError){
       if(!container.children.length){
-        container.innerHTML = `<div class="empty">Ошибка загрузки сообщений. Попробуй обновить страницу.</div>`;
+        container.innerHTML = `<div class="empty">Не удалось загрузить переписку. Обнови страницу и попробуй снова.</div>`;
       }
       return;
     }
 
-    const messages = data || [];
+    // Дедупликация по id: сообщения администрации объединяются с обычной перепиской.
+    const byId = new Map();
+    (Array.isArray(regularRows) ? regularRows : []).forEach(row=>byId.set(String(row.id),row));
+    sharedRows.forEach(row=>byId.set(String(row.id),row));
+    const messages = Array.from(byId.values()).sort((a,b)=>new Date(a.created_at)-new Date(b.created_at));
     const signature = messages.map(m=>`${m.id || ""}:${m.created_at || ""}:${m.message || ""}`).join("|");
     if(signature === lastMessagesSignature) return;
 
@@ -3935,7 +3940,7 @@ async function loadMessages(){
       return;
     }
 
-    // Узнаём, какие отправители являются администраторами, чтобы помечать их сообщения.
+    // Определяем администраторов для подписи сообщений.
     const senderAdminFlags = new Map();
     const senderIds = [...new Set(messages.map(m => String(m.sender_id || "")).filter(Boolean))];
     await Promise.all(senderIds.map(async senderId => {
@@ -4008,36 +4013,6 @@ async function loadMessages(){
   } finally {
     messagesLoading = false;
   }
-}
-
-
-let selectedChatImage = null;
-const CHAT_IMAGE_MAX_BYTES = 5 * 1024 * 1024;
-
-function handleChatImageSelected(event){
-  const input = event.target;
-  const file = input.files && input.files[0];
-  if(!file){ selectedChatImage=null; return; }
-  if(!file.type || !file.type.startsWith("image/")){
-    alert("Можно прикреплять только изображения."); input.value=""; selectedChatImage=null; return;
-  }
-  if(file.size > CHAT_IMAGE_MAX_BYTES){
-    alert("Изображение больше 5 МБ. Выбери файл размером до 5 МБ."); input.value=""; selectedChatImage=null; return;
-  }
-  selectedChatImage = file;
-  const preview = document.getElementById("chatImagePreview");
-  const thumb = document.getElementById("chatImagePreviewThumb");
-  const name = document.getElementById("chatImagePreviewName");
-  if(thumb){ if(thumb.dataset.objectUrl) URL.revokeObjectURL(thumb.dataset.objectUrl); const url=URL.createObjectURL(file); thumb.src=url; thumb.dataset.objectUrl=url; }
-  if(name) name.textContent = file.name + " · " + (file.size/1024/1024).toFixed(2) + " МБ";
-  if(preview) preview.style.display="flex";
-}
-
-function clearChatImage(){
-  selectedChatImage = null;
-  const input=document.getElementById("chatImageInput"); if(input) input.value="";
-  const preview=document.getElementById("chatImagePreview"); if(preview) preview.style.display="none";
-  const thumb=document.getElementById("chatImagePreviewThumb"); if(thumb){ if(thumb.dataset.objectUrl) URL.revokeObjectURL(thumb.dataset.objectUrl); thumb.removeAttribute("src"); delete thumb.dataset.objectUrl; }
 }
 
 async function sendMessage(){
