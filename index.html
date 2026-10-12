@@ -369,6 +369,25 @@ main{max-width:1100px;margin:auto;padding:25px 18px 100px}
 #adminProductsPane>h3,#adminUsersPane>h3{color:#e9d5ff;margin:0 0 8px}
 @media(max-width:480px){.admin-report-tabs{gap:7px}.admin-report-tab{padding:11px 8px;font-size:14px}}
 
+
+/* Просмотр переписки из жалобы: только чтение для модератора */
+#adminReportChatModal{position:fixed;inset:0;z-index:12000;background:#000d;display:none;align-items:center;justify-content:center;padding:14px}
+#adminReportChatModal.show{display:flex}
+.admin-review-chat-box{width:min(980px,100%);max-height:92vh;display:flex;flex-direction:column;background:#130d1f;border:1px solid #6d3cc7;border-radius:18px;overflow:hidden;box-shadow:0 20px 70px #000b}
+.admin-review-chat-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px;border-bottom:1px solid #38264a}
+.admin-review-chat-head h2{margin:0;font-size:19px;color:#fff}
+.admin-review-chat-subtitle{color:#c9bfdc;font-size:12px;margin-top:5px;overflow-wrap:anywhere}
+.admin-review-chat-close{border:0;border-radius:9px;background:#34213f;color:#fff;padding:9px 12px;font-weight:700;cursor:pointer}
+#adminReviewChatMessages{overflow:auto;min-height:220px;padding:16px;display:flex;flex-direction:column;gap:12px;background:#100b18}
+.admin-review-message{max-width:88%;border:1px solid #49365d;border-radius:13px;padding:10px 12px;overflow-wrap:anywhere;white-space:pre-wrap;color:#f4f0ff;background:#21172c;align-self:flex-start}
+.admin-review-message.reporter{align-self:flex-start;border-color:#2563eb;background:#14213b}
+.admin-review-message.target{align-self:flex-end;border-color:#7c3aed;background:#2b1740}
+.admin-review-message-meta{font-size:11px;color:#d6c8e8;margin-bottom:6px;display:flex;gap:8px;flex-wrap:wrap}
+.admin-review-message-body{font-size:14px;line-height:1.5}
+.admin-review-message img{display:block;max-width:min(420px,100%);max-height:360px;border-radius:9px;margin-top:5px}
+.admin-review-chat-foot{padding:10px 16px;color:#b9a9cc;font-size:12px;border-top:1px solid #38264a}
+@media(max-width:600px){.admin-review-chat-box{max-height:96vh}.admin-review-message{max-width:96%}#adminReviewChatMessages{padding:10px}}
+
 /* Панель администратора: жалобы */
 .admin-reports{display:grid;gap:14px;margin-top:18px;color:#f4f0ff}
 #admin{color:#f4f0ff}
@@ -921,6 +940,18 @@ main{max-width:1100px;margin:auto;padding:25px 18px 100px}
         <button type="submit" id="userReportSubmitBtn" class="primary-btn">Отправить жалобу</button>
       </div>
     </form>
+  </div>
+</div>
+
+
+<div id="adminReportChatModal" role="dialog" aria-modal="true" aria-labelledby="adminReviewChatTitle" onclick="if(event.target===this)closeAdminReportChat()">
+  <div class="admin-review-chat-box">
+    <div class="admin-review-chat-head">
+      <div><h2 id="adminReviewChatTitle">Переписка по жалобе</h2><div id="adminReviewChatSubtitle" class="admin-review-chat-subtitle"></div></div>
+      <button type="button" class="admin-review-chat-close" onclick="closeAdminReportChat()">Закрыть ✕</button>
+    </div>
+    <div id="adminReviewChatMessages"><div class="empty">Загрузка переписки…</div></div>
+    <div class="admin-review-chat-foot">Режим модератора: переписка доступна только для просмотра. Сообщения не изменяются.</div>
   </div>
 </div>
 
@@ -4619,8 +4650,78 @@ async function loadAdminUserReports(){
   if(error){container.innerHTML=`<div class="admin-report-error">Не удалось загрузить жалобы на пользователей: ${adminEscape(error.message)}<br>Проверь SQL и права администратора.</div>`;return;}
   if(!data||!data.length){container.innerHTML="<p>Жалоб на пользователей пока нет.</p>";return;}
   const statusName={new:"Новая",reviewing:"На рассмотрении",resolved:"Рассмотрена",rejected:"Отклонена"};
-  container.innerHTML=data.map(r=>`<article class="admin-report-card"><h3>Жалоба на пользователя</h3><div class="admin-report-meta">ID жалобы: ${adminEscape(r.id)}<br>ID пользователя: ${adminEscape(r.target_user_id)}<br>ID автора жалобы: ${adminEscape(r.reporter_id)}<br>Дата: ${adminEscape(r.created_at?new Date(r.created_at).toLocaleString('ru-RU'):'—')}</div><p><strong>Причина:</strong> ${adminEscape(r.reason)}</p><p class="admin-report-details"><strong>Подробности:</strong><br>${adminEscape(r.details||'Не указаны')}</p><span class="admin-status">Статус: ${adminEscape(statusName[r.status]||r.status)}</span>${!['resolved','rejected'].includes(r.status)?`<div class="admin-report-actions"><button class="admin-resolve" onclick="setUserReportStatus('${escapeJs(String(r.id))}','resolved')">✓ Рассмотрено</button><button class="admin-reject" onclick="setUserReportStatus('${escapeJs(String(r.id))}','rejected')">✕ Отклонить</button><button class="admin-reject" onclick="banUserFromReport('${escapeJs(String(r.target_user_id))}')">⛔ Заблокировать пользователя</button></div>`:''}</article>`).join('');
+  container.innerHTML=data.map(r=>`<article class="admin-report-card"><h3>Жалоба на пользователя</h3><div class="admin-report-meta">ID жалобы: ${adminEscape(r.id)}<br>ID пользователя: ${adminEscape(r.target_user_id)}<br>ID автора жалобы: ${adminEscape(r.reporter_id)}<br>Дата: ${adminEscape(r.created_at?new Date(r.created_at).toLocaleString('ru-RU'):'—')}</div><p><strong>Причина:</strong> ${adminEscape(r.reason)}</p><p class="admin-report-details"><strong>Подробности:</strong><br>${adminEscape(r.details||'Не указаны')}</p><span class="admin-status">Статус: ${adminEscape(statusName[r.status]||r.status)}</span><div class="admin-report-actions"><button class="admin-report-link" type="button" onclick="openAdminReportChat('${escapeJs(String(r.target_user_id))}','${escapeJs(String(r.reporter_id))}')">💬 Зайти в чат</button>${!['resolved','rejected'].includes(r.status)?`<button class="admin-resolve" onclick="setUserReportStatus('${escapeJs(String(r.id))}','resolved')">✓ Рассмотрено</button><button class="admin-reject" onclick="setUserReportStatus('${escapeJs(String(r.id))}','rejected')">✕ Отклонить</button><button class="admin-reject" onclick="banUserFromReport('${escapeJs(String(r.target_user_id))}')">⛔ Заблокировать пользователя</button>`:''}</div></article>`).join('');
 }
+async function closeAdminReportChat(){
+  const modal=document.getElementById('adminReportChatModal');
+  if(modal) modal.classList.remove('show');
+}
+
+function formatAdminReviewMessageText(raw){
+  const text=String(raw||'');
+  if(text.startsWith('SYSTEM_PURCHASE|')){
+    const parts=text.split('|');
+    return '🛒 Информация о покупке: '+(parts.slice(1).join('|')||'');
+  }
+  return text;
+}
+
+async function openAdminReportChat(targetUserId,reporterId){
+  if(!currentUser||!(await isDelyvexAdmin())){alert('Нет доступа администратора.');return;}
+  if(!targetUserId||!reporterId){alert('В жалобе не хватает ID участников переписки.');return;}
+  const modal=document.getElementById('adminReportChatModal');
+  const container=document.getElementById('adminReviewChatMessages');
+  const subtitle=document.getElementById('adminReviewChatSubtitle');
+  const title=document.getElementById('adminReviewChatTitle');
+  if(!modal||!container)return;
+  modal.classList.add('show');
+  container.innerHTML='<div class="empty">Загружаем историю переписки…</div>';
+  subtitle.textContent='ID жалующегося: '+reporterId+' · ID пользователя: '+targetUserId;
+  title.textContent='Переписка по жалобе';
+  try{
+    const [reporter,target]=await Promise.all([getPublicChatUser(reporterId),getPublicChatUser(targetUserId)]);
+    title.textContent='Чат: '+(reporter.nickname||'Жалующийся')+' ↔ '+(target.nickname||'Пользователь');
+    // В отличие от обычного чата, здесь не фильтруем по listing_id: собираем все сообщения этих двух участников,
+    // в том числе если они общались по нескольким объявлениям.
+    const {data:messages,error}=await sb.rpc('admin_get_report_chat_messages',{
+      p_target_user_id:String(targetUserId),p_reporter_id:String(reporterId)
+    });
+    if(error) throw error;
+    container.innerHTML='';
+    if(!messages||!messages.length){container.innerHTML='<div class="empty">Переписка не найдена. Возможно, участники ещё не писали друг другу.</div>';return;}
+    for(const m of messages){
+      const senderIsReporter=String(m.sender_id)===String(reporterId);
+      const senderName=senderIsReporter?(reporter.nickname||'Автор жалобы'):(target.nickname||'Пользователь');
+      const el=document.createElement('article');
+      el.className='admin-review-message '+(senderIsReporter?'reporter':'target');
+      const meta=document.createElement('div');meta.className='admin-review-message-meta';
+      const who=document.createElement('strong');who.textContent=(senderIsReporter?'🟦 ЖАЛУЮЩИЙ · ':'🟣 ПОЛЬЗОВАТЕЛЬ · ')+senderName;
+      const when=document.createElement('span');when.textContent=m.created_at?new Date(m.created_at).toLocaleString('ru-RU'):'Время неизвестно';
+      meta.append(who,when);el.appendChild(meta);
+      const body=document.createElement('div');body.className='admin-review-message-body';
+      const raw=String(m.message||'');
+      if(raw.startsWith('DELYVEX_IMAGE|')){
+        const payload=raw.slice('DELYVEX_IMAGE|'.length);const cut=payload.indexOf('\n');
+        const url=(cut>=0?payload.slice(0,cut):payload).trim();const caption=cut>=0?payload.slice(cut+1).trim():'';
+        try{
+          const parsed=new URL(url);
+          if(parsed.protocol==='https:'&&parsed.hostname===new URL(SUPABASE_URL).hostname&&parsed.pathname.includes('/storage/v1/object/public/chat-images/')){
+            const img=document.createElement('img');img.src=parsed.href;img.alt='Изображение из переписки';img.loading='lazy';body.appendChild(img);
+            if(caption){const cap=document.createElement('div');cap.textContent=caption;body.appendChild(cap);}
+          }else body.textContent='[Изображение недоступно]';
+        }catch(e){body.textContent='[Изображение недоступно]';}
+      }else body.textContent=formatAdminReviewMessageText(raw);
+      el.appendChild(body);
+      if(m.listing_id){const listing=document.createElement('div');listing.className='admin-review-chat-subtitle';listing.textContent='ID объявления в чате: '+m.listing_id;el.appendChild(listing);}
+      container.appendChild(el);
+    }
+    container.scrollTop=container.scrollHeight;
+  }catch(e){
+    console.error('Не удалось загрузить переписку по жалобе:',e);
+    container.innerHTML='<div class="admin-report-error">Не удалось загрузить переписку: '+adminEscape(e?.message||'ошибка Supabase')+'<br><br>Если это ошибка прав доступа, администратору нужно разрешить безопасное чтение сообщений через SQL-функцию с SECURITY DEFINER.</div>';
+  }
+}
+
 async function setUserReportStatus(id,status){
   if(!['resolved','rejected'].includes(status)||!currentUser||!(await isDelyvexAdmin())){alert('Нет доступа администратора.');return;}
   const action=status==='resolved'?'отметить рассмотренной':'отклонить';
