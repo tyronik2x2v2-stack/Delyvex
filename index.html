@@ -410,6 +410,11 @@ main{max-width:1100px;margin:auto;padding:25px 18px 100px}
 #phoneRotateButton{background:#8b5cf6;color:#fff}
 #phoneRotateContinue{background:#2a2035;color:#ddd;border:1px solid #463354}
 #phoneRotateHelp{display:none;color:#fcd34d;font-size:13px;margin-top:13px;line-height:1.45}
+
+/* Delyvex — прозрачность сделки */
+.deal-center{margin:18px 0 22px;padding:20px;border:1px solid rgba(117,91,255,.28);border-radius:18px;background:linear-gradient(135deg,rgba(111,76,255,.10),rgba(28,190,170,.06));}
+.deal-center h2{margin:0 0 8px;font-size:20px}.deal-center-intro{margin:0 0 16px;opacity:.82;line-height:1.5}.deal-steps{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}.deal-step{padding:12px;border-radius:12px;background:rgba(127,127,127,.08);border:1px solid rgba(127,127,127,.14)}.deal-step b{display:block;margin-bottom:5px}.deal-step span{font-size:13px;line-height:1.4;opacity:.8}.deal-center-note{margin:14px 0 0;font-size:12px;opacity:.72;line-height:1.5}.deal-center details{margin-top:12px}.deal-center summary{cursor:pointer;font-weight:600}.deal-checklist{margin:10px 0 0;padding-left:20px;line-height:1.7}@media(max-width:650px){.deal-steps{grid-template-columns:repeat(2,minmax(0,1fr))}.deal-center{padding:15px}}
+
 </style>
 </head>
 
@@ -606,6 +611,27 @@ main{max-width:1100px;margin:auto;padding:25px 18px 100px}
 <section id="orders" class="section">
 
   <h1 class="page-title">Мои заказы</h1>
+
+  <div class="deal-center" aria-label="Центр безопасности сделки">
+    <h2>🛡️ Центр безопасности сделки</h2>
+    <p class="deal-center-intro">Понятные этапы сделки помогают покупателю и продавцу знать, что делать дальше.</p>
+    <div class="deal-steps">
+      <div class="deal-step"><b>1. Заказ</b><span>Уточните условия и состав товара в чате до оплаты.</span></div>
+      <div class="deal-step"><b>2. Оплата</b><span>Платите только через официальный способ, показанный на сайте.</span></div>
+      <div class="deal-step"><b>3. Получение</b><span>Проверьте товар и сохраните переписку по заказу.</span></div>
+      <div class="deal-step"><b>4. Проблема?</b><span>Сначала свяжитесь со второй стороной и сохраните подтверждения.</span></div>
+    </div>
+    <details>
+      <summary>Памятка покупателю и продавцу</summary>
+      <ul class="deal-checklist">
+        <li>Не передавайте пароль от своего аккаунта и коды подтверждения.</li>
+        <li>Не переходите по подозрительным ссылкам и не отправляйте деньги в обход сайта.</li>
+        <li>Перед подтверждением получения проверьте, что товар соответствует описанию.</li>
+        <li>Если возник спор, сохраните номер заказа, переписку и доказательства.</li>
+      </ul>
+    </details>
+    <p class="deal-center-note">Важно: этот раздел — памятка, а не гарантия безопасной сделки или автоматический эскроу. Реальная обработка оплаты и возвратов зависит от подключённых платёжных и серверных механизмов.</p>
+  </div>
 
   <div id="ordersContainer"></div>
 
