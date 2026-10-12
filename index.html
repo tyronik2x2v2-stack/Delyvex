@@ -490,6 +490,7 @@ main{max-width:1100px;margin:auto;padding:25px 18px 100px}
     <button class="nav-btn" onclick="showSection('sell')">➕ Продать</button>
     <button class="nav-btn" onclick="showSection('chats')">💬 Чаты <span id="chatNotificationBadge" class="notification-badge" hidden>0</span></button>
     <button class="nav-btn" onclick="showSection('orders')">📦 Заказы <span id="orderNotificationBadge" class="notification-badge" hidden>0</span></button>
+    <button class="nav-btn" onclick="showSection('notifications')">🔔 Уведомления <span id="notificationBadge" class="notification-badge" hidden>0</span></button>
     <button class="nav-btn" onclick="showSection('balance')">💰 Баланс</button>
     <button class="nav-btn" onclick="showSection('profile')">👤 Профиль</button>
     <button class="nav-btn" onclick="showSection('admin')">🛡️ Жалобы</button>
@@ -654,6 +655,23 @@ main{max-width:1100px;margin:auto;padding:25px 18px 100px}
   </select>
   <div id="adminReportsContainer" class="admin-reports"><p>Открой раздел, чтобы загрузить жалобы.</p></div>
   </div>
+  <div class="card" style="margin-top:18px">
+    <h2>Жалобы на пользователей</h2>
+    <p>Проверяй жалобы на мошенничество, подозрительные ссылки и попытки увести оплату за пределы Delyvex.</p>
+    <div id="adminUserReportsContainer" class="admin-reports"><p>Открой раздел модерации, чтобы загрузить жалобы.</p></div>
+  </div>
+</section>
+
+<section id="notifications" class="section">
+  <h1 class="page-title">🔔 Уведомления</h1>
+  <div class="card">
+    <p style="color:var(--muted,#a99bb8);line-height:1.5">Здесь хранятся новые сообщения, события по заказам и важные уведомления Delyvex.</p>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin:14px 0">
+      <button class="primary-btn" type="button" onclick="loadDelyvexNotifications()">↻ Обновить</button>
+      <button class="chat-btn" type="button" onclick="markAllDelyvexNotificationsRead()">✓ Отметить всё прочитанным</button>
+    </div>
+    <div id="notificationsList" class="admin-reports"><p>Загрузка уведомлений...</p></div>
+  </div>
 </section>
 
 <section id="profile" class="section">
@@ -817,6 +835,10 @@ main{max-width:1100px;margin:auto;padding:25px 18px 100px}
     <span>📦 <b id="mobileOrderNotificationBadge" class="notification-badge" hidden>0</b></span>
     Заказы
   </button>
+  <button onclick="showSection('notifications')">
+    <span>🔔 <b id="mobileNotificationBadge" class="notification-badge" hidden>0</b></span>
+    Уведомления
+  </button>
 
   <button onclick="showSection('profile')">
     <span>👤</span>
@@ -852,6 +874,29 @@ main{max-width:1100px;margin:auto;padding:25px 18px 100px}
       <div class="report-modal-actions">
         <button type="button" class="chat-btn" onclick="closeReportModal()">Отмена</button>
         <button type="submit" id="reportSubmitBtn" class="primary-btn">Отправить жалобу</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div id="userReportModal" role="dialog" aria-modal="true" aria-labelledby="userReportTitle" onclick="if(event.target===this)closeUserReportModal()" style="position:fixed;inset:0;z-index:11001;background:#000b;display:none;align-items:center;justify-content:center;padding:18px">
+  <div class="report-modal-box">
+    <h2 id="userReportTitle">🚩 Пожаловаться на пользователя</h2>
+    <p id="userReportDescription">Сообщи, что вызывает подозрение. Жалоба попадёт в панель модерации.</p>
+    <form id="userReportForm" onsubmit="submitUserReport(event)">
+      <label for="userReportReason">Причина жалобы</label>
+      <select id="userReportReason" required>
+        <option value="Мошенничество или обман">Мошенничество или обман</option>
+        <option value="Просит оплату вне Delyvex">Просит оплату вне Delyvex</option>
+        <option value="Угрожает или оскорбляет">Угрожает или оскорбляет</option>
+        <option value="Спам или подозрительные ссылки">Спам или подозрительные ссылки</option>
+        <option value="Другое">Другое</option>
+      </select>
+      <label for="userReportDetails">Подробности (необязательно)</label>
+      <textarea id="userReportDetails" maxlength="1000" placeholder="Опиши ситуацию, не указывая личные данные"></textarea>
+      <div class="report-modal-actions">
+        <button type="button" class="chat-btn" onclick="closeUserReportModal()">Отмена</button>
+        <button type="submit" id="userReportSubmitBtn" class="primary-btn">Отправить жалобу</button>
       </div>
     </form>
   </div>
@@ -907,6 +952,7 @@ let notificationPollStartedAt = null;
 let notificationToastTimer = null;
 let lastNotificationTarget = "chats";
 let notificationPollBusy = false;
+let activeUserReportId = null;
 
 
 /* =========================================
@@ -1284,12 +1330,17 @@ async function showSection(section){
     loadOrders();
   }
 
+  if(section==="notifications"){
+    loadDelyvexNotifications();
+  }
+
   if(section==="balance"){
     loadBalancePage();
   }
 
   if(section==="admin"){
     loadAdminReports();
+    loadAdminUserReports();
   }
 
   if(section==="profile"){
@@ -2036,8 +2087,10 @@ async function viewSellerProfile(sellerId){
       <div>
         <div class="profile-name">${escapeHtml(info.nickname || "Пользователь")}${sellerBanned ? '<span class="banned-name-label">Забанен</span>' : ''}<span class="profile-id-inline">ID: ${escapeHtml(String(sellerId))}</span></div>
         <div class="public-profile-meta">⭐ ${rating} · ${getReviewText(Number(info.review_count || 0))}<br>📅 На Delyvex с ${escapeHtml(dateText)}</div>
+        ${currentUser && String(currentUser.id)!==String(sellerId) ? `<button class="report-btn" type="button" onclick="openUserReportModal('${escapeJs(String(sellerId))}','${escapeJs(String(info.nickname || 'Пользователь'))}')">🚩 Пожаловаться на пользователя</button>` : ''}
       </div>
     </div>
+    <div class="card" style="margin-top:16px;border-color:#7f1d1d;background:#21121a"><strong style="color:#fca5a5">🛡️ Безопасность</strong><p style="margin:7px 0 0;color:#e8d7df;line-height:1.5">Не переходи по подозрительным ссылкам и не сообщай пароль или коды подтверждения. Не соглашайся на оплату вне защищённых способов Delyvex. Если что-то кажется подозрительным — отправь жалобу.</p></div>
     <div class="rating-box">
       <div class="rating-number">${rating}</div>
       <div class="rating-stars">${stars}</div>
@@ -4030,7 +4083,9 @@ function notificationStorageKey(kind){
 function setNotificationBadge(kind,count){
   const ids = kind === "messages"
     ? ["chatNotificationBadge","mobileChatNotificationBadge"]
-    : ["orderNotificationBadge","mobileOrderNotificationBadge"];
+    : kind === "notifications"
+      ? ["notificationBadge","mobileNotificationBadge"]
+      : ["orderNotificationBadge","mobileOrderNotificationBadge"];
   ids.forEach(id=>{
     const el = document.getElementById(id);
     if(!el) return;
@@ -4124,12 +4179,100 @@ async function refreshNotificationBadges(allowToasts=true){
       }
     } else console.warn("Уведомления заказов:",ordersResult.error.message);
 
+    const persistentResult = await sb.from("notifications").select("id",{count:"exact",head:true}).eq("user_id",userId).eq("is_read",false);
+    if(!persistentResult.error) setNotificationBadge("notifications",persistentResult.count || 0);
+    else console.warn("Счётчик уведомлений Delyvex:",persistentResult.error.message);
+
     notificationPollStartedAt = new Date().toISOString();
   }catch(error){
     console.warn("Не удалось обновить уведомления:",error);
   }finally{
     notificationPollBusy = false;
   }
+}
+
+/* =========================================
+   PERSISTENT NOTIFICATIONS
+========================================= */
+async function loadDelyvexNotifications(){
+  const container=document.getElementById("notificationsList");
+  if(!container) return;
+  if(!currentUser){container.innerHTML="<p>Войди в аккаунт, чтобы посмотреть уведомления.</p>";return;}
+  container.innerHTML="<p>Загрузка уведомлений...</p>";
+  const {data,error}=await sb.from("notifications").select("id,type,title,body,target,entity_id,is_read,created_at").eq("user_id",currentUser.id).order("created_at",{ascending:false}).limit(100);
+  if(error){
+    console.error("Загрузка уведомлений:",error);
+    container.innerHTML=`<div class="admin-report-error">Не удалось загрузить уведомления: ${escapeHtml(error.message)}<br><br>Проверь, что SQL-настройка уведомлений выполнена в Supabase.</div>`;
+    return;
+  }
+  const rows=data||[];
+  setNotificationBadge("notifications",rows.filter(x=>!x.is_read).length);
+  if(!rows.length){container.innerHTML="<p>Пока уведомлений нет. Новые сообщения и события заказов появятся здесь.</p>";return;}
+  container.innerHTML=rows.map(n=>{
+    const date=n.created_at?new Date(n.created_at).toLocaleString("ru-RU"):"";
+    const unread=!n.is_read;
+    return `<article class="admin-report-card" style="${unread?'border-color:#8b5cf6;background:#21152e':''}">
+      <div style="display:flex;gap:10px;align-items:flex-start"><div style="font-size:24px">${n.type==='message'?'💬':n.type==='order'?'📦':'🔔'}</div><div style="flex:1;min-width:0"><h3>${escapeHtml(n.title||'Уведомление')}${unread?' <span class="admin-status" style="background:#7c3aed;color:#fff">Новое</span>':''}</h3><p>${escapeHtml(n.body||'')}</p><div class="admin-report-meta">${escapeHtml(date)}</div><div class="admin-report-actions"><button class="admin-resolve" type="button" onclick="openDelyvexNotification('${escapeJs(String(n.id))}','${escapeJs(String(n.target||'home'))}')">${n.target==='orders'?'Открыть заказы':n.target==='chats'?'Открыть чаты':'Открыть'}</button>${unread?`<button class="chat-btn" type="button" onclick="markOneDelyvexNotificationRead('${escapeJs(String(n.id))}')">✓ Прочитано</button>`:''}</div></div></div>
+    </article>`;
+  }).join("");
+}
+
+async function markOneDelyvexNotificationRead(id){
+  if(!currentUser)return;
+  const {error}=await sb.from("notifications").update({is_read:true}).eq("id",id).eq("user_id",currentUser.id);
+  if(error){alert("Не удалось отметить уведомление: "+error.message);return;}
+  await loadDelyvexNotifications();
+  await refreshNotificationBadges(false);
+}
+
+async function markAllDelyvexNotificationsRead(){
+  if(!currentUser)return;
+  const {error}=await sb.from("notifications").update({is_read:true}).eq("user_id",currentUser.id).eq("is_read",false);
+  if(error){alert("Не удалось отметить уведомления: "+error.message);return;}
+  await loadDelyvexNotifications();
+  await refreshNotificationBadges(false);
+}
+
+async function openDelyvexNotification(id,target){
+  if(currentUser){await sb.from("notifications").update({is_read:true}).eq("id",id).eq("user_id",currentUser.id);}
+  if(target==='orders') showSection('orders');
+  else if(target==='chats') showSection('chats');
+  else showSection('home');
+  await refreshNotificationBadges(false);
+}
+
+/* =========================================
+   REPORT A USER — ANTI-FRAUD
+========================================= */
+function openUserReportModal(userId,nickname){
+  if(!currentUser){alert("Войди в аккаунт, чтобы пожаловаться на пользователя.");showAuthGate();return;}
+  if(String(currentUser.id)===String(userId)){alert("Нельзя пожаловаться на собственный аккаунт.");return;}
+  activeUserReportId=String(userId);
+  document.getElementById("userReportTitle").textContent="🚩 Жалоба на пользователя: "+String(nickname||"Пользователь");
+  document.getElementById("userReportDetails").value="";
+  document.getElementById("userReportReason").value="Мошенничество или обман";
+  document.getElementById("userReportModal").style.display="flex";
+}
+function closeUserReportModal(){
+  const modal=document.getElementById("userReportModal");if(modal)modal.style.display="none";
+  activeUserReportId=null;
+}
+async function submitUserReport(event){
+  event.preventDefault();
+  if(!currentUser||!activeUserReportId){alert("Открой профиль пользователя ещё раз.");closeUserReportModal();return;}
+  const button=document.getElementById("userReportSubmitBtn");
+  button.disabled=true;button.textContent="Отправка...";
+  try{
+    const {error}=await sb.from("user_reports").insert({target_user_id:activeUserReportId,reporter_id:currentUser.id,reason:document.getElementById("userReportReason").value,details:document.getElementById("userReportDetails").value.trim().slice(0,1000)});
+    if(error){
+      if(error.code==='23505'){alert("Ты уже отправил жалобу на этого пользователя. Дождись проверки модератором.");return;}
+      console.error("Жалоба на пользователя:",error);
+      alert("Не удалось отправить жалобу: "+error.message+". Проверь SQL-настройку защиты от мошенников.");return;
+    }
+    closeUserReportModal();
+    alert("Жалоба отправлена модераторам. Спасибо, что помогаешь защищать Delyvex.");
+  }catch(e){console.error(e);alert("Не удалось отправить жалобу. Проверь интернет и попробуй снова.");}
+  finally{button.disabled=false;button.textContent="Отправить жалобу";}
 }
 
 /* =========================================
@@ -4400,6 +4543,33 @@ async function loadAdminReports(){
   }
 }
 
+
+async function banUserFromReport(userId){
+  if(!currentUser||!(await isDelyvexAdmin())){alert("Нет доступа администратора.");return;}
+  const reason=prompt("Причина блокировки пользователя:","Подозрение на мошенничество");
+  if(reason===null)return;
+  const {error}=await sb.from("user_restrictions").insert({user_id:userId,restriction_type:"ban",expires_at:null,reason:reason.trim().slice(0,500)||"Нарушение правил",created_by:currentUser.id});
+  if(error){alert("Не удалось заблокировать пользователя: "+error.message);return;}
+  alert("Пользователь заблокирован.");
+}
+
+async function loadAdminUserReports(){
+  const container=document.getElementById("adminUserReportsContainer");if(!container)return;
+  if(!currentUser){container.innerHTML="<p>Войди в аккаунт.</p>";return;}
+  if(!(await isDelyvexAdmin())){container.innerHTML="<p>⛔ Доступ закрыт для этого аккаунта.</p>";return;}
+  container.innerHTML="<p>Загрузка жалоб...</p>";
+  const {data,error}=await sb.from("user_reports").select("id,target_user_id,reporter_id,reason,details,status,created_at").order("created_at",{ascending:false}).limit(200);
+  if(error){container.innerHTML=`<div class="admin-report-error">Не удалось загрузить жалобы на пользователей: ${adminEscape(error.message)}<br>Проверь SQL и права администратора.</div>`;return;}
+  if(!data||!data.length){container.innerHTML="<p>Жалоб на пользователей пока нет.</p>";return;}
+  const statusName={new:"Новая",reviewing:"На рассмотрении",resolved:"Рассмотрена",rejected:"Отклонена"};
+  container.innerHTML=data.map(r=>`<article class="admin-report-card"><h3>Жалоба на пользователя</h3><div class="admin-report-meta">ID жалобы: ${adminEscape(r.id)}<br>ID пользователя: ${adminEscape(r.target_user_id)}<br>ID автора жалобы: ${adminEscape(r.reporter_id)}<br>Дата: ${adminEscape(r.created_at?new Date(r.created_at).toLocaleString('ru-RU'):'—')}</div><p><strong>Причина:</strong> ${adminEscape(r.reason)}</p><p class="admin-report-details"><strong>Подробности:</strong><br>${adminEscape(r.details||'Не указаны')}</p><span class="admin-status">Статус: ${adminEscape(statusName[r.status]||r.status)}</span>${!['resolved','rejected'].includes(r.status)?`<div class="admin-report-actions"><button class="admin-resolve" onclick="setUserReportStatus('${escapeJs(String(r.id))}','resolved')">✓ Рассмотрено</button><button class="admin-reject" onclick="setUserReportStatus('${escapeJs(String(r.id))}','rejected')">✕ Отклонить</button><button class="admin-reject" onclick="banUserFromReport('${escapeJs(String(r.target_user_id))}')">⛔ Заблокировать пользователя</button></div>`:''}</article>`).join('');
+}
+async function setUserReportStatus(id,status){
+  if(!['resolved','rejected'].includes(status)||!currentUser||!(await isDelyvexAdmin())){alert('Нет доступа администратора.');return;}
+  const {error}=await sb.from('user_reports').update({status}).eq('id',id);
+  if(error){alert('Не удалось изменить статус: '+error.message);return;}
+  await loadAdminUserReports();
+}
 
 async function openReportedListing(listingId){
   if(!listingId){alert("У этой жалобы не указан ID товара.");return;}
