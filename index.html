@@ -1609,9 +1609,9 @@ function getReviewText(count){
 function getSellerLevel(reviewCount, rating){
   const count = Math.max(0, Number(reviewCount) || 0);
   const score = Math.max(0, Number(rating) || 0);
-  if(count >= 25 && score >= 4.8) return {name:"Легенда", icon:"👑", cls:"level-legend", description:"25+ отзывов и рейтинг от 4,8"};
-  if(count >= 10 && score >= 4.5) return {name:"Профи", icon:"💎", cls:"level-pro", description:"10+ отзывов и рейтинг от 4,5"};
-  if(count >= 3 && score >= 4.0) return {name:"Опытный", icon:"⚡", cls:"level-experienced", description:"3+ отзыва и рейтинг от 4,0"};
+  if(count >= 500 && score >= 4.8) return {name:"Легенда", icon:"👑", cls:"level-legend", description:"500+ отзывов и рейтинг от 4,8"};
+  if(count >= 100 && score >= 4.5) return {name:"Профи", icon:"💎", cls:"level-pro", description:"100+ отзывов и рейтинг от 4,5"};
+  if(count >= 20 && score >= 4.0) return {name:"Опытный", icon:"⚡", cls:"level-experienced", description:"20+ отзывов и рейтинг от 4,0"};
   return {name:"Новичок", icon:"🌱", cls:"level-newbie", description:"Набирает первые отзывы"};
 }
 
