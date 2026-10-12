@@ -3917,6 +3917,20 @@ function chatTime(value){
   return date.toLocaleDateString("ru-RU",{day:"2-digit",month:"2-digit"});
 }
 
+// Локальные отметки прочтения для списка чатов.
+// Хранятся отдельно для каждого пользователя и собеседника.
+function chatSeenKey(otherId, listingId){
+  return `delyvex_chat_seen_${String(currentUser?.id || "guest")}_${String(otherId || "")}_${String(listingId ?? "none")}`;
+}
+function getChatSeenAt(otherId, listingId){
+  try { return Number(localStorage.getItem(chatSeenKey(otherId, listingId)) || 0); }
+  catch (error) { return 0; }
+}
+function setChatSeenAt(otherId, listingId, timestamp = Date.now()){
+  try { localStorage.setItem(chatSeenKey(otherId, listingId), String(timestamp)); }
+  catch (error) { console.warn("Не удалось сохранить отметку прочтения чата", error); }
+}
+
 async function loadChats(){
   if(!currentUser) return;
   const container = document.getElementById("chatsContainer");
