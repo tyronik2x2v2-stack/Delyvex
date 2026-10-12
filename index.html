@@ -3917,6 +3917,10 @@ function chatTime(value){
   return date.toLocaleDateString("ru-RU",{day:"2-digit",month:"2-digit"});
 }
 
+// Список пользователей, чей статус присутствия известен этой вкладке.
+// Пока нет активного presence-канала, все собеседники отображаются как «Не в сети».
+const onlineChatUsers = new Set();
+
 // Локальные отметки прочтения для списка чатов.
 // Хранятся отдельно для каждого пользователя и собеседника.
 function chatSeenKey(otherId, listingId){
