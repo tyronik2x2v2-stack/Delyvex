@@ -830,6 +830,21 @@ main{max-width:1100px;margin:auto;padding:25px 18px 100px}
 
 </section>
 
+<section id="adminListingReportChat" class="section">
+  <div class="chat-top">
+    <button class="nav-btn" type="button" onclick="closeAdminListingReportChat()">← Назад</button>
+    <div style="flex:1;min-width:0">
+      <div id="adminListingReportChatTitle" class="chat-top-name">Чат по жалобе на товар</div>
+      <div id="adminListingReportChatSubtitle" class="chat-top-status">Покупатель, продавец и администрация</div>
+    </div>
+  </div>
+  <div id="adminListingReportChatMessages" class="chat-messages"></div>
+  <div class="chat-compose">
+    <input id="adminListingReportChatInput" type="text" maxlength="2000" autocomplete="off" placeholder="Написать покупателю и продавцу..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendAdminListingReportChatMessage()}" />
+    <button class="primary-btn" id="adminListingReportChatSendButton" type="button" onclick="sendAdminListingReportChatMessage()">➤</button>
+  </div>
+</section>
+
 <section id="supportCaseChat" class="section">
   <div class="chat-window">
     <div class="chat-topbar">
@@ -999,6 +1014,11 @@ let supportCaseRefreshTimer = null;
 let supportCaseMessagesSignature = "";
 let supportCaseMessagesLoading = false;
 let supportCaseReturnSection = "admin";
+let activeAdminReportChat = null;
+let adminReportChatRefreshTimer = null;
+let adminReportChatSignature = "";
+let adminReportChatLoading = false;
+
 
 
 /* =========================================
@@ -3826,7 +3846,7 @@ async function openChat(listingId,receiverId,title){
     if(currentUser && currentReceiver && chatSection && chatSection.classList.contains("active")){
       loadMessages();
     }
-  }, 5000);
+  }, 2000);
   document.getElementById("chatInput").focus({preventScroll:true});
 }
 
@@ -3867,12 +3887,28 @@ async function loadMessages(){
   if(!container) return;
   messagesLoading = true;
   try{
-    const { data, error } = await sb
+    let { data, error } = await sb
       .from("messages")
       .select("*")
       .eq("listing_id",currentChat)
       .or(`and(sender_id.eq.${currentUser.id},receiver_id.eq.${currentReceiver}),and(sender_id.eq.${currentReceiver},receiver_id.eq.${currentUser.id})`)
       .order("created_at",{ascending:true});
+
+    // Если товар фигурирует в жалобе, добавляем сообщения администрации,
+    // адресованные участникам исходного чата.
+    if(!error && currentChat != null){
+      try{
+        const {data:sharedRows,error:sharedError}=await sb.rpc("delyvex_get_listing_report_chat_messages",{
+          p_listing_id:String(currentChat),
+          p_other_user_id:String(currentReceiver)
+        });
+        if(!sharedError && Array.isArray(sharedRows)){
+          const byId=new Map((data||[]).map(row=>[String(row.id),row]));
+          sharedRows.forEach(row=>byId.set(String(row.id),row));
+          data=Array.from(byId.values()).sort((a,b)=>new Date(a.created_at)-new Date(b.created_at));
+        }
+      }catch(_){}
+    }
 
     if(error){
       console.error("Ошибка загрузки сообщений:",error);
@@ -4095,7 +4131,7 @@ function startDelyvexNotifications(){
   if(!localStorage.getItem(orderKey)) localStorage.setItem(orderKey,now);
   notificationPollStartedAt = now;
   refreshNotificationBadges(false);
-  notificationTimer = setInterval(()=>refreshNotificationBadges(true),30000);
+  notificationTimer = setInterval(()=>refreshNotificationBadges(true),20000);
 }
 
 function stopDelyvexNotifications(){
@@ -4491,6 +4527,7 @@ async function loadAdminReports(){
         <h3>${adminEscape(r.listing_title || "Объявление")}</h3>
         <div class="admin-report-meta">ID жалобы: ${adminEscape(r.id)}<br>ID товара: ${adminEscape(r.listing_id)}<br>Продавец: ${adminEscape(r.seller_id)}<br>Отправлена: ${adminEscape(date)}</div>
         <button class="admin-report-link" type="button" onclick="openReportedListing('${escapeJs(String(r.listing_id || ""))}')">↗ Перейти к товару</button>
+        <button class="admin-report-link" type="button" onclick="openAdminListingReportChat('${escapeJs(String(r.listing_id || ""))}','${escapeJs(String(r.reporter_id || ""))}','${escapeJs(String(r.seller_id || ""))}','${escapeJs(String(r.listing_title || "Товар"))}')">💬 Подключиться к чату</button>
         <p><strong>Причина:</strong> ${adminEscape(r.reason)}</p>
         <p class="admin-report-details"><strong>Подробности:</strong><br>${adminEscape(r.details || "Не указаны")}</p>
         <span class="admin-status">Статус: ${adminEscape(names[r.status] || r.status)}</span>
@@ -4680,6 +4717,80 @@ async function setSupportCaseStatus(caseId,status){
   const {error}=await sb.from("support_cases").update({status}).eq("id",caseId);
   if(error){alert("Не удалось изменить статус: "+error.message);return;}
   await loadAdminSupportCases();
+}
+
+async function openAdminListingReportChat(listingId,reporterId,sellerId,title){
+  if(!currentUser || !(await isDelyvexAdmin())){alert("Доступ только для администратора.");return;}
+  if(!listingId || !reporterId || !sellerId){alert("В этой жалобе не хватает ID покупателя или продавца. Проверь, что таблица listing_reports содержит reporter_id и seller_id.");return;}
+  if(String(reporterId)===String(sellerId)){alert("Покупатель и продавец совпадают — открыть общий чат нельзя.");return;}
+  activeAdminReportChat={listingId:String(listingId),reporterId:String(reporterId),sellerId:String(sellerId),title:String(title||"Товар")};
+  adminReportChatSignature="";
+  if(adminReportChatRefreshTimer){clearInterval(adminReportChatRefreshTimer);adminReportChatRefreshTimer=null;}
+  document.getElementById("adminListingReportChatTitle").textContent="Жалоба: "+activeAdminReportChat.title;
+  document.getElementById("adminListingReportChatSubtitle").textContent="Покупатель и продавец увидят сообщения администрации в исходном чате";
+  showSection("adminListingReportChat");
+  await loadAdminListingReportChatMessages();
+  adminReportChatRefreshTimer=setInterval(()=>{
+    const sec=document.getElementById("adminListingReportChat");
+    if(currentUser&&activeAdminReportChat&&sec&&sec.classList.contains("active"))loadAdminListingReportChatMessages();
+  },3000);
+  document.getElementById("adminListingReportChatInput").focus({preventScroll:true});
+}
+
+async function loadAdminListingReportChatMessages(){
+  if(!currentUser||!activeAdminReportChat||adminReportChatLoading)return;
+  const container=document.getElementById("adminListingReportChatMessages");
+  if(!container)return;
+  adminReportChatLoading=true;
+  try{
+    const {data,error}=await sb.rpc("delyvex_admin_get_listing_report_chat",{
+      p_listing_id:activeAdminReportChat.listingId,
+      p_reporter_id:activeAdminReportChat.reporterId,
+      p_seller_id:activeAdminReportChat.sellerId
+    });
+    if(error)throw error;
+    const rows=data||[];
+    const sig=rows.map(m=>`${m.id}:${m.created_at}:${m.message}`).join("|");
+    if(sig===adminReportChatSignature)return;
+    const atBottom=container.scrollHeight-container.scrollTop-container.clientHeight<90;
+    adminReportChatSignature=sig;container.innerHTML="";
+    if(!rows.length)container.innerHTML='<div class="empty" style="margin:auto;padding:25px">В этой переписке пока нет сообщений.</div>';
+    rows.forEach(m=>{
+      const div=document.createElement("div");div.className="message "+(String(m.sender_id)===String(currentUser.id)?"mine":"theirs");
+      const label=document.createElement("div");label.className="admin-message-label";
+      label.textContent=String(m.sender_id)===String(currentUser.id)?"🛡️ Вы — администратор":(m.is_admin_message?"🛡️ Администратор":(String(m.sender_id)===String(activeAdminReportChat.reporterId)?"Покупатель":"Продавец"));
+      div.appendChild(label);
+      const body=document.createElement("div");body.textContent=String(m.message||"");div.appendChild(body);
+      const time=document.createElement("span");time.className="message-time";time.textContent=chatTime(m.created_at);div.appendChild(time);container.appendChild(div);
+    });
+    if(atBottom||rows.length<=1)container.scrollTop=container.scrollHeight;
+  }catch(e){
+    console.error("Чат по жалобе на товар:",e);
+    if(!container.children.length)container.innerHTML='<div class="empty">Не удалось загрузить переписку. Проверь SQL для общего чата жалобы.</div>';
+  }finally{adminReportChatLoading=false;}
+}
+
+async function sendAdminListingReportChatMessage(){
+  if(!currentUser||!activeAdminReportChat||!(await isDelyvexAdmin()))return;
+  const input=document.getElementById("adminListingReportChatInput");
+  const message=(input.value||"").trim();if(!message)return;
+  const button=document.getElementById("adminListingReportChatSendButton");if(button)button.disabled=true;
+  try{
+    const {error}=await sb.rpc("delyvex_admin_send_listing_report_chat_message",{
+      p_listing_id:activeAdminReportChat.listingId,
+      p_reporter_id:activeAdminReportChat.reporterId,
+      p_seller_id:activeAdminReportChat.sellerId,
+      p_message:message.slice(0,2000)
+    });
+    if(error)throw error;
+    input.value="";adminReportChatSignature="";await loadAdminListingReportChatMessages();input.focus({preventScroll:true});
+  }catch(e){console.error(e);alert("Не удалось отправить сообщение. Проверь SQL.\n\n"+(e.message||"Ошибка"));}
+  finally{if(button)button.disabled=false;}
+}
+
+function closeAdminListingReportChat(){
+  if(adminReportChatRefreshTimer){clearInterval(adminReportChatRefreshTimer);adminReportChatRefreshTimer=null;}
+  activeAdminReportChat=null;showSection("admin");loadAdminReports();
 }
 
 async function openReportedListing(listingId){
