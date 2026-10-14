@@ -5419,7 +5419,7 @@ async function loadAdminSupportCases(){
         <p class="admin-report-details"><strong>Описание:</strong><br>${adminEscape(c.details||"Пользователь не добавил описание.")}</p>
         <span class="admin-status">Статус: ${adminEscape(labels[c.status]||c.status)}</span>
         <div class="admin-report-actions" style="margin-top:12px;flex-wrap:wrap">
-          ${c.chat_listing_id!=null && String(c.chat_listing_id)!=="" ? `<button class="admin-report-link" type="button" onclick="openAdminListingReportChat('${escapeJs(String(c.chat_listing_id))}','${escapeJs(String(c.reporter_id||""))}','${escapeJs(String(c.reported_user_id||""))}','${escapeJs(String(c.reason||"Жалоба на пользователя"))}')">💬 Открыть исходный чат с участниками</button>` : `<button class="admin-report-link" type="button" onclick="openSupportCaseChat(${Number(c.id)},'admin')">💬 Открыть чат обращения</button>`}
+          <button class="admin-report-link" type="button" onclick="connectToUserReportChat(${Number(c.id)},'${escapeJs(String(c.chat_listing_id||""))}','${escapeJs(String(c.reporter_id||""))}','${escapeJs(String(c.reported_user_id||""))}','${escapeJs(String(c.reason||"Жалоба на пользователя"))}')">💬 Подключиться к чату</button>
           ${c.status!=="resolved"&&c.status!=="rejected"?`<button class="admin-resolve" type="button" onclick="setSupportCaseStatus(${Number(c.id)},'resolved')">✓ Рассмотрено</button><button class="admin-reject" type="button" onclick="setSupportCaseStatus(${Number(c.id)},'rejected')">✕ Отклонить</button>`:""}
         </div>
       </article>`;
@@ -5433,6 +5433,30 @@ async function loadAdminSupportCases(){
 function openSupportCaseProfile(userId){
   if(!userId) return;
   viewSellerProfile(String(userId));
+}
+
+// Открывает именно тот интерфейс общего чата, который используется для жалоб на товары.
+// Если жалобу отправили из профиля и ID чата не сохранился, ищем последнюю переписку между участниками.
+async function connectToUserReportChat(caseId,chatListingId,reporterId,reportedUserId,reason){
+  if(!currentUser || !(await isDelyvexAdmin())){alert("Доступ только для администратора.");return;}
+  if(!reporterId || !reportedUserId){alert("В жалобе не хватает ID участников.");return;}
+  if(String(reporterId)===String(reportedUserId)){alert("Заявитель и пользователь совпадают — открыть чат нельзя.");return;}
+  let listingId=String(chatListingId||"").trim();
+  if(!listingId){
+    try{
+      const pairQuery=`and(sender_id.eq.${reporterId},receiver_id.eq.${reportedUserId}),and(sender_id.eq.${reportedUserId},receiver_id.eq.${reporterId})`;
+      const {data,error}=await sb.from("messages").select("listing_id,created_at")
+        .or(pairQuery).not("listing_id","is",null).order("created_at",{ascending:false}).limit(50);
+      if(error) throw error;
+      const latest=(data||[]).find(m=>m.listing_id!==null&&m.listing_id!==undefined&&String(m.listing_id)!=="");
+      if(latest) listingId=String(latest.listing_id);
+    }catch(e){console.warn("Не удалось найти исходный чат участников:",e);}
+  }
+  if(!listingId){
+    alert("Не удалось найти исходный личный чат этих пользователей. Открой жалобу, отправленную непосредственно из переписки, чтобы подключиться к ней.");
+    return;
+  }
+  await openAdminListingReportChat(listingId,reporterId,reportedUserId,reason||("Жалоба №"+caseId));
 }
 
 async function openSupportCaseChat(caseId,returnSection="admin"){
