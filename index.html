@@ -54,7 +54,7 @@ header{
 .nav-btn{background:transparent;color:#ddd;border:0;padding:10px 13px;border-radius:10px}
 .nav-btn:hover{background:#21152e}
 
-.header-profile{margin-left:10px;display:flex;align-items:center;gap:9px}
+.header-profile{margin-left:10px}
 .notification-badge{display:inline-flex;align-items:center;justify-content:center;min-width:19px;height:19px;padding:0 5px;margin-left:4px;border-radius:20px;background:#ef4444;color:#fff;font-size:11px;font-weight:800;vertical-align:middle}
 .notification-badge[hidden]{display:none!important}
 #notificationToast{position:fixed;right:18px;bottom:22px;z-index:10000;max-width:min(360px,calc(100vw - 36px));padding:15px 18px;border:1px solid #8b5cf6;border-radius:14px;background:#1b1029;color:#fff;box-shadow:0 8px 30px #0008;display:none;line-height:1.45;cursor:pointer}
@@ -627,8 +627,7 @@ hr{border-color:var(--dx-line)!important}
   </div>
 
   <div class="header-profile">
-    <span id="avatarSettingsHint" class="avatar-settings-hint hidden" aria-hidden="true">Нажми на аватарку → Настройки</span>
-    <img id="headerAvatar" class="header-avatar hidden" src="" alt="Аватарка — открыть настройки" title="Нажми, чтобы открыть настройки">
+    <img id="headerAvatar" class="header-avatar hidden" src="" alt="">
   </div>
 
 </header>
@@ -670,6 +669,24 @@ hr{border-color:var(--dx-line)!important}
 
   </div>
 
+  <div id="delyvexSmartCatalog" class="card" style="margin-top:-5px;margin-bottom:18px">
+    <div style="font-weight:800;margin-bottom:12px">🔎 Умный каталог</div>
+    <div class="form-group" style="margin-bottom:12px">
+      <label for="catalogGameFilter">Игра</label>
+      <select id="catalogGameFilter" style="width:100%;background:#0b0812;color:#fff;border:1px solid #30203f;border-radius:12px;padding:13px" onchange="searchListings()"><option value="">Все игры</option></select>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px">
+      <div class="form-group" style="margin-bottom:12px"><label for="catalogMinPrice">Цена от, ₽</label><input id="catalogMinPrice" type="number" min="0" placeholder="0" oninput="searchListings()"></div>
+      <div class="form-group" style="margin-bottom:12px"><label for="catalogMaxPrice">Цена до, ₽</label><input id="catalogMaxPrice" type="number" min="0" placeholder="Без лимита" oninput="searchListings()"></div>
+    </div>
+    <div class="form-group" style="margin-bottom:0">
+      <label for="catalogSort">Сортировка</label>
+      <select id="catalogSort" style="width:100%;background:#0b0812;color:#fff;border:1px solid #30203f;border-radius:12px;padding:13px" onchange="searchListings()">
+        <option value="recommended">Рекомендуемые</option><option value="newest">Сначала новые</option><option value="price_asc">Сначала дешевле</option><option value="price_desc">Сначала дороже</option><option value="name">По названию</option>
+      </select>
+    </div>
+    <button type="button" class="chat-btn" style="margin-top:12px" onclick="resetCatalogFilters()">Сбросить фильтры</button>
+  </div>
   <div id="listingsContainer"></div>
 
 </section>
@@ -694,6 +711,12 @@ hr{border-color:var(--dx-line)!important}
     <div class="form-group">
       <label>Описание</label>
       <textarea id="sellDescription" placeholder="Опиши товар..."></textarea>
+    </div>
+
+    <div class="form-group">
+      <label>📦 Данные для автовыдачи (необязательно)</label>
+      <textarea id="sellDeliveryContent" maxlength="10000" placeholder="Например, цифровой код или инструкция, которые покупатель получит после оформления заказа. Не добавляй сюда данные, которые нельзя безопасно передавать покупателю."></textarea>
+      <div class="small">Покупатель сможет получить эти данные в разделе «Заказы» после оформления покупки. Для включения функции сначала выполни SQL-файл для Supabase.</div>
     </div>
 
     <div class="form-group">
@@ -1982,6 +2005,7 @@ async function loadListings(){
     listings = unique.filter(item => !bannedSellerIds.has(String(item.seller_id || "")));
 
     await renderListings(listings);
+  if(typeof refreshCatalogGameOptions === "function") refreshCatalogGameOptions();
 
   }finally{
 
@@ -2355,46 +2379,47 @@ async function viewSellerProfile(sellerId){
 }
 
 
-async function searchListings(){
-
-  const query =
-    document
-      .getElementById("searchInput")
-      .value
-      .trim()
-      .toLowerCase();
-
-  if(!query){
-
-    await renderListings(listings);
-    return;
-
-  }
-
-  const result =
-    listings.filter(item=>{
-
-      const game =
-        String(item.game || "").toLowerCase();
-
-      const title =
-        String(item.title || "").toLowerCase();
-
-      const description =
-        String(item.description || "").toLowerCase();
-
-      return(
-        game.includes(query) ||
-        title.includes(query) ||
-        description.includes(query)
-      );
-
-    });
-
-  await renderListings(result);
-
+function refreshCatalogGameOptions(){
+  const select = document.getElementById("catalogGameFilter");
+  if(!select) return;
+  const previous = select.value;
+  const games = [...new Set((listings || []).map(item => String(item.game || item.category || "").trim()).filter(Boolean))]
+    .sort((a,b)=>a.localeCompare(b,"ru",{sensitivity:"base"}));
+  select.innerHTML = '<option value="">Все игры</option>';
+  games.forEach(game=>{const option=document.createElement("option");option.value=game;option.textContent=game;select.appendChild(option);});
+  if(games.includes(previous)) select.value=previous;
 }
-
+function resetCatalogFilters(){
+  ["searchInput","catalogGameFilter","catalogMinPrice","catalogMaxPrice"].forEach(id=>{const el=document.getElementById(id);if(el)el.value="";});
+  const sort=document.getElementById("catalogSort");if(sort)sort.value="recommended";
+  searchListings();
+}
+async function searchListings(){
+  refreshCatalogGameOptions();
+  const query=(document.getElementById("searchInput")?.value||"").trim().toLowerCase();
+  const gameFilter=(document.getElementById("catalogGameFilter")?.value||"").trim().toLowerCase();
+  const minRaw=document.getElementById("catalogMinPrice")?.value;
+  const maxRaw=document.getElementById("catalogMaxPrice")?.value;
+  const minPrice=minRaw===""||minRaw==null?null:Number(minRaw);
+  const maxPrice=maxRaw===""||maxRaw==null?null:Number(maxRaw);
+  const sort=document.getElementById("catalogSort")?.value||"recommended";
+  let result=(listings||[]).filter(item=>{
+    const game=String(item.game||item.category||"").toLowerCase();
+    const title=String(item.title||"").toLowerCase();
+    const description=String(item.description||"").toLowerCase();
+    const price=Number(item.price||0);
+    if(query&&!(game.includes(query)||title.includes(query)||description.includes(query)))return false;
+    if(gameFilter&&game!==gameFilter)return false;
+    if(minPrice!==null&&Number.isFinite(minPrice)&&price<minPrice)return false;
+    if(maxPrice!==null&&Number.isFinite(maxPrice)&&price>maxPrice)return false;
+    return true;
+  });
+  if(sort==="newest")result.sort((a,b)=>new Date(b.created_at||0).getTime()-new Date(a.created_at||0).getTime());
+  else if(sort==="price_asc")result.sort((a,b)=>Number(a.price||0)-Number(b.price||0));
+  else if(sort==="price_desc")result.sort((a,b)=>Number(b.price||0)-Number(a.price||0));
+  else if(sort==="name")result.sort((a,b)=>String(a.title||"").localeCompare(String(b.title||""),"ru",{sensitivity:"base"}));
+  await renderListings(result);
+}
 
 /* =========================================
    BUMP OWN LISTING (once per hour per listing)
@@ -2614,7 +2639,9 @@ async function createListing(){
 
   }
 
+  const deliveryContent = (document.getElementById("sellDeliveryContent")?.value || "").trim();
   const {
+    data: createdListing,
     error
   } =
     await sb
@@ -2628,7 +2655,9 @@ async function createListing(){
         price:numericPrice,
         image_url:selectedProductImage
 
-      });
+      })
+      .select("id")
+      .single();
 
   if(error){
 
@@ -2641,9 +2670,21 @@ async function createListing(){
 
   }
 
+  if(deliveryContent && createdListing?.id){
+    const {error:deliveryError}=await sb.rpc("delyvex_save_listing_delivery",{
+      p_listing_id:Number(createdListing.id),
+      p_delivery_content:deliveryContent
+    });
+    if(deliveryError){
+      console.error("Не удалось сохранить данные автовыдачи:",deliveryError);
+      alert("Объявление опубликовано, но данные автовыдачи не сохранились. Проверь SQL-файл Delyvex_delivery_setup.sql.\n\n"+deliveryError.message);
+    }
+  }
+
   document.getElementById("sellGame").value = "";
   document.getElementById("sellTitle").value = "";
   document.getElementById("sellDescription").value = "";
+  if(document.getElementById("sellDeliveryContent")) document.getElementById("sellDeliveryContent").value = "";
   document.getElementById("sellPrice").value = "";
   document.getElementById("sellImageFile").value = "";
 
@@ -2907,6 +2948,10 @@ async function loadOrders(){
 
     let buttons = "";
 
+    if(isBuyer && (order.status === "waiting_confirmation" || order.status === "completed")){
+      buttons += `<button class="chat-btn" type="button" style="margin-top:13px;margin-right:8px" onclick="showPurchaseDelivery('${order.id}')">📦 Получить цифровой товар</button>`;
+    }
+
     if(
       isBuyer &&
       order.status === "waiting_confirmation"
@@ -3081,6 +3126,26 @@ async function loadOrders(){
 
 }
 
+
+async function showPurchaseDelivery(purchaseId){
+  if(!currentUser){showAuthGate();return;}
+  const {data,error}=await sb.rpc("delyvex_get_purchase_delivery",{p_purchase_id:Number(purchaseId)});
+  if(error){
+    console.error("Автовыдача:",error);
+    alert("Не удалось получить цифровой товар. Проверь SQL-настройку Delyvex_delivery_setup.sql.\n\n"+error.message);
+    return;
+  }
+  const content=typeof data === "string" ? data : (data?.delivery_content || data?.content || "");
+  if(!content){alert("Для этого заказа продавец не добавил данные для автовыдачи.");return;}
+  const win=window.open("","_blank","noopener,noreferrer,width=600,height=500");
+  if(win){
+    win.document.write("<!doctype html><html lang=\"ru\"><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\"><title>Цифровой товар Delyvex</title><body style=\"font:16px system-ui;background:#100b18;color:#fff;padding:24px;white-space:pre-wrap;overflow-wrap:anywhere\"><h2>📦 Твой цифровой товар</h2><div id=\"delivery\"></div><button onclick=\"navigator.clipboard.writeText(document.getElementById('delivery').innerText)\" style=\"margin-top:20px;padding:12px 16px\">Копировать данные</button></body></html>");
+    win.document.close();
+    win.document.getElementById("delivery").textContent=content;
+  }else{
+    alert("Данные для автовыдачи:\n\n"+content);
+  }
+}
 
 async function copyOrderNumber(orderNumber){
   try{
@@ -5242,9 +5307,6 @@ initialize();
 
 <style id="delyvexSettingsStyles">
 .header-avatar{cursor:pointer!important}.header-avatar:focus-visible{outline:3px solid #c4a5ff;outline-offset:4px}
-.avatar-settings-hint{font-size:12px;line-height:1.3;color:var(--dx-text);background:rgba(155,108,255,.13);border:1px solid rgba(155,108,255,.35);padding:7px 10px;border-radius:10px;white-space:nowrap;animation:avatarHintPulse 2.8s ease-in-out infinite}
-@keyframes avatarHintPulse{0%,100%{opacity:.78}50%{opacity:1}}
-@media(max-width:650px){.avatar-settings-hint{white-space:normal;max-width:105px;font-size:10px;padding:6px 7px}}
 .settings-intro{color:var(--dx-muted);margin:-8px 0 22px;line-height:1.6}.settings-card{padding:22px;margin-bottom:18px}.settings-heading{display:flex;align-items:center;gap:13px;margin-bottom:18px}.settings-icon{width:48px;height:48px;display:grid;place-items:center;border-radius:15px;background:rgba(155,108,255,.15);font-size:23px}.settings-heading h2{font-size:19px;margin:0 0 4px}.settings-heading p{margin:0;color:var(--dx-muted);font-size:13px}.theme-options{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}.theme-choice{min-width:0;text-align:left;padding:10px;border:1px solid var(--dx-line);border-radius:15px;background:rgba(255,255,255,.025);color:var(--dx-text);cursor:pointer}.theme-choice b,.theme-choice small{display:block;overflow-wrap:anywhere}.theme-choice b{font-size:13px;margin-top:9px}.theme-choice small{font-size:11px;color:var(--dx-muted);margin-top:4px}.theme-choice.selected{border-color:var(--dx-purple);box-shadow:0 0 0 2px color-mix(in srgb,var(--dx-purple) 24%,transparent);background:rgba(155,108,255,.08)}.theme-preview{display:block;height:64px;border-radius:10px;border:1px solid rgba(255,255,255,.14);background:#090812;position:relative;overflow:hidden}.theme-preview:before{content:"";position:absolute;left:8px;right:8px;top:9px;height:8px;border-radius:5px;background:rgba(255,255,255,.15)}.theme-preview:after{content:"";position:absolute;left:8px;right:28px;top:25px;bottom:8px;border-radius:6px;background:var(--preview-accent)}.theme-purple{--preview-accent:#9b6cff}.theme-blue{--preview-accent:#3998ff}.theme-green{--preview-accent:#24c79a}.theme-light{background:#f4f5fb;--preview-accent:#8152ed}.settings-note{font-size:12px;color:var(--dx-muted);margin-top:15px}.settings-toggle{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:15px;border:1px solid var(--dx-line);border-radius:14px}.settings-toggle b,.settings-toggle small{display:block}.settings-toggle small{font-size:12px;color:var(--dx-muted);margin-top:5px;line-height:1.5}.settings-toggle input{width:20px;height:20px;accent-color:var(--dx-purple);flex:0 0 auto}.settings-back{padding:12px 16px;margin:2px 0 12px}
 body[data-dx-theme="blue"]{--dx-purple:#3998ff;--dx-pink:#52c8ff;--dx-line:rgba(95,169,255,.22);--dx-muted:#a6b7d0}body[data-dx-theme="blue"] .primary-btn,body[data-dx-theme="blue"] .chat-send,body[data-dx-theme="blue"] .google-btn,body[data-dx-theme="blue"] .telegram-btn{background:linear-gradient(110deg,#2878e8,#36b6ed)!important}body[data-dx-theme="blue"] .seller-level{border-color:rgba(57,152,255,.35)}
 body[data-dx-theme="green"]{--dx-purple:#24c79a;--dx-pink:#59e2b7;--dx-line:rgba(72,211,165,.2);--dx-muted:#a7c7bc}body[data-dx-theme="green"] .primary-btn,body[data-dx-theme="green"] .chat-send,body[data-dx-theme="green"] .google-btn,body[data-dx-theme="green"] .telegram-btn{background:linear-gradient(110deg,#119b78,#29cda0)!important}
@@ -5276,7 +5338,7 @@ body.dx-reduce-motion *,body.dx-reduce-motion *::before,body.dx-reduce-motion *:
     window.setDelyvexTheme(theme);window.setDelyvexMotion(reduce);
     const toggle=document.getElementById('reduceDelyvexMotion');if(toggle)toggle.checked=reduce;
     const avatar=document.getElementById('headerAvatar');
-    if(avatar){avatar.title='Нажми на аватарку, чтобы открыть настройки';avatar.setAttribute('role','button');avatar.setAttribute('tabindex','0');avatar.setAttribute('aria-label','Нажми на аватарку, чтобы открыть настройки');avatar.addEventListener('click',()=>window.showSection('settings'));avatar.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();window.showSection('settings')}});const hint=document.getElementById('avatarSettingsHint');if(hint){const syncHint=()=>hint.classList.toggle('hidden',avatar.classList.contains('hidden'));syncHint();new MutationObserver(syncHint).observe(avatar,{attributes:true,attributeFilter:['class']})}}
+    if(avatar){avatar.title='Открыть настройки';avatar.setAttribute('role','button');avatar.setAttribute('tabindex','0');avatar.setAttribute('aria-label','Открыть настройки');avatar.addEventListener('click',()=>window.showSection('settings'));avatar.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();window.showSection('settings')}})}
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initDelyvexSettings);else initDelyvexSettings();
 })();
