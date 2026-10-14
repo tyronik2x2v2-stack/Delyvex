@@ -3168,7 +3168,9 @@ async function loadOrders(){
         await sb
           .from("reviews")
           .select("id")
-          .eq("purchase_id",order.id)
+          .eq("buyer_id",currentUser.id)
+          .eq("seller_id",order.seller_id)
+          .limit(1)
           .maybeSingle();
 
       if(reviewCheckError){
@@ -3532,27 +3534,6 @@ async function writeReview(purchaseId,listingId){
     return;
 
   const {
-    data:existingReview,
-    error:checkError
-  } =
-    await sb
-      .from("reviews")
-      .select("id")
-      .eq("purchase_id",Number(purchaseId))
-      .maybeSingle();
-
-  if(checkError){
-    console.error(checkError);
-  }
-
-  if(existingReview){
-
-    alert("Ты уже оставил отзыв на этот заказ.");
-    return;
-
-  }
-
-  const {
     data:purchase,
     error:purchaseError
   } =
@@ -3564,83 +3545,80 @@ async function writeReview(purchaseId,listingId){
       .maybeSingle();
 
   if(purchaseError || !purchase){
-
     alert("Заказ не найден.");
     return;
-
   }
 
   if(purchase.status !== "completed"){
-
-    alert(
-      "Оставить отзыв можно только после завершения заказа."
-    );
-
+    alert("Оставить отзыв можно только после завершения заказа.");
     return;
-
   }
 
-  const ratingText =
-    prompt("Оцени продавца от 1 до 5:");
-
-  if(ratingText === null)
-    return;
-
-  const rating =
-    Number(ratingText);
-
-  if(
-    !Number.isInteger(rating) ||
-    rating < 1 ||
-    rating > 5
-  ){
-
-    alert("Оценка должна быть от 1 до 5.");
-    return;
-
-  }
-
-  const review =
-    prompt("Напиши отзыв о продавце:");
-
-  if(review === null)
-    return;
-
+  // Один покупатель может оставить только один отзыв каждому продавцу,
+  // даже если он купил у него несколько разных товаров.
   const {
-    error
+    data:existingReview,
+    error:checkError
   } =
     await sb
       .from("reviews")
-      .insert({
+      .select("id")
+      .eq("buyer_id",currentUser.id)
+      .eq("seller_id",purchase.seller_id)
+      .limit(1)
+      .maybeSingle();
 
-        purchase_id:Number(purchaseId),
-        listing_id:Number(listingId),
-        buyer_id:currentUser.id,
-        seller_id:purchase.seller_id,
-        rating:rating,
-        review:review.trim()
+  if(checkError){
+    console.error("Не удалось проверить отзыв:",checkError);
+    alert("Не удалось проверить, оставлял ли ты уже отзыв. Попробуй ещё раз.");
+    return;
+  }
 
-      });
+  if(existingReview){
+    alert("Ты уже оставил отзыв этому продавцу. Повторно оценить его нельзя.");
+    await loadOrders();
+    return;
+  }
+
+  const ratingText = prompt("Оцени продавца от 1 до 5:");
+  if(ratingText === null) return;
+
+  const rating = Number(ratingText);
+  if(!Number.isInteger(rating) || rating < 1 || rating > 5){
+    alert("Оценка должна быть от 1 до 5.");
+    return;
+  }
+
+  const review = prompt("Напиши отзыв о продавце:");
+  if(review === null) return;
+
+  const { error } = await sb
+    .from("reviews")
+    .insert({
+      purchase_id:Number(purchaseId),
+      listing_id:Number(listingId),
+      buyer_id:currentUser.id,
+      seller_id:purchase.seller_id,
+      rating:rating,
+      review:review.trim()
+    });
 
   if(error){
-
-    alert(
-      "Ошибка сохранения отзыва:\n\n"+
-      error.message
-    );
-
+    // Защита на случай одновременной отправки из двух вкладок/устройств.
+    if(error.code === "23505"){
+      alert("Ты уже оставил отзыв этому продавцу. Второй отзыв не разрешён.");
+      await loadOrders();
+      return;
+    }
+    alert("Ошибка сохранения отзыва:\n\n" + error.message);
     return;
-
   }
 
   alert("⭐ Спасибо! Отзыв сохранён.");
-
   await loadOrders();
   await loadProfileRating(currentUser.id);
   await loadListings();
-
 }
-
 
 /* =========================================
    BALANCE + TOP UP
