@@ -2942,35 +2942,10 @@ async function buyListing(listingId){
   updateBalanceUI();
 
   /*
-    Автоматическое сообщение продавцу
-    после успешной покупки.
+    Системное уведомление о покупке создаётся серверной функцией
+    create_test_purchase. Не вставляем его повторно из браузера:
+    это вызывало два одинаковых сообщения в чате.
   */
-
-  try{
-
-    const nickname =
-      await getCurrentNickname();
-
-    await sb
-      .from("messages")
-      .insert({
-
-        listing_id:Number(listingId),
-        sender_id:currentUser.id,
-        receiver_id:listing.seller_id,
-        message:
-          `SYSTEM_PURCHASE|${nickname}|${listing.title || "товар"}`
-
-      });
-
-  }catch(messageError){
-
-    console.error(
-      "Не удалось создать системное сообщение:",
-      messageError
-    );
-
-  }
 
   await renderListings(listings);
 
@@ -3246,22 +3221,61 @@ async function loadOrders(){
 
 async function showPurchaseDelivery(purchaseId){
   if(!currentUser){showAuthGate();return;}
-  const {data,error}=await sb.rpc("delyvex_get_purchase_delivery",{p_purchase_id:Number(purchaseId)});
+  const id=Number(purchaseId);
+  if(!Number.isFinite(id) || id<=0){alert("Не удалось определить номер заказа.");return;}
+
+  const {data,error}=await sb.rpc("delyvex_get_purchase_delivery",{p_purchase_id:id});
   if(error){
     console.error("Автовыдача:",error);
-    alert("Не удалось получить цифровой товар. Проверь SQL-настройку Delyvex_delivery_setup.sql.\n\n"+error.message);
+    alert("Не удалось получить цифровой товар. Сначала выполни SQL-файл Delyvex_delivery_setup.sql в Supabase → SQL Editor.\n\n"+error.message);
     return;
   }
   const content=typeof data === "string" ? data : (data?.delivery_content || data?.content || "");
-  if(!content){alert("Для этого заказа продавец не добавил данные для автовыдачи.");return;}
-  const win=window.open("","_blank","noopener,noreferrer,width=600,height=500");
-  if(win){
-    win.document.write("<!doctype html><html lang=\"ru\"><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\"><title>Цифровой товар Delyvex</title><body style=\"font:16px system-ui;background:#100b18;color:#fff;padding:24px;white-space:pre-wrap;overflow-wrap:anywhere\"><h2>📦 Твой цифровой товар</h2><div id=\"delivery\"></div><button onclick=\"navigator.clipboard.writeText(document.getElementById('delivery').innerText)\" style=\"margin-top:20px;padding:12px 16px\">Копировать данные</button></body></html>");
-    win.document.close();
-    win.document.getElementById("delivery").textContent=content;
-  }else{
-    alert("Данные для автовыдачи:\n\n"+content);
+  if(!String(content||"").trim()){
+    alert("Для этого объявления не добавлены данные автовыдачи. Продавец должен открыть редактирование/создание объявления и заполнить поле «Данные для автовыдачи».");
+    return;
   }
+
+  // Встроенное окно вместо window.open: работает и при блокировке всплывающих окон.
+  document.getElementById("delyvexDeliveryModal")?.remove();
+  const overlay=document.createElement("div");
+  overlay.id="delyvexDeliveryModal";
+  overlay.setAttribute("role","dialog");
+  overlay.setAttribute("aria-modal","true");
+  overlay.setAttribute("aria-label","Данные цифрового товара");
+  overlay.style.cssText="position:fixed;inset:0;z-index:12000;background:#000c;display:flex;align-items:center;justify-content:center;padding:16px;";
+
+  const box=document.createElement("div");
+  box.style.cssText="width:100%;max-width:680px;max-height:85vh;overflow:auto;background:#130d1f;color:#fff;border:1px solid #8b5cf6;border-radius:18px;padding:20px;box-shadow:0 20px 70px #000b;";
+  const heading=document.createElement("h2");
+  heading.textContent="📦 Твой цифровой товар";
+  heading.style.cssText="margin:0 0 14px;font-size:22px;";
+  const note=document.createElement("p");
+  note.textContent="Данные доступны для этого заказа. Храни их в безопасности.";
+  note.style.cssText="color:#c4b5fd;line-height:1.5;margin:0 0 12px;";
+  const pre=document.createElement("pre");
+  pre.textContent=String(content);
+  pre.style.cssText="white-space:pre-wrap;overflow-wrap:anywhere;background:#0b0812;border:1px solid #30203f;border-radius:12px;padding:15px;max-height:45vh;overflow:auto;font:14px/1.6 ui-monospace,monospace;color:#f5f3ff;";
+  const actions=document.createElement("div");
+  actions.style.cssText="display:flex;gap:10px;flex-wrap:wrap;margin-top:15px;";
+  const copy=document.createElement("button");
+  copy.type="button";copy.className="primary-btn";copy.textContent="📋 Копировать данные";
+  copy.addEventListener("click",async()=>{
+    try{
+      if(navigator.clipboard && window.isSecureContext){await navigator.clipboard.writeText(String(content));alert("Данные скопированы.");}
+      else{window.prompt("Скопируй данные цифрового товара:",String(content));}
+    }catch(e){window.prompt("Скопируй данные цифрового товара:",String(content));}
+  });
+  const close=document.createElement("button");
+  close.type="button";close.className="chat-btn";close.textContent="Закрыть";
+  close.addEventListener("click",()=>overlay.remove());
+  overlay.addEventListener("click",event=>{if(event.target===overlay)overlay.remove();});
+  const onEscape=event=>{if(event.key==="Escape"){overlay.remove();document.removeEventListener("keydown",onEscape);}};
+  document.addEventListener("keydown",onEscape);
+  close.addEventListener("click",()=>document.removeEventListener("keydown",onEscape));
+  overlay.appendChild(box);box.append(heading,note,pre,actions);actions.append(copy,close);
+  document.body.appendChild(overlay);
+  close.focus();
 }
 
 async function copyOrderNumber(orderNumber){
