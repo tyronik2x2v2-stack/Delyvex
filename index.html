@@ -2848,6 +2848,22 @@ async function getCurrentNickname(){
 }
 
 
+async function sendAutomaticDeliveryToSellerChat(purchaseId, listing){
+  if(!currentUser || !listing || !listing.seller_id) return {ok:false, reason:"missing_context"};
+  const id=Number(purchaseId);
+  if(!Number.isFinite(id) || id<=0) return {ok:false, reason:"invalid_ids"};
+
+  // Серверная функция проверяет покупателя/заказ, защищает от повторной отправки
+  // и записывает автовыдачу в чат от имени продавца.
+  const {data,error}=await sb.rpc("delyvex_deliver_purchase_to_chat",{p_purchase_id:id});
+  if(error){
+    console.error("Автовыдача в чат:",error);
+    return {ok:false, reason:"delivery_rpc_failed", error};
+  }
+  if(data?.success===true) return {ok:true, alreadySent:data.already_sent===true};
+  return {ok:false, reason:data?.reason || "delivery_not_sent"};
+}
+
 async function buyListing(listingId){
 
   if(!currentUser){
@@ -2941,6 +2957,30 @@ async function buyListing(listingId){
 
   updateBalanceUI();
 
+  // Если продавец настроил автовыдачу, сразу отправляем данные в чат заказа.
+  // Покупка остаётся оформленной, даже если отправка сообщения не удалась.
+  let autoDeliveryResult = {ok:false, reason:"not_attempted"};
+  try{
+    let deliveryPurchaseId = data.purchase_id || data.id || data.purchase?.id || null;
+    if(!deliveryPurchaseId){
+      const {data:latestPurchase,error:latestPurchaseError}=await sb
+        .from("purchases")
+        .select("id")
+        .eq("buyer_id",currentUser.id)
+        .eq("listing_id",Number(listing.id))
+        .eq("seller_id",String(listing.seller_id))
+        .order("created_at",{ascending:false})
+        .limit(1)
+        .maybeSingle();
+      if(!latestPurchaseError && latestPurchase?.id) deliveryPurchaseId=latestPurchase.id;
+      else if(latestPurchaseError) console.warn("Не удалось определить номер нового заказа для автовыдачи:",latestPurchaseError);
+    }
+    autoDeliveryResult = await sendAutomaticDeliveryToSellerChat(deliveryPurchaseId, listing);
+  }catch(deliveryChatError){
+    console.error("Ошибка автоматической выдачи в чат:",deliveryChatError);
+    autoDeliveryResult = {ok:false, reason:"unexpected_error", error:deliveryChatError};
+  }
+
   /*
     Системное уведомление о покупке создаётся серверной функцией
     create_test_purchase. Не вставляем его повторно из браузера:
@@ -2949,10 +2989,16 @@ async function buyListing(listingId){
 
   await renderListings(listings);
 
+  const deliveryStatusText = autoDeliveryResult?.ok
+    ? "\n\n📦 Автовыдача отправлена в чат с продавцом."
+    : (autoDeliveryResult?.reason === "delivery_unavailable" || autoDeliveryResult?.reason === "empty_delivery"
+      ? "\n\nℹ️ Продавец не настроил автовыдачу для этого товара. Напиши продавцу в чате."
+      : "\n\n⚠️ Покупка оформлена, но автовыдачу не удалось отправить в чат. Открой чат с продавцом и попробуй позже.");
   alert(
     "✅ Покупка оформлена!\n\n"+
     `Списано: ${price.toFixed(2)} ₽\n`+
-    `Остаток: ${currentBalance.toFixed(2)} ₽`
+    `Остаток: ${currentBalance.toFixed(2)} ₽`+
+    deliveryStatusText
   );
 
   showSection("orders");
@@ -4345,7 +4391,7 @@ async function loadChats(){
     entries.forEach(({message,otherId})=>{
       const person = profileMap.get(String(otherId)) || {nickname:"Пользователь",avatar_url:avatarUrl(AVATAR_STYLES[0][1],otherId)};
       const rawText = String(message.message || "");
-      const preview = rawText.startsWith("SYSTEM_PURCHASE|") ? "🛒 Информация о покупке" : rawText;
+      const preview = rawText.startsWith("SYSTEM_PURCHASE|") ? "🛒 Информация о покупке" : (rawText.startsWith("DELYVEX_AUTO_DELIVERY|") ? "📦 Автовыдача цифрового товара" : rawText);
       const item = document.createElement("div");
       item.className = "chat-item";
       const avatarWrap = document.createElement("div"); avatarWrap.className = "avatar-ban-wrap";
@@ -4587,7 +4633,18 @@ async function loadMessages(){
         }
       }else{
         const body = document.createElement("span");
-        body.textContent = text;
+        if(text.startsWith("DELYVEX_AUTO_DELIVERY|")){
+          const firstSep=text.indexOf("|");
+          const secondSep=text.indexOf("|",firstSep+1);
+          const deliveryPurchaseId=secondSep>=0 ? text.slice(firstSep+1,secondSep) : "";
+          const deliveryContent=secondSep>=0 ? text.slice(secondSep+1) : text;
+          const orderLabel=deliveryPurchaseId ? "DVX-"+String(deliveryPurchaseId).padStart(6,"0") : "текущего заказа";
+          body.textContent="📦 Автовыдача цифрового товара (заказ "+orderLabel+")\n\n"+deliveryContent;
+          body.style.whiteSpace="pre-wrap";
+          body.style.overflowWrap="anywhere";
+        }else{
+          body.textContent = text;
+        }
         div.appendChild(body);
       }
       const time = document.createElement("span");
