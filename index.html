@@ -1273,6 +1273,7 @@ let currentChat = null;
 let currentReceiver = null;
 let currentListing = null;
 let chatRefreshTimer = null;
+let chatRealtimeChannel = null;
 let lastMessagesSignature = "";
 let messagesLoading = false;
 let appInitialized = false;
@@ -4463,6 +4464,7 @@ async function openChat(listingId,receiverId,title){
   currentListing = listingId ?? null;
   lastMessagesSignature = "";
   if(chatRefreshTimer){ clearInterval(chatRefreshTimer); chatRefreshTimer = null; }
+  if(chatRealtimeChannel){ try{ sb.removeChannel(chatRealtimeChannel); }catch(e){} chatRealtimeChannel=null; }
 
   const titleButton = document.getElementById("chatTitle");
   const avatar = document.getElementById("chatHeaderAvatar");
@@ -4492,10 +4494,28 @@ async function openChat(listingId,receiverId,title){
   try{ startChatPresence(receiverId); }catch(presenceError){ console.warn("Не удалось включить статус присутствия:",presenceError); }
 
   await loadMessages();
+  // Обновляем переписку сразу после нового сообщения через Supabase Realtime,
+  // а не перерисовываем весь чат каждые несколько секунд.
+  if(chatRealtimeChannel){ try{ sb.removeChannel(chatRealtimeChannel); }catch(e){} chatRealtimeChannel=null; }
+  const chatUserId = String(currentUser.id);
+  const chatPartnerId = String(receiverId);
+  chatRealtimeChannel = sb.channel("delyvex-chat-" + chatUserId + "-" + chatPartnerId + "-" + Date.now())
+    .on("postgres_changes", {event:"INSERT", schema:"public", table:"messages"}, payload=>{
+      const row = payload && payload.new;
+      if(!row || !currentUser || !currentReceiver) return;
+      const matches = (String(row.sender_id)===String(currentUser.id) && String(row.receiver_id)===String(currentReceiver)) ||
+                      (String(row.sender_id)===String(currentReceiver) && String(row.receiver_id)===String(currentUser.id));
+      const section = document.getElementById("chatWindow");
+      if(matches && section && section.classList.contains("active")) loadMessages();
+    })
+    .subscribe(status=>{
+      if(status==="CHANNEL_ERROR" || status==="TIMED_OUT") console.warn("Чат Realtime недоступен, сработает резервное обновление.");
+    });
+  // Резервная проверка раз в 15 секунд на случай, если Realtime не включён в Supabase.
   chatRefreshTimer = setInterval(()=>{
     const section = document.getElementById("chatWindow");
     if(currentUser && currentReceiver && section && section.classList.contains("active")) loadMessages();
-  }, 3000);
+  }, 15000);
   document.getElementById("chatInput")?.focus({preventScroll:true});
 }
 
@@ -4583,6 +4603,7 @@ async function loadMessages(){
     const signature = messages.map(m=>`${m.id || ""}:${m.created_at || ""}:${m.message || ""}:${m.read_at||""}`).join("|");
     if(signature === lastMessagesSignature) return;
 
+    const previousScrollTop = container.scrollTop;
     const wasAtBottom = container.scrollHeight - container.scrollTop - container.clientHeight < 90;
     lastMessagesSignature = signature;
     container.innerHTML = "";
@@ -4719,6 +4740,9 @@ async function loadMessages(){
 
     if(wasAtBottom || messages.length <= 1){
       container.scrollTop = container.scrollHeight;
+    }else{
+      // Не сбрасываем прокрутку вверх, если пользователь читает старые сообщения.
+      container.scrollTop = previousScrollTop;
     }
   } finally {
     messagesLoading = false;
@@ -5093,6 +5117,7 @@ async function submitListingReport(event){
 async function logout(){
 
   if(chatRefreshTimer){ clearInterval(chatRefreshTimer); chatRefreshTimer = null; }
+  if(chatRealtimeChannel){ try{ sb.removeChannel(chatRealtimeChannel); }catch(e){} chatRealtimeChannel=null; }
   stopDelyvexNotifications();
   await sb.auth.signOut();
 
@@ -5413,6 +5438,7 @@ async function openSupportCaseChat(caseId,returnSection="admin"){
     supportCaseReturnSection=returnSection||"admin";
     supportCaseMessagesSignature="";
     if(chatRefreshTimer){clearInterval(chatRefreshTimer);chatRefreshTimer=null;}
+    if(chatRealtimeChannel){try{sb.removeChannel(chatRealtimeChannel);}catch(e){} chatRealtimeChannel=null;}
     if(supportCaseRefreshTimer){clearInterval(supportCaseRefreshTimer);supportCaseRefreshTimer=null;}
     const {data:profiles}=await sb.from("profiles").select("id,nickname").in("id",[caseRow.reporter_id,caseRow.reported_user_id]);
     const names={}; (profiles||[]).forEach(p=>names[String(p.id)]=p.nickname||"Пользователь");
