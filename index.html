@@ -285,6 +285,7 @@ main{max-width:1100px;margin:auto;padding:25px 18px 100px}
 .message{max-width:min(78%,560px);padding:11px 14px;border-radius:17px;margin:0;line-height:1.5;overflow-wrap:anywhere;white-space:pre-wrap;box-shadow:0 2px 7px #0002}
 .message.mine{align-self:flex-end;background:linear-gradient(135deg,#8052dc,#6334ad);border-bottom-right-radius:5px}
 .message.theirs{align-self:flex-start;background:#261a33;border:1px solid #362344;border-bottom-left-radius:5px}
+.message.auto-delivery-message{max-width:min(88%,620px);align-self:flex-start;padding:0;overflow:hidden;background:#101b18;border:1px solid #2e8b65;border-radius:16px;border-bottom-left-radius:5px;box-shadow:0 6px 22px #0003}.auto-delivery-head{display:flex;align-items:center;gap:10px;padding:12px 14px;background:linear-gradient(110deg,#123d2c,#123027);border-bottom:1px solid #28674f}.auto-delivery-icon{display:flex;align-items:center;justify-content:center;width:36px;height:36px;flex:0 0 36px;border-radius:11px;background:#1f6548;font-size:19px}.auto-delivery-title{font-weight:850;color:#d1fae5;font-size:14px}.auto-delivery-subtitle{font-size:11px;color:#9bd7bb;margin-top:3px}.auto-delivery-verified{margin-left:auto;border:1px solid #398967;background:#174b37;color:#b8f7d7;padding:4px 7px;border-radius:999px;font-size:10px;font-weight:800;white-space:nowrap}.auto-delivery-order{padding:8px 14px;color:#9dd9bd;font-size:11px;border-bottom:1px solid #244b3c}.auto-delivery-content{padding:14px;color:#ecfdf5;white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.6;font-size:14px}.auto-delivery-warning{padding:10px 14px;background:#0b1511;border-top:1px solid #244b3c;color:#9ab9aa;font-size:11px;line-height:1.45}
 .message-time{display:block;font-size:10px;opacity:.68;text-align:right;margin-top:5px}
 .chat-compose{display:flex;gap:9px;align-items:center;padding:9px;background:#130d1f;border:1px solid #30203f;border-radius:16px;position:sticky;bottom:8px}
 .chat-send{display:flex;gap:8px;flex:1;min-width:0}
@@ -4634,7 +4635,36 @@ async function loadMessages(){
         adminLabel.textContent = "🛡️ Администратор";
         div.appendChild(adminLabel);
       }
-      if(text.startsWith("DELYVEX_IMAGE|")){
+      if(message.message_type === "auto_delivery"){
+        // Доверенный бейдж показывается только по серверному полю message_type,
+        // а не по тексту сообщения: пользователь не может подделать его обычным сообщением.
+        div.className = "message auto-delivery-message";
+        const raw = String(message.message || "");
+        const prefix = "DELYVEX_AUTO_DELIVERY|";
+        let orderId = "";
+        let deliveryContent = raw;
+        if(raw.startsWith(prefix)){
+          const firstSep = raw.indexOf("|");
+          const secondSep = raw.indexOf("|", firstSep + 1);
+          orderId = secondSep >= 0 ? raw.slice(firstSep + 1, secondSep) : "";
+          deliveryContent = secondSep >= 0 ? raw.slice(secondSep + 1) : raw;
+        }
+        const head = document.createElement("div"); head.className = "auto-delivery-head";
+        const ico = document.createElement("div"); ico.className = "auto-delivery-icon"; ico.textContent = "🤖";
+        const heading = document.createElement("div");
+        const title = document.createElement("div"); title.className = "auto-delivery-title"; title.textContent = "Автовыдача Delyvex";
+        const subtitle = document.createElement("div"); subtitle.className = "auto-delivery-subtitle"; subtitle.textContent = "Цифровой товар выдан автоматически";
+        heading.append(title, subtitle);
+        const verified = document.createElement("span"); verified.className = "auto-delivery-verified"; verified.textContent = "✓ СИСТЕМНОЕ";
+        head.append(ico, heading, verified); div.appendChild(head);
+        const order = document.createElement("div"); order.className = "auto-delivery-order";
+        order.textContent = orderId ? "Заказ DVX-" + String(orderId).padStart(6,"0") : "Данные заказа";
+        div.appendChild(order);
+        const content = document.createElement("div"); content.className = "auto-delivery-content"; content.textContent = deliveryContent;
+        div.appendChild(content);
+        const warning = document.createElement("div"); warning.className = "auto-delivery-warning"; warning.textContent = "Это автоматическое сообщение Delyvex. Не сообщайте пароль от аккаунта и коды подтверждения.";
+        div.appendChild(warning);
+      }else if(text.startsWith("DELYVEX_IMAGE|")){
         const imagePayload = text.slice("DELYVEX_IMAGE|".length);
         const newlineAt = imagePayload.indexOf("\n");
         const imageUrl = (newlineAt >= 0 ? imagePayload.slice(0,newlineAt) : imagePayload).trim();
@@ -4658,18 +4688,8 @@ async function loadMessages(){
         }
       }else{
         const body = document.createElement("span");
-        if(text.startsWith("DELYVEX_AUTO_DELIVERY|")){
-          const firstSep=text.indexOf("|");
-          const secondSep=text.indexOf("|",firstSep+1);
-          const deliveryPurchaseId=secondSep>=0 ? text.slice(firstSep+1,secondSep) : "";
-          const deliveryContent=secondSep>=0 ? text.slice(secondSep+1) : text;
-          const orderLabel=deliveryPurchaseId ? "DVX-"+String(deliveryPurchaseId).padStart(6,"0") : "текущего заказа";
-          body.textContent="📦 Автовыдача цифрового товара (заказ "+orderLabel+")\n\n"+deliveryContent;
-          body.style.whiteSpace="pre-wrap";
-          body.style.overflowWrap="anywhere";
-        }else{
-          body.textContent = text;
-        }
+        // Префикс в обычном тексте не является доказательством автовыдачи.
+        body.textContent = text;
         div.appendChild(body);
       }
       const time = document.createElement("span");
