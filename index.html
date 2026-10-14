@@ -54,9 +54,7 @@ header{
 .nav-btn{background:transparent;color:#ddd;border:0;padding:10px 13px;border-radius:10px}
 .nav-btn:hover{background:#21152e}
 
-.header-profile{margin-left:10px;display:flex;align-items:center;gap:8px}
-.header-settings-hint{color:#d8b4fe;font-size:13px;font-weight:700;white-space:nowrap}
-.header-settings-hint .settings-arrow{display:inline-block;margin-left:4px;color:#c084fc;font-size:17px}
+.header-profile{margin-left:10px}
 .notification-badge{display:inline-flex;align-items:center;justify-content:center;min-width:19px;height:19px;padding:0 5px;margin-left:4px;border-radius:20px;background:#ef4444;color:#fff;font-size:11px;font-weight:800;vertical-align:middle}
 .notification-badge[hidden]{display:none!important}
 #notificationToast{position:fixed;right:18px;bottom:22px;z-index:10000;max-width:min(360px,calc(100vw - 36px));padding:15px 18px;border:1px solid #8b5cf6;border-radius:14px;background:#1b1029;color:#fff;box-shadow:0 8px 30px #0008;display:none;line-height:1.45;cursor:pointer}
@@ -629,8 +627,7 @@ hr{border-color:var(--dx-line)!important}
   </div>
 
   <div class="header-profile">
-    <span class="header-settings-hint">Настройки <span class="settings-arrow" aria-hidden="true">→</span></span>
-    <img id="headerAvatar" class="header-avatar hidden" src="" alt="Аватар — открыть настройки">
+    <img id="headerAvatar" class="header-avatar hidden" src="" alt="">
   </div>
 
 </header>
@@ -672,24 +669,6 @@ hr{border-color:var(--dx-line)!important}
 
   </div>
 
-  <div id="delyvexSmartCatalog" class="card" style="margin-top:-5px;margin-bottom:18px">
-    <div style="font-weight:800;margin-bottom:12px">🔎 Умный каталог</div>
-    <div class="form-group" style="margin-bottom:12px">
-      <label for="catalogGameFilter">Игра</label>
-      <select id="catalogGameFilter" style="width:100%;background:#0b0812;color:#fff;border:1px solid #30203f;border-radius:12px;padding:13px" onchange="searchListings()"><option value="">Все игры</option></select>
-    </div>
-    <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px">
-      <div class="form-group" style="margin-bottom:12px"><label for="catalogMinPrice">Цена от, ₽</label><input id="catalogMinPrice" type="number" min="0" placeholder="0" oninput="searchListings()"></div>
-      <div class="form-group" style="margin-bottom:12px"><label for="catalogMaxPrice">Цена до, ₽</label><input id="catalogMaxPrice" type="number" min="0" placeholder="Без лимита" oninput="searchListings()"></div>
-    </div>
-    <div class="form-group" style="margin-bottom:0">
-      <label for="catalogSort">Сортировка</label>
-      <select id="catalogSort" style="width:100%;background:#0b0812;color:#fff;border:1px solid #30203f;border-radius:12px;padding:13px" onchange="searchListings()">
-        <option value="recommended">Рекомендуемые</option><option value="newest">Сначала новые</option><option value="price_asc">Сначала дешевле</option><option value="price_desc">Сначала дороже</option><option value="name">По названию</option>
-      </select>
-    </div>
-    <button type="button" class="chat-btn" style="margin-top:12px" onclick="resetCatalogFilters()">Сбросить фильтры</button>
-  </div>
   <div id="listingsContainer"></div>
 
 </section>
@@ -714,12 +693,6 @@ hr{border-color:var(--dx-line)!important}
     <div class="form-group">
       <label>Описание</label>
       <textarea id="sellDescription" placeholder="Опиши товар..."></textarea>
-    </div>
-
-    <div class="form-group">
-      <label>📦 Данные для автовыдачи (необязательно)</label>
-      <textarea id="sellDeliveryContent" maxlength="10000" placeholder="Например, цифровой код или инструкция, которые покупатель получит после оформления заказа. Не добавляй сюда данные, которые нельзя безопасно передавать покупателю."></textarea>
-      <div class="small">Покупатель сможет получить эти данные в разделе «Заказы» после оформления покупки.</div>
     </div>
 
     <div class="form-group">
@@ -2008,7 +1981,6 @@ async function loadListings(){
     listings = unique.filter(item => !bannedSellerIds.has(String(item.seller_id || "")));
 
     await renderListings(listings);
-  if(typeof refreshCatalogGameOptions === "function") refreshCatalogGameOptions();
 
   }finally{
 
@@ -2382,47 +2354,46 @@ async function viewSellerProfile(sellerId){
 }
 
 
-function refreshCatalogGameOptions(){
-  const select = document.getElementById("catalogGameFilter");
-  if(!select) return;
-  const previous = select.value;
-  const games = [...new Set((listings || []).map(item => String(item.game || item.category || "").trim()).filter(Boolean))]
-    .sort((a,b)=>a.localeCompare(b,"ru",{sensitivity:"base"}));
-  select.innerHTML = '<option value="">Все игры</option>';
-  games.forEach(game=>{const option=document.createElement("option");option.value=game;option.textContent=game;select.appendChild(option);});
-  if(games.includes(previous)) select.value=previous;
-}
-function resetCatalogFilters(){
-  ["searchInput","catalogGameFilter","catalogMinPrice","catalogMaxPrice"].forEach(id=>{const el=document.getElementById(id);if(el)el.value="";});
-  const sort=document.getElementById("catalogSort");if(sort)sort.value="recommended";
-  searchListings();
-}
 async function searchListings(){
-  refreshCatalogGameOptions();
-  const query=(document.getElementById("searchInput")?.value||"").trim().toLowerCase();
-  const gameFilter=(document.getElementById("catalogGameFilter")?.value||"").trim().toLowerCase();
-  const minRaw=document.getElementById("catalogMinPrice")?.value;
-  const maxRaw=document.getElementById("catalogMaxPrice")?.value;
-  const minPrice=minRaw===""||minRaw==null?null:Number(minRaw);
-  const maxPrice=maxRaw===""||maxRaw==null?null:Number(maxRaw);
-  const sort=document.getElementById("catalogSort")?.value||"recommended";
-  let result=(listings||[]).filter(item=>{
-    const game=String(item.game||item.category||"").toLowerCase();
-    const title=String(item.title||"").toLowerCase();
-    const description=String(item.description||"").toLowerCase();
-    const price=Number(item.price||0);
-    if(query&&!(game.includes(query)||title.includes(query)||description.includes(query)))return false;
-    if(gameFilter&&game!==gameFilter)return false;
-    if(minPrice!==null&&Number.isFinite(minPrice)&&price<minPrice)return false;
-    if(maxPrice!==null&&Number.isFinite(maxPrice)&&price>maxPrice)return false;
-    return true;
-  });
-  if(sort==="newest")result.sort((a,b)=>new Date(b.created_at||0).getTime()-new Date(a.created_at||0).getTime());
-  else if(sort==="price_asc")result.sort((a,b)=>Number(a.price||0)-Number(b.price||0));
-  else if(sort==="price_desc")result.sort((a,b)=>Number(b.price||0)-Number(a.price||0));
-  else if(sort==="name")result.sort((a,b)=>String(a.title||"").localeCompare(String(b.title||""),"ru",{sensitivity:"base"}));
+
+  const query =
+    document
+      .getElementById("searchInput")
+      .value
+      .trim()
+      .toLowerCase();
+
+  if(!query){
+
+    await renderListings(listings);
+    return;
+
+  }
+
+  const result =
+    listings.filter(item=>{
+
+      const game =
+        String(item.game || "").toLowerCase();
+
+      const title =
+        String(item.title || "").toLowerCase();
+
+      const description =
+        String(item.description || "").toLowerCase();
+
+      return(
+        game.includes(query) ||
+        title.includes(query) ||
+        description.includes(query)
+      );
+
+    });
+
   await renderListings(result);
+
 }
+
 
 /* =========================================
    BUMP OWN LISTING (once per hour per listing)
@@ -2642,9 +2613,7 @@ async function createListing(){
 
   }
 
-  const deliveryContent = (document.getElementById("sellDeliveryContent")?.value || "").trim();
   const {
-    data: createdListing,
     error
   } =
     await sb
@@ -2658,9 +2627,7 @@ async function createListing(){
         price:numericPrice,
         image_url:selectedProductImage
 
-      })
-      .select("id")
-      .single();
+      });
 
   if(error){
 
@@ -2673,21 +2640,9 @@ async function createListing(){
 
   }
 
-  if(deliveryContent && createdListing?.id){
-    const {error:deliveryError}=await sb.rpc("delyvex_save_listing_delivery",{
-      p_listing_id:Number(createdListing.id),
-      p_delivery_content:deliveryContent
-    });
-    if(deliveryError){
-      console.error("Не удалось сохранить данные автовыдачи:",deliveryError);
-      alert("Объявление опубликовано, но данные автовыдачи не сохранились. Проверь SQL-файл Delyvex_delivery_setup.sql.\n\n"+deliveryError.message);
-    }
-  }
-
   document.getElementById("sellGame").value = "";
   document.getElementById("sellTitle").value = "";
   document.getElementById("sellDescription").value = "";
-  if(document.getElementById("sellDeliveryContent")) document.getElementById("sellDeliveryContent").value = "";
   document.getElementById("sellPrice").value = "";
   document.getElementById("sellImageFile").value = "";
 
@@ -2951,10 +2906,6 @@ async function loadOrders(){
 
     let buttons = "";
 
-    if(isBuyer && (order.status === "waiting_confirmation" || order.status === "completed")){
-      buttons += `<button class="chat-btn" type="button" style="margin-top:13px;margin-right:8px" onclick="showPurchaseDelivery('${order.id}')">📦 Получить цифровой товар</button>`;
-    }
-
     if(
       isBuyer &&
       order.status === "waiting_confirmation"
@@ -3129,28 +3080,6 @@ async function loadOrders(){
 
 }
 
-
-async function showPurchaseDelivery(purchaseId){
-  if(!currentUser){showAuthGate();return;}
-  const {data,error}=await sb.rpc("delyvex_get_purchase_delivery",{p_purchase_id:Number(purchaseId)});
-  if(error){
-    console.error("Автовыдача:",error);
-    alert("Не удалось получить цифровой товар. Проверь SQL-настройку Delyvex_delivery_setup.sql.\n\n"+error.message);
-    return;
-  }
-  const content=typeof data === "string" ? data : (data?.delivery_content || data?.content || "");
-  if(!content){alert("Для этого заказа продавец не добавил данные для автовыдачи.");return;}
-  const win=window.open("","_blank","noopener,noreferrer,width=600,height=500");
-  if(win){
-    win.document.write("<!doctype html><html lang=\"ru\"><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\"><title>Цифровой товар Delyvex</title><body style=\"font:16px system-ui;background:#100b18;color:#fff;padding:24px;white-space:pre-wrap;overflow-wrap:anywhere\"><h2>📦 Твой цифровой товар</h2><div id=\"delivery\"></div><button onclick=\"navigator.clipboard.writeText(document.getElementById('delivery').innerText)\" style=\"margin-top:20px;padding:12px 16px\">Копировать данные</button>
-<!-- Delyvex patch 2026-10-14: complaint chat explicitly isolates timers and opens support_case_messages. -->
-</body></html>");
-    win.document.close();
-    win.document.getElementById("delivery").textContent=content;
-  }else{
-    alert("Данные для автовыдачи:\n\n"+content);
-  }
-}
 
 async function copyOrderNumber(orderNumber){
   try{
@@ -5061,7 +4990,7 @@ async function loadAdminSupportCases(){
         <p class="admin-report-details"><strong>Описание:</strong><br>${adminEscape(c.details||"Пользователь не добавил описание.")}</p>
         <span class="admin-status">Статус: ${adminEscape(labels[c.status]||c.status)}</span>
         <div class="admin-report-actions" style="margin-top:12px;flex-wrap:wrap">
-          <button class="admin-report-link" type="button" onclick="openSupportCaseChat(${Number(c.id)},'admin')">💬 Открыть отдельный чат жалобы</button>
+          <button class="admin-report-link" type="button" onclick="openSupportCaseChat(${Number(c.id)},'admin')">💬 Открыть чат по этой жалобе</button>
           ${c.status!=="resolved"&&c.status!=="rejected"?`<button class="admin-resolve" type="button" onclick="setSupportCaseStatus(${Number(c.id)},'resolved')">✓ Рассмотрено</button><button class="admin-reject" type="button" onclick="setSupportCaseStatus(${Number(c.id)},'rejected')">✕ Отклонить</button>`:""}
         </div>
       </article>`;
@@ -5078,17 +5007,8 @@ function openSupportCaseProfile(userId){
 }
 
 async function openSupportCaseChat(caseId,returnSection="admin"){
-  if(!currentUser){alert("Сначала войди в аккаунт.");showAuthGate();return;}
-  if(caseId===null||caseId===undefined||String(caseId).trim()===""){alert("Не найден ID жалобы. Обнови список жалоб и попробуй снова.");return;}
+  if(!currentUser) return;
   try{
-    // Важно: чат жалобы — отдельная секция supportCaseChat, не личный общий чат.
-    // Останавливаем таймеры предыдущих переписок, чтобы они не перерисовывали сообщения.
-    if(chatRefreshTimer){clearInterval(chatRefreshTimer);chatRefreshTimer=null;}
-    if(adminReportChatRefreshTimer){clearInterval(adminReportChatRefreshTimer);adminReportChatRefreshTimer=null;}
-    if(supportCaseRefreshTimer){clearInterval(supportCaseRefreshTimer);supportCaseRefreshTimer=null;}
-    activeSupportCaseId=null;
-    supportCaseMessagesSignature="";
-    supportCaseMessagesLoading=false;
     const {data:caseRow,error}=await sb.from("support_cases").select("*").eq("id",caseId).single();
     if(error) throw error;
     const admin=await isDelyvexAdmin();
@@ -5098,9 +5018,11 @@ async function openSupportCaseChat(caseId,returnSection="admin"){
     if(!admin && String(currentUser.id)!==String(caseRow.reporter_id) && String(currentUser.id)!==String(caseRow.reported_user_id)){
       alert("У тебя нет доступа к этому чату."); return;
     }
-    activeSupportCaseId=Number(caseRow.id);
+    activeSupportCaseId=Number(caseId);
     supportCaseReturnSection=returnSection||"admin";
     supportCaseMessagesSignature="";
+    if(chatRefreshTimer){clearInterval(chatRefreshTimer);chatRefreshTimer=null;}
+    if(supportCaseRefreshTimer){clearInterval(supportCaseRefreshTimer);supportCaseRefreshTimer=null;}
     const {data:profiles}=await sb.from("profiles").select("id,nickname").in("id",[caseRow.reporter_id,caseRow.reported_user_id]);
     const names={}; (profiles||[]).forEach(p=>names[String(p.id)]=p.nickname||"Пользователь");
     const reporter=names[String(caseRow.reporter_id)]||"Заявитель";
