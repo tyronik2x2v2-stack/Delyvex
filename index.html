@@ -3626,10 +3626,21 @@ async function writeReview(purchaseId,listingId){
 
   if(error){
 
-    alert(
-      "Ошибка сохранения отзыва:\n\n"+
-      error.message
-    );
+    // Если сработало ограничение «один отзыв от покупателя продавцу»,
+    // показываем понятное сообщение вместо технической ошибки PostgreSQL.
+    const reviewErrorText = String(error.message || "");
+    const isDuplicateReview = error.code === "23505" &&
+      (/reviews_one_review_per_buyer_seller/i.test(reviewErrorText) ||
+       /duplicate key value violates unique constraint/i.test(reviewErrorText));
+
+    if(isDuplicateReview){
+      alert("Вы уже оставляли отзыв этому продавцу.");
+    } else {
+      alert(
+        "Ошибка сохранения отзыва:\n\n"+
+        reviewErrorText
+      );
+    }
 
     return;
 
