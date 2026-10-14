@@ -4535,9 +4535,20 @@ async function loadMessages(){
       }
     }));
 
+    // Защита интерфейса от дублей системного уведомления о покупке.
+    // Если серверная функция и триггер сохранили один и тот же текст почти одновременно,
+    // показываем только одну копию в этом окне чата.
+    const recentSystemPurchases = new Map();
     messages.forEach(message=>{
       const text = String(message.message || "");
       if(text.startsWith("SYSTEM_PURCHASE|")){
+        const messageTime = Date.parse(message.created_at || "") || 0;
+        const duplicateKey = text.trim();
+        const previousTime = recentSystemPurchases.get(duplicateKey);
+        if(previousTime !== undefined && Math.abs(messageTime - previousTime) <= 10000){
+          return;
+        }
+        recentSystemPurchases.set(duplicateKey, messageTime);
         const div = document.createElement("div");
         div.className = "system-message";
         div.innerHTML = formatSystemMessage(text);
