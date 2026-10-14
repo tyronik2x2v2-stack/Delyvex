@@ -411,6 +411,9 @@ main{max-width:1100px;margin:auto;padding:25px 18px 100px}
 .admin-restrict-btn{background:#dc2626;color:#fff}
 .admin-unsell-btn{background:#7c3aed;color:#fff}
 .admin-unrestrict-btn{background:#166534;color:#fff}
+.admin-warning-btn{background:#b45309;color:#fff}
+.admin-warning-history{font-size:12px;color:#d6c8e6;background:#0b0812;border:1px solid #39264c;border-radius:9px;padding:9px 10px;margin-top:10px;line-height:1.5}
+.admin-warning-record{margin-top:7px;padding-top:7px;border-top:1px solid #30203f}
 .admin-user-active{font-size:13px;color:#fbbf24;margin-top:8px;line-height:1.5}
 @media(max-width:600px){.admin-user-controls{grid-template-columns:1fr}}
 
@@ -549,6 +552,11 @@ hr{border-color:var(--dx-line)!important}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;transition-duration:.01ms!important}}
 
 </style>
+
+<style id="delyvex-market-home-styles">
+.dx-market-home{margin:0 0 24px;color:#f8f5ff}.dx-market-hero{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:clamp(22px,4vw,38px);border:1px solid #3c2456;border-radius:22px;background:radial-gradient(ellipse at 90% 10%,#54257b 0%,transparent 44%),linear-gradient(135deg,#1c112b,#100c18 72%);overflow:hidden}.dx-market-hero-copy{max-width:690px}.dx-market-kicker{font-size:11px;letter-spacing:2px;font-weight:900;color:#d8b4fe;margin-bottom:10px}.dx-market-hero h1{font-size:clamp(26px,4vw,42px);line-height:1.1;margin:0 0 12px;color:#fff}.dx-market-hero p{color:#c8bbd5;line-height:1.6;margin:0;max-width:560px}.dx-market-hero-symbol{font-size:clamp(65px,10vw,120px);filter:drop-shadow(0 10px 25px #0008);flex-shrink:0}.dx-market-hero-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px}.dx-market-primary,.dx-market-secondary{border-radius:11px;padding:11px 15px;font-weight:800;cursor:pointer}.dx-market-primary{border:1px solid #b779f5;background:#9333ea;color:white}.dx-market-secondary{border:1px solid #49345e;background:#21152e;color:#f3e8ff}.dx-market-shortcuts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:14px 0 24px}.dx-market-shortcuts button{display:flex;flex-direction:column;align-items:flex-start;text-align:left;gap:7px;padding:15px;border-radius:15px;border:1px solid #30213e;background:#171020;color:#fff;cursor:pointer;min-width:0}.dx-market-shortcuts button:hover,.dx-game-grid button:hover{border-color:#9d5bd4;transform:translateY(-1px)}.dx-market-shortcuts span{font-size:23px}.dx-market-shortcuts b{font-size:14px}.dx-market-shortcuts small,.dx-game-grid small{font-size:12px;color:#b9a9c8;line-height:1.4}.dx-game-menu{scroll-margin-top:18px}.dx-game-menu-heading{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:13px}.dx-game-menu-heading h2{margin:0 0 5px;font-size:23px}.dx-game-menu-heading p{margin:0;color:#b9a9c8;font-size:13px}.dx-game-menu-heading>button{background:#21152e;border:1px solid #49345e;color:#e9d5ff;border-radius:9px;padding:9px 12px;cursor:pointer;white-space:nowrap}.dx-game-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}.dx-game-grid button{min-width:0;display:flex;flex-direction:column;align-items:flex-start;text-align:left;gap:7px;padding:15px;border:1px solid #30213e;border-radius:15px;background:linear-gradient(145deg,#191121,#110d18);color:#fff;cursor:pointer;transition:transform .15s,border-color .15s}.dx-game-grid button>span{font-size:27px}.dx-game-grid b{font-size:14px;overflow-wrap:anywhere}.dx-game-grid small{min-height:17px}@media(max-width:800px){.dx-market-shortcuts{grid-template-columns:repeat(2,minmax(0,1fr))}.dx-game-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.dx-market-hero-symbol{font-size:64px}}@media(max-width:520px){.dx-market-hero{padding:20px;gap:8px}.dx-market-hero-symbol{display:none}.dx-game-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.dx-game-grid button{padding:12px}.dx-game-menu-heading h2{font-size:20px}}
+</style>
+
 </head>
 
 <body>
@@ -640,6 +648,45 @@ hr{border-color:var(--dx-line)!important}
 <main>
 
 <section id="home" class="section active">
+
+  <div class="dx-market-home" aria-label="Главное меню Delyvex">
+    <div class="dx-market-hero">
+      <div class="dx-market-hero-copy">
+        <div class="dx-market-kicker">ИГРОВОЙ МАРКЕТПЛЕЙС</div>
+        <h1>Найди всё для своей игры</h1>
+        <p>Выбери игру, найди нужный товар или открой правила и помощь Delyvex.</p>
+        <div class="dx-market-hero-actions">
+          <button type="button" class="dx-market-primary" onclick="document.getElementById('dxGameMenu').scrollIntoView({behavior:'smooth',block:'start'})">🎮 Выбрать игру</button>
+          <button type="button" class="dx-market-secondary" onclick="delyvexOpenRules()">📜 Правила</button>
+        </div>
+      </div>
+      <div class="dx-market-hero-symbol" aria-hidden="true">🎮</div>
+    </div>
+    <div class="dx-market-shortcuts" aria-label="Разделы сайта">
+      <button type="button" onclick="delyvexOpenRules()"><span>📜</span><b>Правила</b><small>Правила пользователей и модерации</small></button>
+      <button type="button" onclick="showSection('sell')"><span>➕</span><b>Продать товар</b><small>Создать объявление</small></button>
+      <button type="button" onclick="showSection('chats')"><span>💬</span><b>Мои чаты</b><small>Общение с продавцами</small></button>
+      <button type="button" onclick="showSection('orders')"><span>📦</span><b>Мои заказы</b><small>Покупки и сделки</small></button>
+    </div>
+    <div class="dx-game-menu" id="dxGameMenu">
+      <div class="dx-game-menu-heading"><div><h2>Выбери игру</h2><p>Показываем объявления по выбранной игре.</p></div><button type="button" onclick="delyvexChooseGame('')">Все игры</button></div>
+      <div class="dx-game-grid">
+        <button type="button" onclick="delyvexChooseGame('GTA V')"><span>🚘</span><b>GTA V</b><small>Аккаунты и предметы</small></button>
+        <button type="button" onclick="delyvexChooseGame('GTA San Andreas')"><span>🌴</span><b>GTA San Andreas</b><small>Моды и игровые товары</small></button>
+        <button type="button" onclick="delyvexChooseGame('Roblox')"><span>🧱</span><b>Roblox</b><small>Игровые предметы</small></button>
+        <button type="button" onclick="delyvexChooseGame('Minecraft')"><span>⛏️</span><b>Minecraft</b><small>Ресурсы и другое</small></button>
+        <button type="button" onclick="delyvexChooseGame('Counter-Strike 2')"><span>🎯</span><b>Counter-Strike 2</b><small>Скины и предметы</small></button>
+        <button type="button" onclick="delyvexChooseGame('Dota 2')"><span>🛡️</span><b>Dota 2</b><small>Предметы и другое</small></button>
+        <button type="button" onclick="delyvexChooseGame('PUBG')"><span>🪖</span><b>PUBG</b><small>Игровые товары</small></button>
+        <button type="button" onclick="delyvexChooseGame('Fortnite')"><span>🪂</span><b>Fortnite</b><small>Игровые товары</small></button>
+        <button type="button" onclick="delyvexChooseGame('Genshin Impact')"><span>✨</span><b>Genshin Impact</b><small>Игровые товары</small></button>
+        <button type="button" onclick="delyvexChooseGame('Standoff 2')"><span>🔫</span><b>Standoff 2</b><small>Скины и предметы</small></button>
+        <button type="button" onclick="delyvexChooseGame('Brawl Stars')"><span>⭐</span><b>Brawl Stars</b><small>Игровые товары</small></button>
+        <button type="button" onclick="delyvexChooseGame('')"><span>🎲</span><b>Другие игры</b><small>Посмотреть весь каталог</small></button>
+      </div>
+    </div>
+  </div>
+
 
   <h1 class="page-title">Найти объявление</h1>
 
@@ -1191,6 +1238,7 @@ let listingsRenderToken = 0;
 let notificationTimer = null;
 let notificationPollStartedAt = null;
 let notificationToastTimer = null;
+let delyvexWarningCheckBusy = false;
 let lastNotificationTarget = "chats";
 let notificationPollBusy = false;
 let activeSupportCaseId = null;
@@ -1388,6 +1436,7 @@ async function initialize(){
   */
   await checkReturnedTopup();
   startDelyvexNotifications();
+  await showMyDelyvexWarnings();
 
 }
 
@@ -4599,7 +4648,7 @@ function startDelyvexNotifications(){
   if(!localStorage.getItem(orderKey)) localStorage.setItem(orderKey,now);
   notificationPollStartedAt = now;
   refreshNotificationBadges(false);
-  notificationTimer = setInterval(()=>refreshNotificationBadges(true),20000);
+  notificationTimer = setInterval(()=>{refreshNotificationBadges(true);showMyDelyvexWarnings();},20000);
 }
 
 function stopDelyvexNotifications(){
@@ -4610,6 +4659,40 @@ function stopDelyvexNotifications(){
   setNotificationBadge("orders",0);
   const toast = document.getElementById("notificationToast");
   if(toast) toast.classList.remove("show");
+}
+
+async function showMyDelyvexWarnings(){
+  if(!currentUser || delyvexWarningCheckBusy) return;
+  delyvexWarningCheckBusy=true;
+  try{
+    const {data:warnings,error}=await sb.from("user_warnings")
+      .select("id,rule_code,reason,created_at")
+      .eq("user_id",currentUser.id)
+      .is("acknowledged_at",null)
+      .order("created_at",{ascending:true})
+      .limit(5);
+    if(error){
+      if(error.code!=="42P01") console.warn("Проверка предупреждений Delyvex:",error.message);
+      return;
+    }
+    if(!warnings || !warnings.length) return;
+    const lines=warnings.map(w=>{
+      const code=String(w.rule_code||"other");
+      const title=(window.DELYVEX_RULES&&window.DELYVEX_RULES[code])||"Другое нарушение";
+      const ruleLabel=code==="other"?"Другое нарушение":"пункт "+code+" — "+title;
+      const date=w.created_at?new Date(w.created_at).toLocaleString("ru-RU"):"дата не указана";
+      return "• "+ruleLabel+" ("+date+")"+(w.reason?"\n  Пояснение: "+w.reason:"");
+    });
+    alert("⚠️ Предупреждение от администрации Delyvex\n\n"+lines.join("\n\n")+"\n\nЭто предупреждение само по себе не блокирует аккаунт. Если ты не согласен, обратись к администрации.");
+    for(const warning of warnings){
+      const {error:ackError}=await sb.rpc("acknowledge_delyvex_warning",{p_warning_id:warning.id});
+      if(ackError){console.warn("Не удалось отметить предупреждение как просмотренное:",ackError.message);break;}
+    }
+  }catch(error){
+    console.warn("Не удалось показать предупреждения Delyvex:",error);
+  }finally{
+    delyvexWarningCheckBusy=false;
+  }
 }
 
 async function refreshNotificationBadges(allowToasts=true){
@@ -4907,14 +4990,22 @@ async function searchAdminUsers(){
       const {data:restrictions,error:re}=await sb.from("user_restrictions").select("restriction_type,expires_at,reason").eq("user_id",user.id).or("expires_at.is.null,expires_at.gt."+new Date().toISOString()).order("created_at",{ascending:false}).limit(10);
       const active=!re && restrictions && restrictions.length ? restrictions[0] : null;
       const activeText=active ? `<div class="admin-user-active">Активно: ${adminEscape(active.restriction_type==="ban"?"Блокировка аккаунта":"Запрет продаж")} до ${adminEscape(active.expires_at?new Date(active.expires_at).toLocaleString("ru-RU"):"без срока")}${active.reason?". Причина: "+adminEscape(active.reason):""}</div>` : `<div class="admin-user-active" style="color:#86efac">Активных ограничений нет</div>`;
-      cards.push(`<article class="admin-user-result"><h3>${adminEscape(user.nickname||"Без никнейма")}</h3><div class="admin-user-id">ID: ${adminEscape(user.id)}</div>${activeText}
+      let warningHistoryHTML = `<div class="admin-warning-history">История предупреждений будет доступна после настройки таблицы user_warnings в Supabase.</div>`;
+      const warningResult = await sb.from("user_warnings").select("id,rule_code,reason,created_at").eq("user_id",user.id).order("created_at",{ascending:false}).limit(3);
+      if(!warningResult.error){
+        const warningRows=warningResult.data||[];
+        warningHistoryHTML=warningRows.length
+          ? `<div class="admin-warning-history"><strong>Последние предупреждения:</strong>${warningRows.map(w=>`<div class="admin-warning-record"><strong>Пункт ${adminEscape(w.rule_code||"other")}</strong> · ${adminEscape(w.created_at?new Date(w.created_at).toLocaleString("ru-RU"):"дата неизвестна")}<br>${adminEscape(w.reason||"Без дополнительных пояснений")}</div>`).join("")}</div>`
+          : `<div class="admin-warning-history">Предупреждений ещё нет.</div>`;
+      }
+      cards.push(`<article class="admin-user-result"><h3>${adminEscape(user.nickname||"Без никнейма")}</h3><div class="admin-user-id">ID: ${adminEscape(user.id)}</div>${activeText}${warningHistoryHTML}
         <div class="admin-user-controls">
           <div><label for="restrictionType_${adminEscape(user.id)}">Что ограничить</label><select id="restrictionType_${adminEscape(user.id)}"><option value="ban">Заблокировать аккаунт</option><option value="no_sell">Запретить продавать</option></select></div>
           <div><label for="restrictionDuration_${adminEscape(user.id)}">Срок</label><select id="restrictionDuration_${adminEscape(user.id)}"><option value="1h">1 час</option><option value="24h" selected>24 часа</option><option value="3d">3 дня</option><option value="7d">7 дней</option><option value="30d">30 дней</option><option value="forever">Бессрочно</option></select></div>
           <div class="admin-rule-select"><label for="restrictionRule_${adminEscape(user.id)}">Основание по правилам</label><select id="restrictionRule_${adminEscape(user.id)}"><option value="">Выбери пункт правил</option><option value="1.1">1.1 — Мошенничество</option><option value="1.2">1.2 — Ложные сведения</option><option value="1.3">1.3 — Повторный обман</option><option value="2.1">2.1 — Запрещённые товары</option><option value="2.2">2.2 — Обманчивое описание</option><option value="2.3">2.3 — Дубликаты и спам объявлений</option><option value="2.4">2.4 — Нарушение прав на материалы</option><option value="3.1">3.1 — Оскорбления и травля</option><option value="3.2">3.2 — Спам в сообщениях</option><option value="3.3">3.3 — Угрозы и давление</option><option value="4.1">4.1 — Обход блокировки</option><option value="4.2">4.2 — Использование чужого аккаунта</option><option value="4.3">4.3 — Заведомо ложная жалоба</option><option value="4.4">4.4 — Вмешательство в работу сайта</option><option value="other">Другое нарушение</option></select></div>
         </div>
         <div class="form-group" style="margin-top:12px;margin-bottom:0"><label for="restrictionReason_${adminEscape(user.id)}">Пояснение / доказательства (необязательно для готового пункта)</label><input id="restrictionReason_${adminEscape(user.id)}" type="text" maxlength="300" placeholder="Кратко опиши, что произошло"></div>
-        <div class="admin-user-actions"><button class="admin-restrict-btn" onclick="applyDelyvexRestriction('${escapeJs(String(user.id))}')">Применить ограничение</button><button class="admin-unrestrict-btn" onclick="clearDelyvexRestriction('${escapeJs(String(user.id))}')">Снять ограничения</button></div>
+        <div class="admin-user-actions"><button class="admin-warning-btn" type="button" onclick="issueDelyvexWarning('${escapeJs(String(user.id))}')">⚠️ Выдать предупреждение</button><button class="admin-restrict-btn" type="button" onclick="applyDelyvexRestriction('${escapeJs(String(user.id))}')">Применить ограничение</button><button class="admin-unrestrict-btn" type="button" onclick="clearDelyvexRestriction('${escapeJs(String(user.id))}')">Снять ограничения</button></div>
       </article>`);
     }
     container.innerHTML=cards.length?cards.join(""):"<p>Другие пользователи с таким ником не найдены.</p>";
@@ -4922,6 +5013,26 @@ async function searchAdminUsers(){
     console.error("Поиск пользователей для администратора:",e);
     container.innerHTML=`<div class="admin-report-error"><strong>Не удалось найти пользователя.</strong><br>${adminEscape(e?.message||"Неизвестная ошибка")}<br>Открой SQL Editor в Supabase и выполни SQL-файл для поиска пользователей администратором.</div>`;
   }
+}
+
+async function issueDelyvexWarning(userId){
+  if(!currentUser || !(await isDelyvexAdmin())){alert("Нет доступа администратора.");return;}
+  const ruleCode=(document.getElementById("restrictionRule_"+userId)?.value||"").trim();
+  const details=(document.getElementById("restrictionReason_"+userId)?.value||"").trim();
+  if(!ruleCode){alert("Перед выдачей предупреждения выбери пункт правил Delyvex.");return;}
+  if(ruleCode==="other"&&!details){alert("Для пункта «Другое нарушение» обязательно опиши причину.");return;}
+  const ruleTitle=(window.DELYVEX_RULES&&window.DELYVEX_RULES[ruleCode])||"Другое нарушение";
+  const ruleLabel=ruleCode==="other"?"Другое нарушение":"пункт "+ruleCode+" — "+ruleTitle;
+  const reason=details;
+  if(!confirm("Выдать пользователю предупреждение?\nОснование: "+ruleLabel+(details?"\nПояснение: "+details:"")+"\n\nПредупреждение не заблокирует аккаунт.") ) return;
+  const {error}=await sb.from("user_warnings").insert({user_id:userId,rule_code:ruleCode,reason,created_by:currentUser.id});
+  if(error){
+    console.error("Выдача предупреждения Delyvex:",error);
+    alert("Не удалось выдать предупреждение: "+error.message+"\n\nПроверь, что файл Delyvex_user_warnings_setup.sql выполнен в Supabase.");
+    return;
+  }
+  alert("Предупреждение выдано. Пользователь увидит его при следующей проверке уведомлений.");
+  await searchAdminUsers();
 }
 
 async function applyDelyvexRestriction(userId){
@@ -5493,6 +5604,23 @@ body.dx-reduce-motion *,body.dx-reduce-motion *::before,body.dx-reduce-motion *:
     }
   });
 })();
+</script>
+
+
+<script id="delyvex-market-home-script">
+function delyvexChooseGame(gameName){
+  const search=document.getElementById("searchInput");
+  const filter=document.getElementById("catalogGameFilter");
+  const listingsArea=document.getElementById("listingsContainer");
+  if(search) search.value=String(gameName||"");
+  if(filter) filter.value="";
+  const min=document.getElementById("catalogMinPrice"); if(min) min.value="";
+  const max=document.getElementById("catalogMaxPrice"); if(max) max.value="";
+  const sort=document.getElementById("catalogSort"); if(sort) sort.value="recommended";
+  if(typeof showSection==="function") showSection("home");
+  if(typeof searchListings==="function") searchListings();
+  window.setTimeout(()=>{ if(listingsArea) listingsArea.scrollIntoView({behavior:"smooth",block:"start"}); },100);
+}
 </script>
 
 </body>
