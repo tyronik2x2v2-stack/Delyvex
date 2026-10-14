@@ -404,6 +404,8 @@ main{max-width:1100px;margin:auto;padding:25px 18px 100px}
 .admin-user-controls{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
 .admin-user-controls label{display:block;color:#c4b5fd;font-size:13px;margin-bottom:6px}
 .admin-user-controls select,.admin-user-controls input{width:100%;min-width:0;background:#0b0812;border:1px solid #49335f;color:#fff;padding:10px;border-radius:9px}
+.admin-rule-select{grid-column:1/-1}
+.admin-rule-select select{width:100%}
 .admin-user-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
 .admin-user-actions button{border:0;border-radius:9px;padding:10px 12px;font-weight:700}
 .admin-restrict-btn{background:#dc2626;color:#fff}
@@ -4909,8 +4911,9 @@ async function searchAdminUsers(){
         <div class="admin-user-controls">
           <div><label for="restrictionType_${adminEscape(user.id)}">Что ограничить</label><select id="restrictionType_${adminEscape(user.id)}"><option value="ban">Заблокировать аккаунт</option><option value="no_sell">Запретить продавать</option></select></div>
           <div><label for="restrictionDuration_${adminEscape(user.id)}">Срок</label><select id="restrictionDuration_${adminEscape(user.id)}"><option value="1h">1 час</option><option value="24h" selected>24 часа</option><option value="3d">3 дня</option><option value="7d">7 дней</option><option value="30d">30 дней</option><option value="forever">Бессрочно</option></select></div>
+          <div class="admin-rule-select"><label for="restrictionRule_${adminEscape(user.id)}">Основание по правилам</label><select id="restrictionRule_${adminEscape(user.id)}"><option value="">Выбери пункт правил</option><option value="1.1">1.1 — Мошенничество</option><option value="1.2">1.2 — Ложные сведения</option><option value="1.3">1.3 — Повторный обман</option><option value="2.1">2.1 — Запрещённые товары</option><option value="2.2">2.2 — Обманчивое описание</option><option value="2.3">2.3 — Дубликаты и спам объявлений</option><option value="2.4">2.4 — Нарушение прав на материалы</option><option value="3.1">3.1 — Оскорбления и травля</option><option value="3.2">3.2 — Спам в сообщениях</option><option value="3.3">3.3 — Угрозы и давление</option><option value="4.1">4.1 — Обход блокировки</option><option value="4.2">4.2 — Использование чужого аккаунта</option><option value="4.3">4.3 — Заведомо ложная жалоба</option><option value="4.4">4.4 — Вмешательство в работу сайта</option><option value="other">Другое нарушение</option></select></div>
         </div>
-        <div class="form-group" style="margin-top:12px;margin-bottom:0"><label for="restrictionReason_${adminEscape(user.id)}">Причина (необязательно)</label><input id="restrictionReason_${adminEscape(user.id)}" type="text" maxlength="300" placeholder="Например, нарушение правил"></div>
+        <div class="form-group" style="margin-top:12px;margin-bottom:0"><label for="restrictionReason_${adminEscape(user.id)}">Пояснение / доказательства (необязательно для готового пункта)</label><input id="restrictionReason_${adminEscape(user.id)}" type="text" maxlength="300" placeholder="Кратко опиши, что произошло"></div>
         <div class="admin-user-actions"><button class="admin-restrict-btn" onclick="applyDelyvexRestriction('${escapeJs(String(user.id))}')">Применить ограничение</button><button class="admin-unrestrict-btn" onclick="clearDelyvexRestriction('${escapeJs(String(user.id))}')">Снять ограничения</button></div>
       </article>`);
     }
@@ -4925,12 +4928,18 @@ async function applyDelyvexRestriction(userId){
   if(!currentUser || !(await isDelyvexAdmin())){alert("Нет доступа администратора.");return;}
   const type=document.getElementById("restrictionType_"+userId)?.value;
   const duration=document.getElementById("restrictionDuration_"+userId)?.value;
-  const reason=(document.getElementById("restrictionReason_"+userId)?.value||"").trim();
+  const ruleCode=(document.getElementById("restrictionRule_"+userId)?.value||"").trim();
+  const details=(document.getElementById("restrictionReason_"+userId)?.value||"").trim();
   if(!["ban","no_sell"].includes(type)){alert("Выбери ограничение.");return;}
+  if(!ruleCode){alert("Перед ограничением выбери пункт правил Delyvex.");return;}
+  if(ruleCode==="other"&&!details){alert("Для пункта «Другое нарушение» обязательно опиши причину.");return;}
+  const ruleTitle=(window.DELYVEX_RULES&&window.DELYVEX_RULES[ruleCode])||"Другое нарушение";
+  const ruleLabel=ruleCode==="other"?"Другое нарушение":"пункт "+ruleCode+" — "+ruleTitle;
+  const reason=ruleCode==="other"?"Другое нарушение: "+details:ruleLabel+(details?". Пояснение: "+details:"");
   const labels={ban:"заблокировать аккаунт",no_sell:"запретить пользователю продавать"};
-  if(!confirm("Точно "+labels[type]+"?")) return;
+  if(!confirm("Точно "+labels[type]+"?\nОснование: "+ruleLabel+"\nСрок: "+(duration==="forever"?"бессрочно":duration)+"\nПричина будет показана пользователю.")) return;
   const durations={"1h":3600000,"24h":86400000,"3d":259200000,"7d":604800000,"30d":2592000000};
-  const expires=duration==="forever"?null:new Date(Date.now()+durations[duration]).toISOString();
+  const expires=duration==="forever"?null:new Date(Date.now()+(durations[duration]||86400000)).toISOString();
   const {error}=await sb.from("user_restrictions").insert({user_id:userId,restriction_type:type,expires_at:expires,reason,created_by:currentUser.id});
   if(error){console.error(error);alert("Не удалось применить ограничение: "+error.message+"\nПроверь SQL-политики таблицы user_restrictions.");return;}
   alert("Ограничение применено.");
@@ -5364,6 +5373,127 @@ body.dx-reduce-motion *,body.dx-reduce-motion *::before,body.dx-reduce-motion *:
   <a href="contacts.html" style="margin:0 8px;">Контакты</a>
   <a href="requisites.html" style="margin:0 8px;">Реквизиты</a>
 </footer>
+
+
+
+<!-- Delyvex rules: separate footer-only entry point; not part of the main navigation. -->
+<style id="delyvex-rules-styles">
+  #delyvexRulesFooter{margin:0;padding:20px 16px 26px;text-align:center;background:#0b0812;color:#e9d5ff;border-top:1px solid #30203f}
+  #delyvexRulesFooter p{margin:0 0 10px;color:#9f93af;font-size:12px}
+  #delyvexRulesOpen{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:10px 16px;border:1px solid #6d3cc7;border-radius:10px;background:#171020;color:#e9d5ff;font-weight:700;cursor:pointer}
+  #delyvexRulesOpen:hover{background:#241733;border-color:#a78bfa}
+  #delyvexRulesDialog{display:none;position:fixed;inset:0;z-index:15000;background:rgba(5,3,10,.82);padding:18px;align-items:center;justify-content:center}
+  #delyvexRulesDialog.is-open{display:flex}
+  #delyvexRulesDialog .dx-rules-card{width:min(900px,100%);max-height:min(88vh,900px);overflow:auto;background:#100b1a;color:#f8f5ff;border:1px solid #49315f;border-radius:18px;box-shadow:0 20px 80px #000a;padding:22px}
+  #delyvexRulesDialog .dx-rules-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;position:sticky;top:0;background:#100b1a;padding:4px 0 14px;border-bottom:1px solid #30203f;z-index:1}
+  #delyvexRulesDialog h2{margin:0;font-size:24px}
+  #delyvexRulesDialog h3{margin:20px 0 8px;color:#d8b4fe;font-size:17px}
+  #delyvexRulesDialog p{color:#c9c2d4;line-height:1.6;margin:8px 0}
+  #delyvexRulesDialog .dx-rule{padding:10px 12px;margin:8px 0;border:1px solid #30203f;border-radius:10px;background:#130d1f;line-height:1.55;color:#e8e0f2}
+  #delyvexRulesDialog .dx-rule strong{color:#c4b5fd;white-space:nowrap}
+  #delyvexRulesDialog .dx-rules-close{flex:0 0 auto;border:1px solid #49315f;border-radius:9px;background:#21152e;color:#fff;padding:8px 12px;font-weight:700;cursor:pointer}
+  #delyvexRulesDialog .dx-rules-bottom{display:flex;justify-content:flex-end;padding-top:16px;margin-top:18px;border-top:1px solid #30203f}
+  @media(max-width:600px){#delyvexRulesDialog{padding:8px}#delyvexRulesDialog .dx-rules-card{padding:15px;max-height:92vh;border-radius:14px}#delyvexRulesDialog .dx-rules-heading{top:0}#delyvexRulesDialog h2{font-size:20px}#delyvexRulesDialog .dx-rule{padding:9px;font-size:14px}}
+  @media(prefers-reduced-motion:no-preference){#delyvexRulesDialog .dx-rules-card{animation:dxRulesAppear .16s ease-out}@keyframes dxRulesAppear{from{opacity:.6;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}}
+</style>
+
+<section id="delyvexRulesFooter" aria-label="Правила Delyvex">
+  <p>Правила сообщества и модерации</p>
+  <button id="delyvexRulesOpen" type="button" aria-haspopup="dialog" aria-controls="delyvexRulesDialog" onclick="delyvexOpenRules()">📜 Правила Delyvex</button>
+</section>
+
+<div id="delyvexRulesDialog" role="dialog" aria-modal="true" aria-labelledby="delyvexRulesTitle" aria-hidden="true" onclick="if(event.target===this)delyvexCloseRules()">
+  <div class="dx-rules-card" role="document" tabindex="-1">
+    <div class="dx-rules-heading">
+      <div><h2 id="delyvexRulesTitle">Правила Delyvex</h2><p>Правила для пользователей и стандарты работы администрации.</p></div>
+      <button class="dx-rules-close" type="button" onclick="delyvexCloseRules()" aria-label="Закрыть правила">✕</button>
+    </div>
+
+    <h3>Раздел 1. Обман и мошенничество</h3>
+    <div class="dx-rule"><strong>1.1 — Мошенничество.</strong> Намеренный обман при сделке, включая получение оплаты без намерения выполнить договорённость.</div>
+    <div class="dx-rule"><strong>1.2 — Ложные сведения.</strong> Намеренное предоставление недостоверных сведений о товаре, его владельце или условиях сделки.</div>
+    <div class="dx-rule"><strong>1.3 — Повторный обман.</strong> Повторное подтверждённое нарушение пункта 1.1 или 1.2 после принятой меры модерации.</div>
+
+    <h3>Раздел 2. Объявления и товары</h3>
+    <div class="dx-rule"><strong>2.1 — Запрещённые товары.</strong> Размещение предложений, запрещённых законом или правилами платформы.</div>
+    <div class="dx-rule"><strong>2.2 — Обманчивое описание.</strong> Существенное несоответствие описания, цены или изображения предлагаемому товару.</div>
+    <div class="dx-rule"><strong>2.3 — Дубликаты и спам объявлений.</strong> Массовое размещение одинаковых объявлений для засорения каталога или обхода ограничений.</div>
+    <div class="dx-rule"><strong>2.4 — Нарушение прав на материалы.</strong> Размещение материалов, использование которых нарушает права других лиц.</div>
+
+    <h3>Раздел 3. Общение</h3>
+    <div class="dx-rule"><strong>3.1 — Оскорбления и травля.</strong> Оскорбительное преследование, систематическая травля или унижение пользователей.</div>
+    <div class="dx-rule"><strong>3.2 — Спам в сообщениях.</strong> Массовые нежелательные сообщения, реклама или повторяющийся бессодержательный текст.</div>
+    <div class="dx-rule"><strong>3.3 — Угрозы и давление.</strong> Угрозы, шантаж или давление на пользователя ради получения денег, товара или иных преимуществ.</div>
+
+    <h3>Раздел 4. Аккаунты и безопасность</h3>
+    <div class="dx-rule"><strong>4.1 — Обход блокировки.</strong> Использование другого аккаунта или иного способа для обхода действующего ограничения.</div>
+    <div class="dx-rule"><strong>4.2 — Использование чужого аккаунта.</strong> Несанкционированный доступ к аккаунту или его использование без разрешения владельца.</div>
+    <div class="dx-rule"><strong>4.3 — Заведомо ложная жалоба.</strong> Подача жалобы с осознанием того, что сведения выдуманы, для причинения вреда другому пользователю.</div>
+    <div class="dx-rule"><strong>4.4 — Вмешательство в работу сайта.</strong> Попытки нарушить работу платформы, обойти защиту или получить несанкционированный доступ.</div>
+
+    <h3>Правила для администрации</h3>
+    <div class="dx-rule"><strong>А1 — Проверка.</strong> До ограничения аккаунта администратор должен проверить доступные доказательства и обстоятельства жалобы.</div>
+    <div class="dx-rule"><strong>А2 — Конкретный пункт.</strong> При блокировке или запрете продаж необходимо выбрать пункт правил и указать понятное основание.</div>
+    <div class="dx-rule"><strong>А3 — Соразмерность.</strong> Мера и срок ограничения должны соответствовать тяжести и повторности нарушения. При незначительном первом нарушении следует рассмотреть предупреждение.</div>
+    <div class="dx-rule"><strong>А4 — Без личной неприязни.</strong> Нельзя наказывать пользователя из-за личного конфликта, критики администрации или просьбы о возврате.</div>
+    <div class="dx-rule"><strong>А5 — Конфиденциальность.</strong> Нельзя публиковать пароли, коды подтверждения и личные данные пользователей; материалы жалобы следует использовать только для рассмотрения дела.</div>
+    <div class="dx-rule"><strong>А6 — Честное рассмотрение.</strong> Нельзя скрывать доказательства или удалять материалы, чтобы прикрыть ошибочное решение.</div>
+    <div class="dx-rule"><strong>А7 — Апелляция.</strong> Пользователь может обратиться к администрации для повторной проверки решения. При подтверждении ошибки ограничение нужно исправить или снять.</div>
+    <div class="dx-rule"><strong>А8 — Запрет злоупотребления правами.</strong> Нельзя применять административные инструменты для личной выгоды, мести или давления.</div>
+
+    <p>Администрация должна учитывать контекст и доказательства. Номер пункта сам по себе не доказывает нарушение; ошибочные решения должны пересматриваться.</p>
+    <div class="dx-rules-bottom"><button class="dx-rules-close" type="button" onclick="delyvexCloseRules()">Понятно, закрыть</button></div>
+  </div>
+</div>
+
+<script id="delyvex-rules-script">
+(function(){
+  window.DELYVEX_RULES = Object.freeze({
+    "1.1":"Мошенничество",
+    "1.2":"Ложные сведения",
+    "1.3":"Повторный обман",
+    "2.1":"Запрещённые товары",
+    "2.2":"Обманчивое описание",
+    "2.3":"Дубликаты и спам объявлений",
+    "2.4":"Нарушение прав на материалы",
+    "3.1":"Оскорбления и травля",
+    "3.2":"Спам в сообщениях",
+    "3.3":"Угрозы и давление",
+    "4.1":"Обход блокировки",
+    "4.2":"Использование чужого аккаунта",
+    "4.3":"Заведомо ложная жалоба",
+    "4.4":"Вмешательство в работу сайта",
+    "other":"Другое нарушение"
+  });
+  let previousOverflow="";
+  window.delyvexOpenRules=function(){
+    const dialog=document.getElementById("delyvexRulesDialog");
+    if(!dialog)return;
+    previousOverflow=document.body.style.overflow;
+    dialog.classList.add("is-open");
+    dialog.setAttribute("aria-hidden","false");
+    document.body.style.overflow="hidden";
+    const card=dialog.querySelector(".dx-rules-card");
+    if(card)card.focus({preventScroll:true});
+  };
+  window.delyvexCloseRules=function(){
+    const dialog=document.getElementById("delyvexRulesDialog");
+    if(!dialog)return;
+    dialog.classList.remove("is-open");
+    dialog.setAttribute("aria-hidden","true");
+    document.body.style.overflow=previousOverflow;
+    const opener=document.getElementById("delyvexRulesOpen");
+    if(opener)opener.focus({preventScroll:true});
+  };
+  document.addEventListener("keydown",function(event){
+    const dialog=document.getElementById("delyvexRulesDialog");
+    if(event.key==="Escape"&&dialog&&dialog.classList.contains("is-open")){
+      event.preventDefault();
+      window.delyvexCloseRules();
+    }
+  });
+})();
+</script>
 
 </body>
 </html>
