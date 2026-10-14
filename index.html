@@ -120,6 +120,7 @@ main{max-width:1100px;margin:auto;padding:25px 18px 100px}
   display:inline-block;background:#28183b;color:#c084fc;border-radius:8px;
   padding:5px 9px;font-size:13px;margin-bottom:10px
 }
+.auto-delivery-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(34,197,94,.13);color:#86efac;border:1px solid rgba(34,197,94,.38);border-radius:999px;padding:5px 9px;font-size:12px;font-weight:800;margin:0 0 10px 7px;vertical-align:middle}
 
 .description{color:#aaa;line-height:1.5}
 .price{font-size:21px;font-weight:900;color:#c084fc;margin-top:10px}
@@ -2176,6 +2177,29 @@ async function renderListings(items){
   if(token !== listingsRenderToken)
     return;
 
+  // Получаем только ID объявлений с непустой автовыдачей.
+  // Содержимое автовыдачи в каталог не передаётся.
+  let autoDeliveryListingIds = new Set();
+  try {
+    const listingIds = uniqueItems.map(item => Number(item.id)).filter(Number.isFinite);
+    if (listingIds.length) {
+      const { data: deliveryIds, error: deliveryError } = await sb.rpc(
+        "delyvex_public_auto_delivery_listing_ids",
+        { p_listing_ids: listingIds }
+      );
+      if (deliveryError) {
+        console.warn("Не удалось проверить метки автовыдачи:", deliveryError);
+      } else {
+        autoDeliveryListingIds = new Set((deliveryIds || []).map(row => String(row.listing_id ?? row.id ?? row)));
+      }
+    }
+  } catch (deliveryCheckError) {
+    console.warn("Проверка автовыдачи недоступна:", deliveryCheckError);
+  }
+
+  if(token !== listingsRenderToken)
+    return;
+
   const sellerInfoMap = new Map();
 
   sellerInfo.forEach(info=>{
@@ -2347,6 +2371,7 @@ async function renderListings(items){
 
         <div class="listing-title">
           ${escapeHtml(listing.title || "Без названия")}
+          ${autoDeliveryListingIds.has(String(listing.id)) ? '<span class="auto-delivery-badge">🤖 Автовыдача</span>' : ''}
         </div>
 
         <div class="description">
