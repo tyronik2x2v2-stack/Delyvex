@@ -5026,8 +5026,16 @@ async function submitUserReport(event){
       alert("Не удалось отправить жалобу: "+(error.message||"ошибка Supabase")+". Проверь, что SQL-файл Delyvex_support_cases.sql выполнен в Supabase.");
       return;
     }
+    const createdCaseId = Number(
+      Array.isArray(caseId) ? (caseId[0]?.id ?? caseId[0]?.case_id ?? caseId[0]) :
+      (caseId && typeof caseId === "object" ? (caseId.id ?? caseId.case_id ?? caseId.support_case_id) : caseId)
+    );
     closeUserReportModal();
-    alert("Жалоба на пользователя отправлена и появилась в панели администратора.");
+    alert("Жалоба на пользователя отправлена и появилась в панели администратора." );
+    if(Number.isFinite(createdCaseId) && createdCaseId > 0 &&
+       currentReceiver && String(currentReceiver)===String(activeUserReportId)){
+      await openSupportCaseChat(createdCaseId,"chatWindow");
+    }
   }catch(e){console.error(e);alert("Не удалось отправить жалобу. Проверь интернет и попробуй снова.");}
   finally{button.disabled=false;button.textContent="Отправить жалобу";}
 }
@@ -5372,8 +5380,15 @@ async function createSupportCaseFromChat(){
       p_chat_listing_id:currentChat==null?null:String(currentChat)
     });
     if(error) throw error;
-    alert("Жалоба отправлена администрации. Она появилась в панели администратора.");
-    await openSupportCaseChat(caseId,"chatWindow");
+    const createdCaseId = Number(
+      Array.isArray(caseId) ? (caseId[0]?.id ?? caseId[0]?.case_id ?? caseId[0]) :
+      (caseId && typeof caseId === "object" ? (caseId.id ?? caseId.case_id ?? caseId.support_case_id) : caseId)
+    );
+    if(!Number.isFinite(createdCaseId) || createdCaseId <= 0){
+      throw new Error("Жалоба создана, но Supabase не вернул номер обращения. Проверь результат функции delyvex_create_support_case.");
+    }
+    alert("Жалоба отправлена администрации. Открываю отдельный чат по жалобе №"+createdCaseId+".");
+    await openSupportCaseChat(createdCaseId,"chatWindow");
   }catch(e){
     console.error("Создание жалобы:",e);
     alert("Не удалось отправить жалобу. Убедись, что SQL-файл Delyvex_support_cases.sql выполнен в Supabase.\n\n"+(e.message||"Ошибка"));
@@ -5423,10 +5438,16 @@ function openSupportCaseProfile(userId){
 }
 
 async function openSupportCaseChat(caseId,returnSection="admin"){
-  if(!currentUser) return;
+  if(!currentUser){alert("Сначала войди в аккаунт.");return;}
+  const normalizedCaseId=Number(
+    Array.isArray(caseId) ? (caseId[0]?.id ?? caseId[0]?.case_id ?? caseId[0]) :
+    (caseId && typeof caseId==="object" ? (caseId.id ?? caseId.case_id ?? caseId.support_case_id) : caseId)
+  );
+  if(!Number.isFinite(normalizedCaseId)||normalizedCaseId<=0){alert("Не удалось определить номер жалобы.");return;}
   try{
-    const {data:caseRow,error}=await sb.from("support_cases").select("*").eq("id",caseId).single();
+    const {data:caseRow,error}=await sb.from("support_cases").select("*").eq("id",normalizedCaseId).maybeSingle();
     if(error) throw error;
+    if(!caseRow) throw new Error("Обращение №"+normalizedCaseId+" не найдено в support_cases. Проверь, что SQL-функция создаёт запись именно в этой таблице.");
     const admin=await isDelyvexAdmin();
     if(admin && caseRow.status==="new"){
       await sb.from("support_cases").update({status:"reviewing"}).eq("id",caseId);
