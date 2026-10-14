@@ -54,14 +54,13 @@ header{
 .nav-btn{background:transparent;color:#ddd;border:0;padding:10px 13px;border-radius:10px}
 .nav-btn:hover{background:#21152e}
 
-.header-profile{margin-left:10px}
+.header-profile{margin-left:10px;display:flex;align-items:center;gap:9px}
 .notification-badge{display:inline-flex;align-items:center;justify-content:center;min-width:19px;height:19px;padding:0 5px;margin-left:4px;border-radius:20px;background:#ef4444;color:#fff;font-size:11px;font-weight:800;vertical-align:middle}
 .notification-badge[hidden]{display:none!important}
 #notificationToast{position:fixed;right:18px;bottom:22px;z-index:10000;max-width:min(360px,calc(100vw - 36px));padding:15px 18px;border:1px solid #8b5cf6;border-radius:14px;background:#1b1029;color:#fff;box-shadow:0 8px 30px #0008;display:none;line-height:1.45;cursor:pointer}
 #notificationToast.show{display:block;animation:notificationIn .2s ease-out}
 @keyframes notificationIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-@media(max-width:700px){
-  #delyvexSmartCatalog [style*="grid-template-columns:repeat(2"]{grid-template-columns:1fr!important}#notificationToast{right:12px;bottom:85px;max-width:calc(100vw - 24px)}}
+@media(max-width:700px){#notificationToast{right:12px;bottom:85px;max-width:calc(100vw - 24px)}}
 
 .header-avatar{
   width:40px;height:40px;border-radius:50%;object-fit:cover;
@@ -479,6 +478,127 @@ input:focus,textarea:focus,select:focus{border-color:#8b5cf6!important;box-shado
 @media(hover:none){.product-card:hover,.listing-card:hover,.item-card:hover,.order-card:hover,.review-card:hover{transform:none;box-shadow:none}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
 
+
+
+/* Delyvex — прозрачность сделки */
+.deal-center{margin:18px 0 22px;padding:20px;border:1px solid rgba(117,91,255,.28);border-radius:18px;background:linear-gradient(135deg,rgba(111,76,255,.10),rgba(28,190,170,.06));}
+.deal-center h2{margin:0 0 8px;font-size:20px}.deal-center-intro{margin:0 0 16px;opacity:.82;line-height:1.5}.deal-steps{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}.deal-step{padding:12px;border-radius:12px;background:rgba(127,127,127,.08);border:1px solid rgba(127,127,127,.14)}.deal-step b{display:block;margin-bottom:5px}.deal-step span{font-size:13px;line-height:1.4;opacity:.8}.deal-center-note{margin:14px 0 0;font-size:12px;opacity:.72;line-height:1.5}.deal-center details{margin-top:12px}.deal-center summary{cursor:pointer;font-weight:600}.deal-checklist{margin:10px 0 0;padding-left:20px;line-height:1.7}@media(max-width:650px){.deal-steps{grid-template-columns:repeat(2,minmax(0,1fr))}.deal-center{padding:15px}}
+
+
+/* Delyvex visual refresh — CSS only; existing markup and JavaScript preserved */
+:root{color-scheme:dark;--dx-bg:#090812;--dx-panel:#141222;--dx-panel2:#1a172b;--dx-line:rgba(186,151,255,.18);--dx-purple:#9b6cff;--dx-pink:#e36bff;--dx-muted:#aaa5bf;--dx-text:#f8f6ff}
+html{scroll-behavior:smooth}
+body{background:radial-gradient(ellipse at 12% -10%,rgba(116,65,207,.22),transparent 36%),radial-gradient(ellipse at 100% 5%,rgba(205,75,219,.11),transparent 30%),var(--dx-bg);color:var(--dx-text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Arial,sans-serif;letter-spacing:.01em}
+button,input,textarea,select{font-family:inherit}
+button{transition:transform .18s ease,filter .18s ease,background .18s ease,border-color .18s ease;}
+button:hover{filter:brightness(1.1)}
+button:active{transform:scale(.985)}
+#authGate{background:radial-gradient(ellipse at 50% 0%,rgba(136,83,255,.23),transparent 44%),rgba(8,7,16,.97);backdrop-filter:blur(14px)}
+.auth-box{background:linear-gradient(145deg,rgba(29,23,48,.98),rgba(16,13,28,.98));border:1px solid rgba(183,146,255,.25);border-radius:28px;padding:36px 28px;box-shadow:0 30px 90px rgba(0,0,0,.48),0 0 45px rgba(133,83,255,.08)}
+.logo{letter-spacing:-1.4px;text-shadow:0 0 28px rgba(171,111,255,.25)}
+.logo img{filter:drop-shadow(0 8px 18px rgba(157,104,255,.24))}
+input,textarea,select{background:rgba(8,7,16,.62)!important;color:var(--dx-text)!important;border:1px solid rgba(177,157,220,.2)!important;border-radius:13px!important;outline:none;transition:border-color .18s ease,box-shadow .18s ease}
+input:focus,textarea:focus,select:focus{border-color:rgba(169,119,255,.8)!important;box-shadow:0 0 0 3px rgba(148,92,255,.13)}
+input::placeholder,textarea::placeholder{color:#827c99}
+.primary-btn,.chat-send,.google-btn,.telegram-btn{background:linear-gradient(110deg,#8152ed,#b15ce8)!important;color:#fff!important;border:1px solid rgba(255,255,255,.13)!important;border-radius:13px!important;box-shadow:0 8px 22px rgba(127,73,226,.2)}
+.secondary-btn,.nav-btn,.chat-btn,.report-btn{background:rgba(255,255,255,.035)!important;border:1px solid var(--dx-line)!important;color:#e8e0ff!important;border-radius:12px!important}
+.danger-btn{border-radius:12px!important}
+header,.header-logo,.header-nav,.mobile-nav{backdrop-filter:blur(18px)}
+header{background:rgba(10,8,19,.84)!important;border-bottom:1px solid rgba(186,151,255,.14)!important;box-shadow:0 10px 30px rgba(0,0,0,.13)}
+.header-nav{gap:7px}
+.nav-btn{padding:10px 13px!important;font-weight:650!important;transition:all .18s ease}
+.nav-btn:hover,.nav-btn.active{background:rgba(150,100,255,.16)!important;border-color:rgba(177,133,255,.38)!important;color:#fff!important}
+.section{animation:dxFadeIn .22s ease both}
+@keyframes dxFadeIn{from{opacity:.55;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+.page-title{letter-spacing:-.7px;font-weight:850;text-wrap:balance}
+.card,.balance-card,.topup-box,.withdraw-box,.deal-center,.public-profile-card,.admin-report-card,.report-modal-box,.phone-rotate-card{background:linear-gradient(145deg,rgba(25,21,42,.96),rgba(16,14,28,.96))!important;border:1px solid var(--dx-line)!important;border-radius:20px!important;box-shadow:0 14px 36px rgba(0,0,0,.18)}
+.card{transition:border-color .2s ease,transform .2s ease,box-shadow .2s ease}
+.card:hover{border-color:rgba(171,124,255,.34)!important;box-shadow:0 18px 42px rgba(0,0,0,.23)}
+.listing-image{border-radius:15px!important;overflow:hidden}
+.listing-title{font-weight:750;letter-spacing:-.25px}
+.price{color:#d9b9ff!important;font-weight:850}
+.game-tag,.seller-level{border-radius:999px!important}
+.search-box{background:rgba(20,17,34,.85)!important;border:1px solid var(--dx-line)!important;border-radius:16px!important}
+.profile-avatar,.header-avatar,.public-profile-avatar,.chat-top-avatar{border:2px solid rgba(181,137,255,.45)!important;box-shadow:0 0 0 4px rgba(147,91,255,.07)}
+.profile-stats{gap:12px}
+.profile-stat{background:rgba(255,255,255,.035)!important;border:1px solid rgba(186,151,255,.12)!important;border-radius:15px!important}
+.chat-window{border:1px solid var(--dx-line)!important;border-radius:20px!important;overflow:hidden;background:rgba(14,12,24,.86)!important}
+.chat-topbar,.chat-top{background:rgba(25,21,42,.96)!important;border-bottom:1px solid var(--dx-line)!important}
+.chat-messages{scrollbar-width:thin;scrollbar-color:#5f477f transparent}
+.chat-compose{background:rgba(20,17,33,.95)!important;border-top:1px solid var(--dx-line)!important}
+.chat-send{min-width:48px}
+.chat-online-dot{box-shadow:0 0 0 4px rgba(65,220,143,.1),0 0 14px rgba(65,220,143,.5)}
+.notification-badge{box-shadow:0 0 0 2px #100d1c}
+.empty{border:1px dashed rgba(186,151,255,.24)!important;border-radius:18px!important;background:rgba(255,255,255,.018)!important;color:var(--dx-muted)!important;padding:28px!important}
+.admin-report-tabs{gap:8px}
+.admin-report-tab{border-radius:11px!important}
+hr{border-color:var(--dx-line)!important}
+::selection{background:rgba(160,106,255,.35);color:#fff}
+@media(max-width:760px){
+  body{background:radial-gradient(ellipse at 50% 0%,rgba(116,65,207,.18),transparent 36%),var(--dx-bg)}
+  .auth-box{padding:28px 20px;border-radius:23px}
+  .page-title{font-size:clamp(24px,6vw,32px)}
+  .card,.balance-card,.topup-box,.withdraw-box,.deal-center{border-radius:17px!important}
+  .mobile-nav{background:rgba(12,10,21,.94)!important;border-top:1px solid var(--dx-line)!important;box-shadow:0 -10px 28px rgba(0,0,0,.2)}
+  .nav-btn{padding:9px 8px!important}
+}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;transition-duration:.01ms!important}}
+
+
+
+/* Delyvex mobile-only comfort improvements; desktop/tablet styles remain unchanged */
+@media (max-width:700px){
+  html{scroll-padding-top:72px;scroll-padding-bottom:90px}
+  body{overflow-x:hidden}
+  header{padding:0 12px;gap:8px}
+  .header-logo{font-size:20px;gap:6px;min-width:0}
+  .header-logo img{width:36px;height:36px}
+  .header-profile{gap:7px;margin-left:auto;flex-shrink:0}
+  .header-avatar{width:39px;height:39px}
+  #avatarSettingsHint{max-width:150px;font-size:10px;line-height:1.2;padding:6px 7px}
+  main{width:100%;padding:16px 12px calc(94px + env(safe-area-inset-bottom))}
+  .page-title{font-size:24px;line-height:1.2;margin-bottom:16px}
+  .mobile-nav{
+    height:calc(64px + env(safe-area-inset-bottom));
+    padding:5px 4px calc(5px + env(safe-area-inset-bottom));
+    justify-content:space-evenly;gap:2px;
+    background:rgba(16,11,26,.97);
+    backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+    border-top:1px solid rgba(167,139,250,.22);
+  }
+  .mobile-nav button{
+    flex:1;min-width:0;min-height:48px;padding:5px 1px 3px;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+    border-radius:12px;color:#a9a0b7;font-size:10px;font-weight:600;line-height:1.1;
+    white-space:nowrap;-webkit-tap-highlight-color:transparent;
+  }
+  .mobile-nav button:active{background:rgba(139,92,246,.18);transform:scale(.96)}
+  .mobile-nav button span{display:flex;align-items:center;justify-content:center;position:relative;font-size:19px;line-height:1;margin:0;min-height:23px}
+  .mobile-nav .notification-badge{position:absolute;top:-7px;right:-12px;min-width:17px;height:17px;font-size:10px;margin:0;padding:0 4px}
+  .search-box{flex-direction:row;gap:7px;align-items:stretch}
+  .search-box input{min-width:0;width:100%;padding:12px;font-size:16px}
+  .search-box button{flex-shrink:0;padding:11px 12px}
+  .listing-card{gap:12px}
+  .listing-image{height:190px}
+  .primary-btn,.secondary-btn,.chat-btn{min-height:42px}
+  input,select,textarea{font-size:16px!important}
+  .chat-list-avatar{width:44px;height:44px;flex-basis:44px}
+  .chat-item{padding:10px;gap:9px}
+  .chat-messages{height:calc(100dvh - 255px);min-height:240px;max-height:65vh}
+  .chat-compose{padding-bottom:max(8px,env(safe-area-inset-bottom))}
+  .avatar-grid{gap:8px}
+}
+@media(max-width:390px){
+  .header-logo{font-size:18px}
+  .header-logo img{width:32px;height:32px}
+  #avatarSettingsHint{max-width:112px;font-size:9px}
+  main{padding-left:10px;padding-right:10px}
+  .mobile-nav button{font-size:9px}
+  .mobile-nav button span{font-size:18px}
+  .search-box{flex-direction:column}
+  .search-box button{width:100%}
+}
+
 </style>
 </head>
 
@@ -562,7 +682,8 @@ input:focus,textarea:focus,select:focus{border-color:#8b5cf6!important;box-shado
   </div>
 
   <div class="header-profile">
-    <img id="headerAvatar" class="header-avatar hidden" src="" alt="">
+    <span id="avatarSettingsHint" class="avatar-settings-hint hidden" aria-hidden="true">Нажми на аватарку → Настройки</span>
+    <img id="headerAvatar" class="header-avatar hidden" src="" alt="Аватарка — открыть настройки" title="Нажми, чтобы открыть настройки">
   </div>
 
 </header>
@@ -604,24 +725,6 @@ input:focus,textarea:focus,select:focus{border-color:#8b5cf6!important;box-shado
 
   </div>
 
-  <div id="delyvexSmartCatalog" class="card" style="margin-top:-5px;margin-bottom:18px">
-    <div style="font-weight:800;margin-bottom:12px">🔎 Умный каталог</div>
-    <div class="form-group" style="margin-bottom:12px">
-      <label for="catalogGameFilter">Игра</label>
-      <select id="catalogGameFilter" style="width:100%;background:#0b0812;color:#fff;border:1px solid #30203f;border-radius:12px;padding:13px" onchange="searchListings()"><option value="">Все игры</option></select>
-    </div>
-    <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px">
-      <div class="form-group" style="margin-bottom:12px"><label for="catalogMinPrice">Цена от, ₽</label><input id="catalogMinPrice" type="number" min="0" placeholder="0" oninput="searchListings()"></div>
-      <div class="form-group" style="margin-bottom:12px"><label for="catalogMaxPrice">Цена до, ₽</label><input id="catalogMaxPrice" type="number" min="0" placeholder="Без лимита" oninput="searchListings()"></div>
-    </div>
-    <div class="form-group" style="margin-bottom:0">
-      <label for="catalogSort">Сортировка</label>
-      <select id="catalogSort" style="width:100%;background:#0b0812;color:#fff;border:1px solid #30203f;border-radius:12px;padding:13px" onchange="searchListings()">
-        <option value="recommended">Рекомендуемые</option><option value="newest">Сначала новые</option><option value="price_asc">Сначала дешевле</option><option value="price_desc">Сначала дороже</option><option value="name">По названию</option>
-      </select>
-    </div>
-    <button type="button" class="chat-btn" style="margin-top:12px" onclick="resetCatalogFilters()">Сбросить фильтры</button>
-  </div>
   <div id="listingsContainer"></div>
 
 </section>
@@ -693,6 +796,27 @@ input:focus,textarea:focus,select:focus{border-color:#8b5cf6!important;box-shado
 <section id="orders" class="section">
 
   <h1 class="page-title">Мои заказы</h1>
+
+    <div class="deal-center" aria-label="Центр безопасности сделки">
+    <h2>🛡️ Центр безопасности сделки</h2>
+    <p class="deal-center-intro">Понятные этапы сделки помогают покупателю и продавцу знать, что делать дальше.</p>
+    <div class="deal-steps">
+      <div class="deal-step"><b>1. Заказ</b><span>Уточните условия и состав товара в чате до оплаты.</span></div>
+      <div class="deal-step"><b>2. Оплата</b><span>Платите только через официальный способ, показанный на сайте.</span></div>
+      <div class="deal-step"><b>3. Получение</b><span>Проверьте товар и сохраните переписку по заказу.</span></div>
+      <div class="deal-step"><b>4. Проблема?</b><span>Сначала свяжитесь со второй стороной и сохраните подтверждения.</span></div>
+    </div>
+    <details>
+      <summary>Памятка покупателю и продавцу</summary>
+      <ul class="deal-checklist">
+        <li>Не передавайте пароль от своего аккаунта и коды подтверждения.</li>
+        <li>Не переходите по подозрительным ссылкам и не отправляйте деньги в обход сайта.</li>
+        <li>Перед подтверждением получения проверьте, что товар соответствует описанию.</li>
+        <li>Если возник спор, сохраните номер заказа, переписку и доказательства.</li>
+      </ul>
+    </details>
+    <p class="deal-center-note">Важно: этот раздел — памятка, а не гарантия безопасной сделки или автоматический эскроу. Реальная обработка оплаты и возвратов зависит от подключённых платёжных и серверных механизмов.</p>
+  </div>
 
   <div id="ordersContainer"></div>
 
@@ -888,7 +1012,7 @@ input:focus,textarea:focus,select:focus{border-color:#8b5cf6!important;box-shado
       <button type="button" class="chat-image-button" id="chatImageButton" onclick="document.getElementById('chatImageInput').click()" title="Прикрепить изображение до 5 МБ" aria-label="Прикрепить изображение">📎</button>
       <div class="chat-send">
         <input id="chatInput" type="text" maxlength="2000" autocomplete="off"
-          placeholder="Написать сообщение..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMessage()}" />
+          placeholder="Написать сообщение..." oninput="notifyChatTyping()" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMessage()}" />
         <button class="primary-btn" id="sendMessageButton" onclick="sendMessage()">➤</button>
       </div>
     </div>
@@ -933,6 +1057,27 @@ input:focus,textarea:focus,select:focus{border-color:#8b5cf6!important;box-shado
       </div>
     </div>
   </div>
+</section>
+
+
+<section id="settings" class="section">
+  <h1 class="page-title">Настройки</h1>
+  <p class="settings-intro">Настрой Delyvex под себя. Выбранная тема сохранится на этом устройстве.</p>
+  <div class="card settings-card">
+    <div class="settings-heading"><span class="settings-icon">🎨</span><div><h2>Внешний вид</h2><p>Выбери оформление сайта</p></div></div>
+    <div class="theme-options" role="group" aria-label="Тема сайта">
+      <button type="button" class="theme-choice" data-theme-choice="purple" onclick="setDelyvexTheme('purple')"><span class="theme-preview theme-purple"></span><b>Фиолетовая</b><small>Текущая тема</small></button>
+      <button type="button" class="theme-choice" data-theme-choice="blue" onclick="setDelyvexTheme('blue')"><span class="theme-preview theme-blue"></span><b>Океан</b><small>Синие акценты</small></button>
+      <button type="button" class="theme-choice" data-theme-choice="green" onclick="setDelyvexTheme('green')"><span class="theme-preview theme-green"></span><b>Изумруд</b><small>Зелёные акценты</small></button>
+      <button type="button" class="theme-choice" data-theme-choice="light" onclick="setDelyvexTheme('light')"><span class="theme-preview theme-light"></span><b>Светлая</b><small>Светлое оформление</small></button>
+    </div>
+    <div class="settings-note" id="themeSavedNote" role="status">Тема сохранится автоматически.</div>
+  </div>
+  <div class="card settings-card">
+    <div class="settings-heading"><span class="settings-icon">✨</span><div><h2>Удобство</h2><p>Настройки интерфейса</p></div></div>
+    <label class="settings-toggle"><span><b>Уменьшить анимации</b><small>Меньше движения при переходах между разделами</small></span><input id="reduceDelyvexMotion" type="checkbox" onchange="setDelyvexMotion(this.checked)"></label>
+  </div>
+  <button type="button" class="secondary-btn settings-back" onclick="showSection('profile')">← Вернуться в профиль</button>
 </section>
 
 </main>
@@ -1891,8 +2036,6 @@ async function loadListings(){
     const bannedSellerIds = new Set(bannedResults.filter(([, banned]) => banned).map(([sellerId]) => sellerId));
     listings = unique.filter(item => !bannedSellerIds.has(String(item.seller_id || "")));
 
-    refreshCatalogGameOptions();
-
     await renderListings(listings);
 
   }finally{
@@ -2088,6 +2231,13 @@ async function renderListings(items){
             ⬆️ ${canBump ? 'Поднять товар' : `Поднять через ${remainingMinutes} мин.`}
           </button>
           <button
+            class="secondary-btn"
+            style="border-radius:10px;padding:11px 14px;cursor:pointer;width:100%"
+            onclick="editListing('${escapeJs(listing.id)}')"
+          >
+            ✏️ Изменить товар
+          </button>
+          <button
             class="danger-btn"
             style="background:#dc2626;color:white;border:0;border-radius:10px;padding:11px 14px;cursor:pointer;width:100%"
             onclick="deleteListing('${escapeJs(listing.id)}')"
@@ -2260,47 +2410,46 @@ async function viewSellerProfile(sellerId){
 }
 
 
-function refreshCatalogGameOptions(){
-  const select = document.getElementById("catalogGameFilter");
-  if(!select) return;
-  const previous = select.value;
-  const games = [...new Set((listings || []).map(item => String(item.game || item.category || "").trim()).filter(Boolean))]
-    .sort((a,b)=>a.localeCompare(b,"ru",{sensitivity:"base"}));
-  select.innerHTML = '<option value="">Все игры</option>';
-  games.forEach(game=>{const option=document.createElement("option");option.value=game;option.textContent=game;select.appendChild(option);});
-  if(games.includes(previous)) select.value=previous;
-}
-function resetCatalogFilters(){
-  ["searchInput","catalogGameFilter","catalogMinPrice","catalogMaxPrice"].forEach(id=>{const el=document.getElementById(id);if(el)el.value="";});
-  const sort=document.getElementById("catalogSort");if(sort)sort.value="recommended";
-  searchListings();
-}
 async function searchListings(){
-  refreshCatalogGameOptions();
-  const query=(document.getElementById("searchInput")?.value||"").trim().toLowerCase();
-  const gameFilter=(document.getElementById("catalogGameFilter")?.value||"").trim().toLowerCase();
-  const minRaw=document.getElementById("catalogMinPrice")?.value;
-  const maxRaw=document.getElementById("catalogMaxPrice")?.value;
-  const minPrice=minRaw===""||minRaw==null?null:Number(minRaw);
-  const maxPrice=maxRaw===""||maxRaw==null?null:Number(maxRaw);
-  const sort=document.getElementById("catalogSort")?.value||"recommended";
-  let result=(listings||[]).filter(item=>{
-    const game=String(item.game||item.category||"").toLowerCase();
-    const title=String(item.title||"").toLowerCase();
-    const description=String(item.description||"").toLowerCase();
-    const price=Number(item.price||0);
-    if(query&&!(game.includes(query)||title.includes(query)||description.includes(query)))return false;
-    if(gameFilter&&game!==gameFilter)return false;
-    if(minPrice!==null&&Number.isFinite(minPrice)&&price<minPrice)return false;
-    if(maxPrice!==null&&Number.isFinite(maxPrice)&&price>maxPrice)return false;
-    return true;
-  });
-  if(sort==="newest")result.sort((a,b)=>new Date(b.created_at||0).getTime()-new Date(a.created_at||0).getTime());
-  else if(sort==="price_asc")result.sort((a,b)=>Number(a.price||0)-Number(b.price||0));
-  else if(sort==="price_desc")result.sort((a,b)=>Number(b.price||0)-Number(a.price||0));
-  else if(sort==="name")result.sort((a,b)=>String(a.title||"").localeCompare(String(b.title||""),"ru",{sensitivity:"base"}));
+
+  const query =
+    document
+      .getElementById("searchInput")
+      .value
+      .trim()
+      .toLowerCase();
+
+  if(!query){
+
+    await renderListings(listings);
+    return;
+
+  }
+
+  const result =
+    listings.filter(item=>{
+
+      const game =
+        String(item.game || "").toLowerCase();
+
+      const title =
+        String(item.title || "").toLowerCase();
+
+      const description =
+        String(item.description || "").toLowerCase();
+
+      return(
+        game.includes(query) ||
+        title.includes(query) ||
+        description.includes(query)
+      );
+
+    });
+
   await renderListings(result);
+
 }
+
 
 /* =========================================
    BUMP OWN LISTING (once per hour per listing)
@@ -2351,6 +2500,75 @@ async function bumpListing(listingId){
   await renderListings(listings);
   alert("Готово! Твой товар поднят в самый верх. Повторно поднять его можно через час.");
 }
+
+/* =========================================
+   EDIT OWN LISTING
+========================================= */
+
+async function editListing(listingId){
+  if(!currentUser){
+    alert("Сначала войди в аккаунт.");
+    return;
+  }
+
+  const listing = listings.find(item => String(item.id) === String(listingId));
+  if(!listing){
+    alert("Товар не найден. Обнови страницу и попробуй ещё раз.");
+    return;
+  }
+  if(String(listing.seller_id) !== String(currentUser.id)){
+    alert("Можно изменять только свои товары.");
+    return;
+  }
+
+  const game = prompt("Игра / категория:", listing.game || "");
+  if(game === null) return;
+  const title = prompt("Название товара:", listing.title || "");
+  if(title === null) return;
+  const description = prompt("Описание товара:", listing.description || "");
+  if(description === null) return;
+  const priceText = prompt("Цена в рублях:", String(listing.price ?? ""));
+  if(priceText === null) return;
+
+  const cleanGame = game.trim();
+  const cleanTitle = title.trim();
+  const cleanDescription = description.trim();
+  const cleanPrice = Number(String(priceText).replace(",", ".").trim());
+
+  if(!cleanGame || !cleanTitle){
+    alert("Игра и название не могут быть пустыми.");
+    return;
+  }
+  if(!Number.isFinite(cleanPrice) || cleanPrice < 0){
+    alert("Укажи корректную цену — неотрицательное число.");
+    return;
+  }
+
+  const {data, error} = await sb
+    .from("listings")
+    .update({game:cleanGame, title:cleanTitle, description:cleanDescription, price:cleanPrice})
+    .eq("id", listingId)
+    .eq("seller_id", currentUser.id)
+    .select("id,game,title,description,price,seller_id")
+    .maybeSingle();
+
+  if(error){
+    console.error("Ошибка изменения товара:", error);
+    alert("Не удалось изменить товар. Проверь права UPDATE для своих объявлений в Supabase.\n\n" + error.message);
+    return;
+  }
+  if(!data){
+    alert("Supabase не вернул изменённое объявление. Возможно, политика RLS запрещает редактирование своих товаров.");
+    return;
+  }
+
+  const index = listings.findIndex(item => String(item.id) === String(listingId));
+  if(index !== -1) listings[index] = {...listings[index], ...data};
+  await loadListings();
+  alert("Товар успешно изменён!");
+}
+
+
 
 /* =========================================
    DELETE OWN LISTING
@@ -3837,86 +4055,234 @@ function chatTime(value){
   return date.toLocaleDateString("ru-RU",{day:"2-digit",month:"2-digit"});
 }
 
+// Реальное присутствие и индикатор набора текста через Supabase Realtime.
+const onlineChatUsers = new Set();
+let chatGlobalPresenceChannel = null;
+let chatTypingChannel = null;
+let chatTypingTimeout = null;
+let chatTypingClearTimeout = null;
+let chatTypingLastSent = 0;
+let chatTypingOtherId = null;
+
+function refreshChatListPresence(){
+  const container = document.getElementById("chatsContainer");
+  if(!container) return;
+  container.querySelectorAll(".chat-list-item-status").forEach(el=>{
+    const id=String(el.dataset.userId || "");
+    const online=onlineChatUsers.has(id);
+    el.innerHTML=online?'<span class="chat-online-dot"></span>В сети':'<span class="chat-offline-dot"></span>Не в сети';
+  });
+}
+
+function startGlobalChatPresence(){
+  if(!currentUser || !sb?.channel) return;
+  if(chatGlobalPresenceChannel) return;
+  chatGlobalPresenceChannel = sb.channel("delyvex-global-presence", {config:{presence:{key:String(currentUser.id)}}});
+  chatGlobalPresenceChannel
+    .on("presence", {event:"sync"}, ()=>{
+      onlineChatUsers.clear();
+      const state=chatGlobalPresenceChannel.presenceState() || {};
+      Object.entries(state).forEach(([key,entries])=>{
+        if(String(key)!==String(currentUser.id) && Array.isArray(entries) && entries.length) onlineChatUsers.add(String(key));
+        (entries||[]).forEach(entry=>{ if(entry?.user_id && String(entry.user_id)!==String(currentUser.id)) onlineChatUsers.add(String(entry.user_id)); });
+      });
+      refreshChatListPresence();
+      updateChatHeaderStatus();
+    })
+    .subscribe(async status=>{
+      if(status==="SUBSCRIBED"){
+        try{ await chatGlobalPresenceChannel.track({user_id:String(currentUser.id),online_at:new Date().toISOString()}); }
+        catch(error){ console.warn("Не удалось отметить пользователя в сети",error); }
+      }
+    });
+}
+
+function stopChatTypingChannel(){
+  if(chatTypingTimeout){clearTimeout(chatTypingTimeout);chatTypingTimeout=null;}
+  if(chatTypingClearTimeout){clearTimeout(chatTypingClearTimeout);chatTypingClearTimeout=null;}
+  if(chatTypingChannel){ try{sb.removeChannel(chatTypingChannel);}catch(e){} chatTypingChannel=null; }
+  chatTypingOtherId=null;
+}
+
+function startChatPresence(receiverId){
+  startGlobalChatPresence();
+  stopChatTypingChannel();
+  if(!currentUser || !receiverId || !sb?.channel) return;
+  const ids=[String(currentUser.id),String(receiverId)].sort();
+  chatTypingOtherId=String(receiverId);
+  const topic="delyvex-typing-"+ids.join("-");
+  chatTypingChannel=sb.channel(topic,{config:{broadcast:{self:false}}});
+  chatTypingChannel
+    .on("broadcast",{event:"typing"},({payload})=>{
+      if(!payload || String(payload.user_id)===String(currentUser.id)) return;
+      const status=document.querySelector("#chatWindow .chat-top-status");
+      if(!status) return;
+      status.textContent=payload.typing ? "✍️ Печатает…" : (onlineChatUsers.has(String(receiverId)) ? "🟢 В сети" : "Не в сети");
+      if(chatTypingClearTimeout) clearTimeout(chatTypingClearTimeout);
+      if(payload.typing) chatTypingClearTimeout=setTimeout(updateChatHeaderStatus,4000);
+    })
+    .subscribe();
+  updateChatHeaderStatus();
+}
+
+function updateChatHeaderStatus(){
+  const status=document.querySelector("#chatWindow .chat-top-status");
+  if(!status || !currentReceiver) return;
+  status.textContent=onlineChatUsers.has(String(currentReceiver)) ? "🟢 В сети" : "Не в сети";
+}
+
+async function notifyChatTyping(){
+  if(!currentUser || !currentReceiver || !chatTypingChannel) return;
+  const input=document.getElementById("chatInput");
+  const typing=!!input && input.value.trim().length>0;
+  const now=Date.now();
+  if(typing && now-chatTypingLastSent<1200) return;
+  chatTypingLastSent=now;
+  try{await chatTypingChannel.send({type:"broadcast",event:"typing",payload:{user_id:String(currentUser.id),typing}});}catch(e){console.warn("Не удалось отправить статус набора текста",e);}
+  if(chatTypingTimeout) clearTimeout(chatTypingTimeout);
+  if(typing) chatTypingTimeout=setTimeout(async()=>{
+    try{await chatTypingChannel?.send({type:"broadcast",event:"typing",payload:{user_id:String(currentUser.id),typing:false}});}catch(e){}
+  },2200);
+}
+
+// Локальные отметки прочтения для списка чатов.
+// Хранятся отдельно для каждого пользователя и собеседника.
+function chatSeenKey(otherId, listingId){
+  return `delyvex_chat_seen_${String(currentUser?.id || "guest")}_${String(otherId || "")}_${String(listingId ?? "none")}`;
+}
+function getChatSeenAt(otherId, listingId){
+  try { return Number(localStorage.getItem(chatSeenKey(otherId, listingId)) || 0); }
+  catch (error) { return 0; }
+}
+function setChatSeenAt(otherId, listingId, timestamp = Date.now()){
+  try { localStorage.setItem(chatSeenKey(otherId, listingId), String(timestamp)); }
+  catch (error) { console.warn("Не удалось сохранить отметку прочтения чата", error); }
+}
+
 async function loadChats(){
   if(!currentUser) return;
+  startGlobalChatPresence();
   const container = document.getElementById("chatsContainer");
+  if(!container) return;
   container.innerHTML = `<div class="empty">Загружаем переписки…</div>`;
-  const {data,error} = await sb.from("messages").select("*")
-    .or(`sender_id.eq.${currentUser.id},receiver_id.eq.${currentUser.id}`)
-    .order("created_at",{ascending:false});
-  if(error){
-    console.error(error);
-    container.innerHTML = `<div class="empty">Не удалось загрузить чаты. Попробуй обновить страницу.</div>`;
-    return;
+  try{
+    // Загружаем входящие и исходящие сообщения отдельно: это надёжнее,
+    // чем один OR-фильтр, и позволяет не потерять диалоги из-за фильтра.
+    const [sentResult, receivedResult] = await Promise.all([
+      sb.from("messages").select("*").eq("sender_id", currentUser.id).order("created_at", {ascending:false}),
+      sb.from("messages").select("*").eq("receiver_id", currentUser.id).order("created_at", {ascending:false})
+    ]);
+    const queryError = sentResult.error || receivedResult.error;
+    if(queryError){
+      console.error("Не удалось загрузить список чатов:", queryError);
+      container.innerHTML = `<div class="empty">Не удалось загрузить чаты.<br><span style="font-size:13px">${escapeHtml(queryError.message || "Проверь доступ к таблице messages в Supabase.")}</span><br><button class="secondary-btn" type="button" onclick="loadChats()">Повторить</button></div>`;
+      return;
+    }
+    const byMessageId = new Map();
+    [...(sentResult.data || []), ...(receivedResult.data || [])].forEach(message=>{
+      const key = message.id != null ? String(message.id) : `${message.sender_id}|${message.receiver_id}|${message.created_at}|${message.message}`;
+      byMessageId.set(key, message);
+    });
+    const data = Array.from(byMessageId.values()).sort((a,b)=>new Date(b.created_at||0)-new Date(a.created_at||0));
+    if(!data.length){
+      container.innerHTML = `<div class="empty">💬<br><br>Пока нет переписок.<br><span style="font-size:14px">Открой объявление и нажми «Написать продавцу».</span></div>`;
+      return;
+    }
+    // Один элемент списка на собеседника. История сообщений в базе не удаляется.
+    const chats = new Map();
+    data.forEach(message=>{
+      const otherId = String(message.sender_id) === String(currentUser.id) ? message.receiver_id : message.sender_id;
+      if(otherId == null || String(otherId) === String(currentUser.id)) return;
+      const key = String(otherId);
+      if(!chats.has(key)) chats.set(key,{message,otherId});
+    });
+    container.innerHTML = "";
+    const entries = Array.from(chats.values());
+    const userIds = [...new Set(entries.map(entry=>String(entry.otherId)))];
+    const userProfiles = await Promise.all(userIds.map(async id=>[id,await getPublicChatUser(id)]));
+    const profileMap = new Map(userProfiles);
+    entries.forEach(({message,otherId})=>{
+      const person = profileMap.get(String(otherId)) || {nickname:"Пользователь",avatar_url:avatarUrl(AVATAR_STYLES[0][1],otherId)};
+      const rawText = String(message.message || "");
+      const preview = rawText.startsWith("SYSTEM_PURCHASE|") ? "🛒 Информация о покупке" : rawText;
+      const item = document.createElement("div");
+      item.className = "chat-item";
+      const avatarWrap = document.createElement("div"); avatarWrap.className = "avatar-ban-wrap";
+      const img = document.createElement("img");
+      img.className = "chat-list-avatar"; img.src = person.avatar_url; img.alt = "";
+      img.onerror = ()=>{img.onerror=null;img.src=avatarUrl(AVATAR_STYLES[0][1],otherId);};
+      avatarWrap.appendChild(img);
+      if(person.banned){const stamp=document.createElement("span");stamp.className="avatar-ban-badge";stamp.textContent="БАН";avatarWrap.appendChild(stamp);}
+      const main = document.createElement("div"); main.className = "chat-list-main";
+      const top = document.createElement("div"); top.className = "chat-list-top";
+      const name = document.createElement("div"); name.className = "chat-list-name"; name.textContent = person.nickname + (person.banned ? " · Забанен" : "");
+      if(person.banned) name.style.color = "#fca5a5";
+      const meta = document.createElement("div"); meta.className = "chat-list-meta";
+      const time = document.createElement("div"); time.className = "chat-list-time"; time.textContent = chatTime(message.created_at);
+      const seenAt = getChatSeenAt(otherId,"all");
+      const unreadCount = data.filter(m=>String(m.sender_id)===String(otherId) && String(m.receiver_id)===String(currentUser.id) && new Date(m.created_at||0).getTime()>seenAt).length;
+      if(unreadCount){const badge=document.createElement("span");badge.className="chat-unread-badge";badge.textContent=unreadCount>99?"99+":String(unreadCount);meta.appendChild(badge);}
+      meta.appendChild(time);
+      const snippet = document.createElement("div"); snippet.className = "chat-list-preview"+(unreadCount?" unread":"");
+      snippet.textContent = (String(message.sender_id)===String(currentUser.id) ? "Вы: " : "") + preview;
+      const bottom=document.createElement("div");bottom.className="chat-list-bottom";bottom.append(snippet);
+      const onlineLabel=document.createElement("span");onlineLabel.className="chat-list-item-status";onlineLabel.dataset.userId=String(otherId);onlineLabel.style.cssText="font-size:11px;color:#9c8bad;white-space:nowrap";
+      onlineLabel.innerHTML=onlineChatUsers.has(String(otherId))?'<span class="chat-online-dot"></span>В сети':'<span class="chat-offline-dot"></span>Не в сети';
+      bottom.appendChild(onlineLabel);
+      top.append(name,meta); main.append(top,bottom); item.append(avatarWrap,main);
+      item.onclick = (event)=>{ event.preventDefault(); event.stopPropagation(); openChat(message.listing_id,otherId,person.nickname).catch(error=>{ console.error("Не удалось открыть чат:",error); alert("Не удалось открыть чат. Проверь консоль браузера и доступ к messages в Supabase."); }); };
+      container.appendChild(item);
+    });
+  }catch(error){
+    console.error("Ошибка списка чатов:",error);
+    container.innerHTML = `<div class="empty">Ошибка загрузки чатов.<br><span style="font-size:13px">${escapeHtml(error?.message || "Неизвестная ошибка")}</span><br><button class="secondary-btn" type="button" onclick="loadChats()">Повторить</button></div>`;
   }
-  if(!data?.length){
-    container.innerHTML = `<div class="empty">💬<br><br>Пока нет переписок.<br><span style="font-size:14px">Открой объявление и нажми «Написать продавцу».</span></div>`;
-    return;
-  }
-  const chats = new Map();
-  data.forEach(message=>{
-    const otherId = String(message.sender_id) === String(currentUser.id) ? message.receiver_id : message.sender_id;
-    const key = `${otherId}|${message.listing_id || "none"}`;
-    if(!chats.has(key)) chats.set(key,{message,otherId});
-  });
-  container.innerHTML = "";
-  const entries = Array.from(chats.values());
-  const userIds = [...new Set(entries.map(entry=>entry.otherId))];
-  const userProfiles = await Promise.all(userIds.map(async id=>[String(id),await getPublicChatUser(id)]));
-  const profileMap = new Map(userProfiles);
-  entries.forEach(({message,otherId})=>{
-    const person = profileMap.get(String(otherId)) || {nickname:"Пользователь",avatar_url:avatarUrl(AVATAR_STYLES[0][1],otherId)};
-    const rawText = String(message.message || "");
-    const preview = rawText.startsWith("SYSTEM_PURCHASE|") ? "🛒 Информация о покупке" : rawText;
-    const item = document.createElement("div");
-    item.className = "chat-item";
-    const avatarWrap = document.createElement("div"); avatarWrap.className = "avatar-ban-wrap";
-    const img = document.createElement("img");
-    img.className = "chat-list-avatar"; img.src = person.avatar_url; img.alt = "";
-    img.onerror = ()=>{img.onerror=null;img.src=avatarUrl(AVATAR_STYLES[0][1],otherId);};
-    avatarWrap.appendChild(img);
-    if(person.banned){const stamp=document.createElement("span");stamp.className="avatar-ban-badge";stamp.textContent="БАН";avatarWrap.appendChild(stamp);}
-    const main = document.createElement("div"); main.className = "chat-list-main";
-    const top = document.createElement("div"); top.className = "chat-list-top";
-    const name = document.createElement("div"); name.className = "chat-list-name"; name.textContent = person.nickname + (person.banned ? " · Забанен" : "");
-    if(person.banned) name.style.color = "#fca5a5";
-    const time = document.createElement("div"); time.className = "chat-list-time"; time.textContent = chatTime(message.created_at);
-    const snippet = document.createElement("div"); snippet.className = "chat-list-preview";
-    snippet.textContent = (String(message.sender_id)===String(currentUser.id) ? "Вы: " : "") + preview;
-    top.append(name,time); main.append(top,snippet); item.append(avatarWrap,main);
-    item.onclick = ()=>openChat(message.listing_id,otherId,person.nickname);
-    container.appendChild(item);
-  });
 }
 
 async function openChat(listingId,receiverId,title){
   if(!currentUser) return;
-  currentChat = listingId;
+  if(!receiverId){ console.error("Не указан собеседник для чата"); return; }
+
+  // Открываем окно немедленно, чтобы ошибка статуса присутствия не блокировала чат.
+  currentChat = listingId ?? null;
   currentReceiver = receiverId;
-  currentListing = listingId;
+  currentListing = listingId ?? null;
   lastMessagesSignature = "";
   if(chatRefreshTimer){ clearInterval(chatRefreshTimer); chatRefreshTimer = null; }
+
   const titleButton = document.getElementById("chatTitle");
-  titleButton.textContent = title || "Пользователь";
-  titleButton.disabled = false;
   const avatar = document.getElementById("chatHeaderAvatar");
-  avatar.src = avatarUrl(AVATAR_STYLES[0][1],receiverId || "Delyvex");
-  avatar.onerror = ()=>{avatar.onerror=null;avatar.src=avatarUrl(AVATAR_STYLES[0][1],receiverId || "Delyvex");};
-  showSection("chatWindow");
-  const person = await getPublicChatUser(receiverId);
-  titleButton.textContent = person.nickname || title || "Пользователь";
-  const headerBanBadge=document.getElementById("chatHeaderBanBadge");
-  if(headerBanBadge) headerBanBadge.hidden = !person.banned;
-  titleButton.innerHTML = escapeHtml(person.nickname || title || "Пользователь") + (person.banned ? ' <span class="banned-name-label">Забанен</span>' : "");
-  avatar.src = person.avatar_url || avatarUrl(AVATAR_STYLES[0][1],receiverId || "Delyvex");
+  if(titleButton){ titleButton.textContent = title || "Пользователь"; titleButton.disabled = false; }
+  if(avatar){
+    avatar.src = avatarUrl(AVATAR_STYLES[0][1], String(receiverId));
+    avatar.onerror = ()=>{ avatar.onerror=null; avatar.src=avatarUrl(AVATAR_STYLES[0][1], String(receiverId)); };
+  }
+
+  await showSection("chatWindow");
+  const chatWindow = document.getElementById("chatWindow");
+  if(chatWindow) chatWindow.classList.add("active");
+
+  try{
+    const person = await getPublicChatUser(receiverId);
+    if(titleButton){
+      titleButton.innerHTML = escapeHtml(person.nickname || title || "Пользователь") + (person.banned ? ' <span class="banned-name-label">Забанен</span>' : "");
+    }
+    const headerBanBadge=document.getElementById("chatHeaderBanBadge");
+    if(headerBanBadge) headerBanBadge.hidden = !person.banned;
+    if(avatar) avatar.src = person.avatar_url || avatarUrl(AVATAR_STYLES[0][1], String(receiverId));
+  }catch(profileError){
+    console.warn("Не удалось загрузить профиль собеседника, чат продолжит открываться:",profileError);
+  }
+
+  try{ setChatSeenAt(receiverId,"all",Date.now()); }catch(e){ console.warn("Не удалось обновить отметку прочтения",e); }
+  try{ startChatPresence(receiverId); }catch(presenceError){ console.warn("Не удалось включить статус присутствия:",presenceError); }
+
   await loadMessages();
   chatRefreshTimer = setInterval(()=>{
-    const chatSection = document.getElementById("chatWindow");
-    if(currentUser && currentReceiver && chatSection && chatSection.classList.contains("active")){
-      loadMessages();
-    }
-  }, 2000);
-  document.getElementById("chatInput").focus({preventScroll:true});
+    const section = document.getElementById("chatWindow");
+    if(currentUser && currentReceiver && section && section.classList.contains("active")) loadMessages();
+  }, 3000);
+  document.getElementById("chatInput")?.focus({preventScroll:true});
 }
 
 function openChatPartnerProfile(){
@@ -3956,10 +4322,11 @@ async function loadMessages(){
   if(!container) return;
   messagesLoading = true;
   try{
+    // Объединённый личный диалог: загружаем всю переписку между этими двумя аккаунтами,
+    // даже если старые сообщения были отправлены из карточек разных товаров.
     let { data, error } = await sb
       .from("messages")
       .select("*")
-      .eq("listing_id",currentChat)
       .or(`and(sender_id.eq.${currentUser.id},receiver_id.eq.${currentReceiver}),and(sender_id.eq.${currentReceiver},receiver_id.eq.${currentUser.id})`)
       .order("created_at",{ascending:true});
 
@@ -3992,7 +4359,14 @@ async function loadMessages(){
     }
 
     const messages = data || [];
-    const signature = messages.map(m=>`${m.id || ""}:${m.created_at || ""}:${m.message || ""}`).join("|");
+    // Отметка прочтения включается после выполнения SQL-миграции с read_at.
+    const unreadIds=messages.filter(m=>String(m.receiver_id)===String(currentUser.id) && !m.read_at && m.id).map(m=>m.id);
+    if(unreadIds.length){
+      const readAt=new Date().toISOString();
+      const {error:readError}=await sb.from("messages").update({read_at:readAt}).in("id",unreadIds);
+      if(!readError){messages.forEach(m=>{if(unreadIds.includes(m.id))m.read_at=readAt;});setChatSeenAt(currentReceiver,"all",Date.now());}
+    }
+    const signature = messages.map(m=>`${m.id || ""}:${m.created_at || ""}:${m.message || ""}:${m.read_at||""}`).join("|");
     if(signature === lastMessagesSignature) return;
 
     const wasAtBottom = container.scrollHeight - container.scrollTop - container.clientHeight < 90;
@@ -4068,6 +4442,12 @@ async function loadMessages(){
       time.className = "message-time";
       time.textContent = chatTime(message.created_at);
       div.appendChild(time);
+      if(String(message.sender_id)===String(currentUser.id) && !String(message.message||"").startsWith("SYSTEM_PURCHASE|")){
+        const status=document.createElement("span");status.className="message-status";
+        status.textContent=message.read_at?"✓✓ Прочитано":"✓ Отправлено";
+        status.style.color=message.read_at?"#d8b4fe":"#e9d5ff";
+        div.appendChild(status);
+      }
       container.appendChild(div);
     });
 
@@ -4912,6 +5292,49 @@ async function setDelyvexReportStatus(reportId,newStatus){
 
 initialize();
 
+</script>
+
+
+<style id="delyvexSettingsStyles">
+.header-avatar{cursor:pointer!important}.header-avatar:focus-visible{outline:3px solid #c4a5ff;outline-offset:4px}
+.avatar-settings-hint{font-size:12px;line-height:1.3;color:var(--dx-text);background:rgba(155,108,255,.13);border:1px solid rgba(155,108,255,.35);padding:7px 10px;border-radius:10px;white-space:nowrap;animation:avatarHintPulse 2.8s ease-in-out infinite}
+@keyframes avatarHintPulse{0%,100%{opacity:.78}50%{opacity:1}}
+@media(max-width:650px){.avatar-settings-hint{white-space:normal;max-width:105px;font-size:10px;padding:6px 7px}}
+.settings-intro{color:var(--dx-muted);margin:-8px 0 22px;line-height:1.6}.settings-card{padding:22px;margin-bottom:18px}.settings-heading{display:flex;align-items:center;gap:13px;margin-bottom:18px}.settings-icon{width:48px;height:48px;display:grid;place-items:center;border-radius:15px;background:rgba(155,108,255,.15);font-size:23px}.settings-heading h2{font-size:19px;margin:0 0 4px}.settings-heading p{margin:0;color:var(--dx-muted);font-size:13px}.theme-options{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}.theme-choice{min-width:0;text-align:left;padding:10px;border:1px solid var(--dx-line);border-radius:15px;background:rgba(255,255,255,.025);color:var(--dx-text);cursor:pointer}.theme-choice b,.theme-choice small{display:block;overflow-wrap:anywhere}.theme-choice b{font-size:13px;margin-top:9px}.theme-choice small{font-size:11px;color:var(--dx-muted);margin-top:4px}.theme-choice.selected{border-color:var(--dx-purple);box-shadow:0 0 0 2px color-mix(in srgb,var(--dx-purple) 24%,transparent);background:rgba(155,108,255,.08)}.theme-preview{display:block;height:64px;border-radius:10px;border:1px solid rgba(255,255,255,.14);background:#090812;position:relative;overflow:hidden}.theme-preview:before{content:"";position:absolute;left:8px;right:8px;top:9px;height:8px;border-radius:5px;background:rgba(255,255,255,.15)}.theme-preview:after{content:"";position:absolute;left:8px;right:28px;top:25px;bottom:8px;border-radius:6px;background:var(--preview-accent)}.theme-purple{--preview-accent:#9b6cff}.theme-blue{--preview-accent:#3998ff}.theme-green{--preview-accent:#24c79a}.theme-light{background:#f4f5fb;--preview-accent:#8152ed}.settings-note{font-size:12px;color:var(--dx-muted);margin-top:15px}.settings-toggle{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:15px;border:1px solid var(--dx-line);border-radius:14px}.settings-toggle b,.settings-toggle small{display:block}.settings-toggle small{font-size:12px;color:var(--dx-muted);margin-top:5px;line-height:1.5}.settings-toggle input{width:20px;height:20px;accent-color:var(--dx-purple);flex:0 0 auto}.settings-back{padding:12px 16px;margin:2px 0 12px}
+body[data-dx-theme="blue"]{--dx-purple:#3998ff;--dx-pink:#52c8ff;--dx-line:rgba(95,169,255,.22);--dx-muted:#a6b7d0}body[data-dx-theme="blue"] .primary-btn,body[data-dx-theme="blue"] .chat-send,body[data-dx-theme="blue"] .google-btn,body[data-dx-theme="blue"] .telegram-btn{background:linear-gradient(110deg,#2878e8,#36b6ed)!important}body[data-dx-theme="blue"] .seller-level{border-color:rgba(57,152,255,.35)}
+body[data-dx-theme="green"]{--dx-purple:#24c79a;--dx-pink:#59e2b7;--dx-line:rgba(72,211,165,.2);--dx-muted:#a7c7bc}body[data-dx-theme="green"] .primary-btn,body[data-dx-theme="green"] .chat-send,body[data-dx-theme="green"] .google-btn,body[data-dx-theme="green"] .telegram-btn{background:linear-gradient(110deg,#119b78,#29cda0)!important}
+body[data-dx-theme="light"]{color-scheme:light;--dx-bg:#f4f5fb;--dx-panel:#fff;--dx-panel2:#f7f5ff;--dx-line:rgba(86,68,130,.18);--dx-purple:#8152ed;--dx-pink:#b15ce8;--dx-muted:#68647a;--dx-text:#211a32;background:#f4f5fb!important;color:#211a32!important}body[data-dx-theme="light"] header{background:rgba(255,255,255,.92)!important;border-bottom-color:#e5def2!important}body[data-dx-theme="light"] .nav-btn,body[data-dx-theme="light"] .secondary-btn,body[data-dx-theme="light"] .chat-btn,body[data-dx-theme="light"] .report-btn{color:#382b51!important;background:rgba(92,65,139,.05)!important;border-color:rgba(86,68,130,.2)!important}body[data-dx-theme="light"] .card,body[data-dx-theme="light"] .balance-card,body[data-dx-theme="light"] .topup-box,body[data-dx-theme="light"] .withdraw-box,body[data-dx-theme="light"] .deal-center,body[data-dx-theme="light"] .public-profile-card,body[data-dx-theme="light"] .admin-report-card,body[data-dx-theme="light"] .report-modal-box,body[data-dx-theme="light"] .phone-rotate-card{background:linear-gradient(145deg,#fff,#f8f6ff)!important;color:#211a32!important}body[data-dx-theme="light"] input,body[data-dx-theme="light"] textarea,body[data-dx-theme="light"] select{background:#fff!important;color:#211a32!important;border-color:#ded6ed!important}body[data-dx-theme="light"] .search-box{background:#fff!important}body[data-dx-theme="light"] .chat-window{background:#fff!important}body[data-dx-theme="light"] .chat-topbar,body[data-dx-theme="light"] .chat-top,body[data-dx-theme="light"] .chat-compose{background:#faf8ff!important;color:#211a32!important}body[data-dx-theme="light"] .profile-stat{background:#f8f6ff!important}body[data-dx-theme="light"] .theme-choice{color:#211a32;background:#fff}body[data-dx-theme="light"] .empty{background:#fff!important}
+body.dx-reduce-motion *,body.dx-reduce-motion *::before,body.dx-reduce-motion *::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
+@media(max-width:650px){.theme-options{grid-template-columns:repeat(2,minmax(0,1fr))}.settings-card{padding:16px}.theme-preview{height:54px}}
+</style>
+<script>
+(function(){
+  const validThemes=['purple','blue','green','light'];
+  window.setDelyvexTheme=function(theme){
+    if(!validThemes.includes(theme)) theme='purple';
+    document.body.dataset.dxTheme=theme;
+    try{localStorage.setItem('delyvex-theme',theme)}catch(e){}
+    document.querySelectorAll('[data-theme-choice]').forEach(btn=>{
+      const active=btn.dataset.themeChoice===theme;
+      btn.classList.toggle('selected',active);
+      btn.setAttribute('aria-pressed',active?'true':'false');
+    });
+    const note=document.getElementById('themeSavedNote');if(note)note.textContent='Тема сохранена на этом устройстве.';
+  };
+  window.setDelyvexMotion=function(reduce){
+    document.body.classList.toggle('dx-reduce-motion',!!reduce);
+    try{localStorage.setItem('delyvex-reduce-motion',reduce?'1':'0')}catch(e){}
+  };
+  function initDelyvexSettings(){
+    let theme='purple',reduce=false;
+    try{theme=localStorage.getItem('delyvex-theme')||'purple';reduce=localStorage.getItem('delyvex-reduce-motion')==='1'}catch(e){}
+    window.setDelyvexTheme(theme);window.setDelyvexMotion(reduce);
+    const toggle=document.getElementById('reduceDelyvexMotion');if(toggle)toggle.checked=reduce;
+    const avatar=document.getElementById('headerAvatar');
+    if(avatar){avatar.title='Нажми на аватарку, чтобы открыть настройки';avatar.setAttribute('role','button');avatar.setAttribute('tabindex','0');avatar.setAttribute('aria-label','Нажми на аватарку, чтобы открыть настройки');avatar.addEventListener('click',()=>window.showSection('settings'));avatar.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();window.showSection('settings')}});const hint=document.getElementById('avatarSettingsHint');if(hint){const syncHint=()=>hint.classList.toggle('hidden',avatar.classList.contains('hidden'));syncHint();new MutationObserver(syncHint).observe(avatar,{attributes:true,attributeFilter:['class']})}}
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initDelyvexSettings);else initDelyvexSettings();
+})();
 </script>
 
 <footer style="
