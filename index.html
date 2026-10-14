@@ -285,6 +285,7 @@ main{max-width:1100px;margin:auto;padding:25px 18px 100px}
 .message{max-width:min(78%,560px);padding:11px 14px;border-radius:17px;margin:0;line-height:1.5;overflow-wrap:anywhere;white-space:pre-wrap;box-shadow:0 2px 7px #0002}
 .message.mine{align-self:flex-end;background:linear-gradient(135deg,#8052dc,#6334ad);border-bottom-right-radius:5px}
 .message.theirs{align-self:flex-start;background:#261a33;border:1px solid #362344;border-bottom-left-radius:5px}
+.message.legacy-auto-delivery-message{max-width:min(88%,620px);align-self:flex-start;background:linear-gradient(145deg,#123f2b,#0d3324);border:1px solid #22c55e;border-radius:16px;border-bottom-left-radius:5px;box-shadow:0 6px 22px #16a34a30;color:#f0fdf4;padding:13px 15px}.legacy-auto-delivery-title{font-weight:800;color:#86efac;margin-bottom:8px}.legacy-auto-delivery-body{white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.55;color:#f0fdf4}
 .message.auto-delivery-message{max-width:min(88%,620px);align-self:flex-start;padding:0;overflow:hidden;background:linear-gradient(145deg,#123f2b,#0d3324);border:1px solid #22c55e;border-radius:16px;border-bottom-left-radius:5px;box-shadow:0 6px 22px #16a34a30}.auto-delivery-head{display:flex;align-items:center;gap:10px;padding:12px 14px;background:linear-gradient(110deg,#15803d,#166534);border-bottom:1px solid #22c55e}.auto-delivery-icon{display:flex;align-items:center;justify-content:center;width:36px;height:36px;flex:0 0 36px;border-radius:11px;background:#16a34a;font-size:19px}.auto-delivery-title{font-weight:850;color:#f0fdf4;font-size:14px}.auto-delivery-subtitle{font-size:11px;color:#dcfce7;margin-top:3px}.auto-delivery-verified{margin-left:auto;border:1px solid #86efac;background:#14532d;color:#f0fdf4;padding:4px 7px;border-radius:999px;font-size:10px;font-weight:800;white-space:nowrap}.auto-delivery-order{padding:8px 14px;color:#bbf7d0;font-size:11px;background:#14532d;border-bottom:1px solid #22c55e}.auto-delivery-content{padding:14px;color:#f0fdf4;white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.6;font-size:14px}.auto-delivery-warning{padding:10px 14px;background:#0b2819;border-top:1px solid #166534;color:#bbf7d0;font-size:11px;line-height:1.45}
 .message-time{display:block;font-size:10px;opacity:.68;text-align:right;margin-top:5px}
 .chat-compose{display:flex;gap:9px;align-items:center;padding:9px;background:#130d1f;border:1px solid #30203f;border-radius:16px;position:sticky;bottom:8px}
@@ -3168,9 +3169,7 @@ async function loadOrders(){
         await sb
           .from("reviews")
           .select("id")
-          .eq("buyer_id",currentUser.id)
-          .eq("seller_id",order.seller_id)
-          .limit(1)
+          .eq("purchase_id",order.id)
           .maybeSingle();
 
       if(reviewCheckError){
@@ -3534,6 +3533,27 @@ async function writeReview(purchaseId,listingId){
     return;
 
   const {
+    data:existingReview,
+    error:checkError
+  } =
+    await sb
+      .from("reviews")
+      .select("id")
+      .eq("purchase_id",Number(purchaseId))
+      .maybeSingle();
+
+  if(checkError){
+    console.error(checkError);
+  }
+
+  if(existingReview){
+
+    alert("Ты уже оставил отзыв на этот заказ.");
+    return;
+
+  }
+
+  const {
     data:purchase,
     error:purchaseError
   } =
@@ -3545,80 +3565,83 @@ async function writeReview(purchaseId,listingId){
       .maybeSingle();
 
   if(purchaseError || !purchase){
+
     alert("Заказ не найден.");
     return;
+
   }
 
   if(purchase.status !== "completed"){
-    alert("Оставить отзыв можно только после завершения заказа.");
+
+    alert(
+      "Оставить отзыв можно только после завершения заказа."
+    );
+
     return;
+
   }
 
-  // Один покупатель может оставить только один отзыв каждому продавцу,
-  // даже если он купил у него несколько разных товаров.
+  const ratingText =
+    prompt("Оцени продавца от 1 до 5:");
+
+  if(ratingText === null)
+    return;
+
+  const rating =
+    Number(ratingText);
+
+  if(
+    !Number.isInteger(rating) ||
+    rating < 1 ||
+    rating > 5
+  ){
+
+    alert("Оценка должна быть от 1 до 5.");
+    return;
+
+  }
+
+  const review =
+    prompt("Напиши отзыв о продавце:");
+
+  if(review === null)
+    return;
+
   const {
-    data:existingReview,
-    error:checkError
+    error
   } =
     await sb
       .from("reviews")
-      .select("id")
-      .eq("buyer_id",currentUser.id)
-      .eq("seller_id",purchase.seller_id)
-      .limit(1)
-      .maybeSingle();
+      .insert({
 
-  if(checkError){
-    console.error("Не удалось проверить отзыв:",checkError);
-    alert("Не удалось проверить, оставлял ли ты уже отзыв. Попробуй ещё раз.");
-    return;
-  }
+        purchase_id:Number(purchaseId),
+        listing_id:Number(listingId),
+        buyer_id:currentUser.id,
+        seller_id:purchase.seller_id,
+        rating:rating,
+        review:review.trim()
 
-  if(existingReview){
-    alert("Ты уже оставил отзыв этому продавцу. Повторно оценить его нельзя.");
-    await loadOrders();
-    return;
-  }
-
-  const ratingText = prompt("Оцени продавца от 1 до 5:");
-  if(ratingText === null) return;
-
-  const rating = Number(ratingText);
-  if(!Number.isInteger(rating) || rating < 1 || rating > 5){
-    alert("Оценка должна быть от 1 до 5.");
-    return;
-  }
-
-  const review = prompt("Напиши отзыв о продавце:");
-  if(review === null) return;
-
-  const { error } = await sb
-    .from("reviews")
-    .insert({
-      purchase_id:Number(purchaseId),
-      listing_id:Number(listingId),
-      buyer_id:currentUser.id,
-      seller_id:purchase.seller_id,
-      rating:rating,
-      review:review.trim()
-    });
+      });
 
   if(error){
-    // Защита на случай одновременной отправки из двух вкладок/устройств.
-    if(error.code === "23505"){
-      alert("Ты уже оставил отзыв этому продавцу. Второй отзыв не разрешён.");
-      await loadOrders();
-      return;
-    }
-    alert("Ошибка сохранения отзыва:\n\n" + error.message);
+
+    alert(
+      "Ошибка сохранения отзыва:\n\n"+
+      error.message
+    );
+
     return;
+
   }
 
   alert("⭐ Спасибо! Отзыв сохранён.");
+
   await loadOrders();
   await loadProfileRating(currentUser.id);
   await loadListings();
+
 }
+
 
 /* =========================================
    BALANCE + TOP UP
@@ -4642,6 +4665,17 @@ async function loadMessages(){
         div.appendChild(content);
         const warning = document.createElement("div"); warning.className = "auto-delivery-warning"; warning.textContent = "Это автоматическое сообщение Delyvex. Не сообщайте пароль от аккаунта и коды подтверждения.";
         div.appendChild(warning);
+      }else if(text.startsWith("🤖 Автовыдача")){
+        // Старый формат сообщения автовыдачи: показываем зелёным целиком.
+        // Это оформление текста, а не подтверждение подлинности сообщения.
+        div.className = "message legacy-auto-delivery-message";
+        const title = document.createElement("div");
+        title.className = "legacy-auto-delivery-title";
+        title.textContent = "🤖 Автовыдача";
+        const body = document.createElement("div");
+        body.className = "legacy-auto-delivery-body";
+        body.textContent = text.slice("🤖 Автовыдача".length).replace(/^\s*\n?/, "").trim();
+        div.append(title, body);
       }else if(text.startsWith("DELYVEX_IMAGE|")){
         const imagePayload = text.slice("DELYVEX_IMAGE|".length);
         const newlineAt = imagePayload.indexOf("\n");
