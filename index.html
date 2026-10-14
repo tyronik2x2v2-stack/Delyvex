@@ -5464,8 +5464,17 @@ async function connectToUserReportChat(caseId,chatListingId,reporterId,reportedU
     }catch(e){console.warn("Не удалось найти исходный чат участников:",e);}
   }
   if(!listingId){
-    alert("Не удалось найти исходный личный чат этих пользователей. Открой жалобу, отправленную непосредственно из переписки, чтобы подключиться к ней.");
-    return;
+    // Если личная переписка не связана с объявлением, открываем отдельный общий чат обращения.
+    // Он использует support_case_messages, поэтому сообщения видны участникам обращения,
+    // а не отправляются в случайный или общий личный чат.
+    try{
+      await openSupportCaseChat(caseId,"admin");
+      return;
+    }catch(e){
+      console.error("Не удалось открыть общий чат обращения:",e);
+      alert("Не удалось открыть чат обращения №"+caseId+". Проверь таблицы support_cases и support_case_messages и SQL-функции из Delyvex_support_cases.sql.\n\n"+(e.message||"Ошибка"));
+      return;
+    }
   }
   await openAdminListingReportChat(listingId,reporterId,reportedUserId,reason||("Жалоба №"+caseId));
 }
