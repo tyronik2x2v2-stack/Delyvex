@@ -4078,6 +4078,18 @@ function showWithdrawForm(){
 
       </div>
 
+      <div class="form-group">
+        <label for="withdrawPayoutDetails">Реквизиты для выплаты</label>
+        <textarea
+          id="withdrawPayoutDetails"
+          rows="3"
+          maxlength="500"
+          placeholder="Укажи только необходимые реквизиты для перевода. Не вводи CVV, PIN или пароль."
+          autocomplete="off"
+        ></textarea>
+        <small>Реквизиты доступны только тебе и администраторам.</small>
+      </div>
+
       <div
         id="withdrawCalculation"
         class="withdraw-result"
@@ -4163,8 +4175,21 @@ async function createWithdrawal(){
   if(!input)
     return;
 
+  const detailsInput = document.getElementById("withdrawPayoutDetails");
+  const payoutDetails = (detailsInput?.value || "").trim();
+
   const amount =
     Number(input.value);
+
+  if(!payoutDetails){
+    alert("Укажи реквизиты для выплаты.");
+    return;
+  }
+
+  if(payoutDetails.length > 500){
+    alert("Реквизиты слишком длинные.");
+    return;
+  }
 
   if(!amount || amount <= 20){
 
@@ -4193,7 +4218,8 @@ async function createWithdrawal(){
     await sb.rpc(
       "create_withdrawal",
       {
-        p_amount:amount
+        p_amount:amount,
+        p_payout_details:payoutDetails
       }
     );
 
