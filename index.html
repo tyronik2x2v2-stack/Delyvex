@@ -900,6 +900,7 @@ hr{border-color:var(--dx-line)!important}
       <button type="button" class="admin-report-tab active" data-report-tab="listings" onclick="showAdminReportTab('listings')">📦 Жалобы на товары</button>
       <button type="button" class="admin-report-tab" data-report-tab="users" onclick="showAdminReportTab('users')">👤 Жалобы на пользователей</button>
       <button type="button" class="admin-report-tab" data-report-tab="chats" onclick="showAdminReportTab('chats')">💬 Чаты по жалобам</button>
+      <button type="button" class="admin-report-tab" data-report-tab="withdrawals" onclick="showAdminReportTab('withdrawals')">💸 Заявки на вывод</button>
     </div>
     <div id="adminListingReportsPanel" class="admin-report-panel">
       <h3>📦 Жалобы на товары</h3>
@@ -922,6 +923,12 @@ hr{border-color:var(--dx-line)!important}
       <h3>💬 Чаты по жалобам</h3>
       <p>Чтобы войти в общий чат, открой жалобы на пользователей и нажми «Зайти в общий чат» у нужного обращения.</p>
       <button type="button" class="admin-report-link" onclick="showAdminReportTab('users')">Перейти к жалобам пользователей</button>
+    </div>
+    <div id="adminWithdrawalsPanel" class="admin-report-panel" hidden>
+      <h3>💸 Заявки на вывод средств</h3>
+      <p>Проверьте сумму и реквизиты. «Принять» подтверждает заявку, но перевод нужно выполнить отдельно. После перевода отметьте заявку выплаченной.</p>
+      <button type="button" class="admin-report-link" onclick="loadAdminWithdrawals()">Обновить заявки</button>
+      <div id="adminWithdrawalsContainer" class="admin-reports"><p>Нажми «Обновить заявки».</p></div>
     </div>
   </div>
 </section>
@@ -5331,7 +5338,8 @@ function showAdminReportTab(tab){
   const panels={
     listings:document.getElementById("adminListingReportsPanel"),
     users:document.getElementById("adminUserReportsPanel"),
-    chats:document.getElementById("adminReportChatsPanel")
+    chats:document.getElementById("adminReportChatsPanel"),
+    withdrawals:document.getElementById("adminWithdrawalsPanel")
   };
   Object.entries(panels).forEach(([key,panel])=>{if(panel) panel.hidden=key!==tab;});
   document.querySelectorAll(".admin-report-tab").forEach(button=>{
@@ -5341,6 +5349,49 @@ function showAdminReportTab(tab){
   });
   if(tab==="listings") loadAdminReports();
   if(tab==="users") loadAdminSupportCases();
+  if(tab==="withdrawals") loadAdminWithdrawals();
+}
+
+async function loadAdminWithdrawals(){
+  const container=document.getElementById("adminWithdrawalsContainer");
+  if(!container) return;
+  if(!currentUser){container.innerHTML="<p>Войди в аккаунт администратора.</p>";return;}
+  container.innerHTML="<p>Загрузка заявок...</p>";
+  try{
+    if(!(await isDelyvexAdmin())){container.innerHTML="<p>⛔ Доступ закрыт: аккаунт не добавлен в список администраторов.</p>";return;}
+    const {data,error}=await sb.rpc("admin_list_withdrawals");
+    if(error) throw error;
+    if(!Array.isArray(data)||!data.length){container.innerHTML="<p>Заявок на вывод пока нет.</p>";return;}
+    const labels={pending:"Ожидает решения",approved:"Принята — ожидает перевода",paid:"Выплачена",rejected:"Отклонена"};
+    container.innerHTML=data.map(w=>{
+      const id=adminEscape(w.id), status=String(w.status||"pending");
+      const date=w.created_at?new Date(w.created_at).toLocaleString("ru-RU"):"—";
+      const active=status==="pending";
+      const accepted=status==="approved";
+      return `<article class="admin-report-card">
+        <h3>Заявка на вывод №${id}</h3>
+        <div class="admin-report-meta">Пользователь ID: ${adminEscape(w.user_id)}<br>Создана: ${adminEscape(date)}<br>Сумма списания: ${Number(w.amount||0).toFixed(2)} ₽<br>Комиссия: ${Number(w.fee||20).toFixed(2)} ₽<br><b>К выплате: ${Number(w.payout_amount||0).toFixed(2)} ₽</b><br>Статус: ${adminEscape(labels[status]||status)}<br>Реквизиты: <span style="overflow-wrap:anywhere;white-space:pre-wrap">${adminEscape(w.payout_details||"Не указаны")}</span>${w.admin_note?`<br>Комментарий: ${adminEscape(w.admin_note)}`:""}</div>
+        ${active?`<div class="admin-report-actions"><button type="button" class="primary-btn" onclick="processWithdrawalAdmin(${Number(w.id)},'approve')">Принять</button><button type="button" class="admin-report-link" onclick="processWithdrawalAdmin(${Number(w.id)},'reject')">Отклонить и вернуть деньги</button></div>`:""}
+        ${accepted?`<div class="admin-report-actions"><button type="button" class="primary-btn" onclick="processWithdrawalAdmin(${Number(w.id)},'paid')">Отметить как выплаченную</button></div><p>После фактического перевода нажми эту кнопку.</p>`:""}
+      </article>`;
+    }).join("");
+  }catch(e){console.error(e);container.innerHTML=`<p>Не удалось загрузить заявки: ${adminEscape(e.message||"ошибка Supabase")}. Проверь, что выполнен withdrawals_setup.sql.</p>`;}
+}
+
+async function processWithdrawalAdmin(id,action){
+  const note=prompt(action==="reject"?"Причина отказа (деньги вернутся на баланс):":"Комментарий администратора (необязательно):","");
+  if(note===null) return;
+  if(action==="paid"&&!confirm("Подтверждаешь, что перевод пользователю уже выполнен?")) return;
+  if(action==="approve"&&!confirm("Принять заявку? Это ещё не означает, что деньги уже переведены.")) return;
+  try{
+    let result;
+    if(action==="approve") result=await sb.rpc("admin_approve_withdrawal",{p_withdrawal_id:id,p_admin_note:note||null});
+    else if(action==="reject") result=await sb.rpc("admin_reject_withdrawal",{p_withdrawal_id:id,p_admin_note:note||"Отклонено администратором"});
+    else result=await sb.rpc("admin_mark_withdrawal_paid",{p_withdrawal_id:id,p_admin_note:note||null});
+    if(result.error) throw result.error;
+    alert(action==="approve"?"Заявка принята. Выполни перевод отдельно.":action==="reject"?"Заявка отклонена, сумма возвращена на баланс.":"Заявка отмечена как выплаченная.");
+    await loadAdminWithdrawals();
+  }catch(e){console.error(e);alert("Не удалось обработать заявку: "+(e.message||"ошибка Supabase")+(action==="paid"?". Проверь, что в SQL добавлена функция admin_mark_withdrawal_paid.":""));}
 }
 
 async function loadAdminReports(){
