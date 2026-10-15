@@ -679,7 +679,7 @@ hr{border-color:var(--dx-line)!important}
         <h1>Найди всё для своей игры</h1>
         <p>Выбери игру, найди нужный товар или открой правила и помощь Delyvex.</p>
         <div class="dx-market-hero-actions">
-          <button type="button" class="dx-market-primary" onclick="document.getElementById('dxGameMenu').scrollIntoView({behavior:'smooth',block:'start'})">🎮 Выбрать игру</button>
+          <button type="button" class="dx-market-primary" onclick="document.getElementById('delyvexSmartCatalog').scrollIntoView({behavior:'smooth',block:'start'})">🎮 Открыть каталог</button>
           <button type="button" class="dx-market-secondary" onclick="delyvexOpenRules()">📜 Правила</button>
         </div>
       </div>
@@ -691,30 +691,13 @@ hr{border-color:var(--dx-line)!important}
       <button type="button" onclick="showSection('chats')"><span>💬</span><b>Мои чаты</b><small>Общение с продавцами</small></button>
       <button type="button" onclick="showSection('orders')"><span>📦</span><b>Мои заказы</b><small>Покупки и сделки</small></button>
     </div>
-    <div class="dx-game-menu" id="dxGameMenu">
-      <div class="dx-game-menu-heading"><div><h2>Выбери игру</h2><p>Показываем объявления по выбранной игре.</p></div><button type="button" onclick="delyvexChooseGame('')">Все игры</button></div>
-      <div class="dx-game-grid">
-        <button type="button" onclick="delyvexChooseGame('GTA V')" data-game="GTA V" aria-pressed="false"><span>🚘</span><b>GTA V</b><small>Аккаунты и предметы</small></button>
-        <button type="button" onclick="delyvexChooseGame('GTA San Andreas')" data-game="GTA San Andreas" aria-pressed="false"><span>🌴</span><b>GTA San Andreas</b><small>Моды и игровые товары</small></button>
-        <button type="button" onclick="delyvexChooseGame('Roblox')" data-game="Roblox" aria-pressed="false"><span>🧱</span><b>Roblox</b><small>Игровые предметы</small></button>
-        <button type="button" onclick="delyvexChooseGame('Minecraft')" data-game="Minecraft" aria-pressed="false"><span>⛏️</span><b>Minecraft</b><small>Ресурсы и другое</small></button>
-        <button type="button" onclick="delyvexChooseGame('Counter-Strike 2')" data-game="Counter-Strike 2" aria-pressed="false"><span>🎯</span><b>Counter-Strike 2</b><small>Скины и предметы</small></button>
-        <button type="button" onclick="delyvexChooseGame('Dota 2')" data-game="Dota 2" aria-pressed="false"><span>🛡️</span><b>Dota 2</b><small>Предметы и другое</small></button>
-        <button type="button" onclick="delyvexChooseGame('PUBG')" data-game="PUBG" aria-pressed="false"><span>🪖</span><b>PUBG</b><small>Игровые товары</small></button>
-        <button type="button" onclick="delyvexChooseGame('Fortnite')" data-game="Fortnite" aria-pressed="false"><span>🪂</span><b>Fortnite</b><small>Игровые товары</small></button>
-        <button type="button" onclick="delyvexChooseGame('Genshin Impact')" data-game="Genshin Impact" aria-pressed="false"><span>✨</span><b>Genshin Impact</b><small>Игровые товары</small></button>
-        <button type="button" onclick="delyvexChooseGame('Standoff 2')" data-game="Standoff 2" aria-pressed="false"><span>🔫</span><b>Standoff 2</b><small>Скины и предметы</small></button>
-        <button type="button" onclick="delyvexChooseGame('Brawl Stars')" data-game="Brawl Stars" aria-pressed="false"><span>⭐</span><b>Brawl Stars</b><small>Игровые товары</small></button>
-        <button type="button" onclick="delyvexChooseGame('')" data-game="" aria-pressed="true"><span>🎲</span><b>Другие игры</b><small>Посмотреть весь каталог</small></button>
-      </div>
-    </div>
     <section id="delyvexSmartCatalog" class="dx-smart-catalog" aria-label="Фильтры умного каталога">
       <div class="dx-smart-catalog-heading">
         <div class="dx-smart-catalog-icon" aria-hidden="true">🔎</div>
         <div>
           <div class="dx-market-kicker">ТОЧНЫЙ ПОИСК</div>
           <h2>Умный каталог</h2>
-          <p>Выбери игру выше или уточни поиск по цене и сортировке.</p>
+          <p>Уточни поиск по игре, цене и сортировке.</p>
         </div>
       </div>
       <div class="dx-smart-catalog-fields">
@@ -3999,68 +3982,66 @@ async function startTopup(){
 
 
 /*
-  Вызывается после возврата пользователя
-  с YooKassa.
-
-  Пока webhook не будет настроен,
-  эта функция просто обновляет баланс.
+  После возврата с YooKassa запрашиваем серверную
+  проверку платежа. Баланс никогда не меняется на клиенте.
 */
-
 async function checkReturnedTopup(){
+  const topupId = sessionStorage.getItem("delyvex_topup_id");
+  const paymentId = sessionStorage.getItem("delyvex_payment_id");
+  const returned = new URLSearchParams(window.location.search).get("topup");
 
-  const topupId =
-    sessionStorage.getItem(
-      "delyvex_topup_id"
-    );
+  if(!topupId && !paymentId && returned !== "return") return;
 
-  const paymentId =
-    sessionStorage.getItem(
-      "delyvex_payment_id"
-    );
+  sessionStorage.removeItem("delyvex_topup_id");
+  sessionStorage.removeItem("delyvex_payment_id");
 
-  if(!topupId && !paymentId)
-    return;
-
-  /*
-    Удаляем данные сразу, чтобы повторный
-    заход не запускал проверку бесконечно.
-  */
-
-  sessionStorage.removeItem(
-    "delyvex_topup_id"
-  );
-
-  sessionStorage.removeItem(
-    "delyvex_payment_id"
-  );
-
-  await new Promise(
-    resolve =>
-      setTimeout(resolve,1500)
-  );
-
-  await loadBalance();
-
-  /*
-    Если баланс уже пополнился через webhook,
-    показываем уведомление.
-  */
-
-  if(
-    paymentId ||
-    topupId
-  ){
-
-    console.log(
-      "Возврат после оплаты:",
-      {
-        topupId,
-        paymentId
-      }
-    );
-
+  // Убираем служебный параметр из адресной строки.
+  if(returned === "return"){
+    const cleanUrl = new URL(window.location.href);
+    cleanUrl.searchParams.delete("topup");
+    window.history.replaceState({}, document.title, cleanUrl.toString());
   }
 
+  if(!currentUser){
+    alert("Вернись на сайт и войди в тот же аккаунт, чтобы проверить оплату.");
+    return;
+  }
+
+  if(!paymentId){
+    await loadBalance();
+    return;
+  }
+
+  try{
+    const { data: sessionData } = await sb.auth.getSession();
+    const accessToken = sessionData?.session?.access_token;
+    if(!accessToken) throw new Error("Сессия закончилась. Войди снова и проверь баланс.");
+
+    const response = await fetch(`${SUPABASE_URL}/functions/v1/check-topup`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${accessToken}`,
+        "apikey": SUPABASE_KEY
+      },
+      body: JSON.stringify({ payment_id: paymentId })
+    });
+    const result = await response.json().catch(() => ({}));
+    if(!response.ok) throw new Error(result?.error || "Не удалось проверить статус платежа.");
+
+    await loadBalance();
+    if(result.status === "succeeded"){
+      alert("Оплата подтверждена. Баланс обновлён.");
+    } else if(result.status === "canceled"){
+      alert("Платёж отменён. Деньги на баланс не зачислены.");
+    } else {
+      alert("Платёж пока не подтверждён. Если ты завершил оплату, подожди немного и обнови баланс.");
+    }
+  }catch(error){
+    console.error("Проверка пополнения:", error);
+    await loadBalance();
+    alert("Не удалось проверить платёж сейчас. Баланс будет обновлён после подтверждения ЮKassa. " + (error?.message || ""));
+  }
 }
 
 
