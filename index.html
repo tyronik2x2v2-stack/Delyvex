@@ -140,15 +140,9 @@ main{max-width:1100px;margin:auto;padding:25px 18px 100px}
 .banned-name-label{display:inline-block;margin-left:7px;padding:3px 7px;border-radius:6px;background:#7f1d1d;color:#fecaca;border:1px solid #ef4444;font-size:11px;font-weight:900;vertical-align:middle;white-space:nowrap}
 .public-profile-meta{color:#aaa;line-height:1.7}
 .public-review{background:#100b1a;border:1px solid #2b1b3d;border-radius:13px;padding:14px;margin:10px 0}
-.public-review-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap}
-.public-review-author{font-weight:700;color:#e9d5ff;min-width:0;overflow-wrap:anywhere}
-.public-review-product{display:inline-flex;align-items:center;gap:5px;max-width:65%;margin-left:auto;padding:5px 9px;border:1px solid #5b3b7a;border-radius:999px;background:#21152e;color:#d8b4fe;font-size:12px;font-weight:800;line-height:1.3;overflow-wrap:anywhere;text-align:right}
-.public-review-product.verified{border-color:#166534;background:#10291c;color:#86efac}
-.public-review-date{font-size:12px;color:#888;white-space:nowrap}
-.anti-fraud-notice{display:flex;gap:10px;align-items:flex-start;margin:0 0 12px;padding:12px 14px;border:1px solid #854d0e;border-radius:13px;background:linear-gradient(135deg,#2a1a0b,#17101b);color:#fde68a;font-size:13px;line-height:1.5}
-.anti-fraud-notice strong{display:block;color:#fef3c7;margin-bottom:3px}
-.anti-fraud-notice .anti-fraud-icon{font-size:21px;line-height:1.2;flex:0 0 auto}
-@media(max-width:480px){.public-review-head{gap:7px}.public-review-product{max-width:100%;margin-left:0;font-size:11px}.public-review-date{margin-left:auto}}
+.public-review-head{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.public-review-author{font-weight:700;color:#e9d5ff}
+.public-review-date{font-size:12px;color:#888}
 .public-review-text{margin-top:9px;color:#ddd;line-height:1.5;white-space:pre-wrap;overflow-wrap:anywhere}
 .avatar-option img{background:#100b1a}
 .seller-rating{color:#fbbf24;font-size:14px;margin-top:3px}
@@ -901,12 +895,11 @@ hr{border-color:var(--dx-line)!important}
 
   <div class="card">
     <h2>🛡️ Центр жалоб</h2>
-    <p>Выбери нужный раздел. В карточках жалоб на пользователей доступна кнопка входа в общий чат обращения.</p>
+    <p>Выбери нужный раздел. В карточках жалоб можно открыть переписку и при необходимости подтвердить заказ вручную после проверки доказательств.</p>
     <div class="admin-report-tabs" role="tablist" aria-label="Разделы жалоб">
       <button type="button" class="admin-report-tab active" data-report-tab="listings" onclick="showAdminReportTab('listings')">📦 Жалобы на товары</button>
       <button type="button" class="admin-report-tab" data-report-tab="users" onclick="showAdminReportTab('users')">👤 Жалобы на пользователей</button>
       <button type="button" class="admin-report-tab" data-report-tab="chats" onclick="showAdminReportTab('chats')">💬 Чаты по жалобам</button>
-      <button type="button" class="admin-report-tab" data-report-tab="withdrawals" onclick="showAdminReportTab('withdrawals')">💸 Заявки на вывод</button>
     </div>
     <div id="adminListingReportsPanel" class="admin-report-panel">
       <h3>📦 Жалобы на товары</h3>
@@ -929,12 +922,6 @@ hr{border-color:var(--dx-line)!important}
       <h3>💬 Чаты по жалобам</h3>
       <p>Чтобы войти в общий чат, открой жалобы на пользователей и нажми «Зайти в общий чат» у нужного обращения.</p>
       <button type="button" class="admin-report-link" onclick="showAdminReportTab('users')">Перейти к жалобам пользователей</button>
-    </div>
-    <div id="adminWithdrawalsPanel" class="admin-report-panel" hidden>
-      <h3>💸 Заявки на вывод средств</h3>
-      <p>Проверьте сумму и реквизиты. «Принять» подтверждает заявку, но перевод нужно выполнить отдельно. После перевода отметьте заявку выплаченной.</p>
-      <button type="button" class="admin-report-link" onclick="loadAdminWithdrawals()">Обновить заявки</button>
-      <div id="adminWithdrawalsContainer" class="admin-reports"><p>Нажми «Обновить заявки».</p></div>
     </div>
   </div>
 </section>
@@ -1057,11 +1044,6 @@ hr{border-color:var(--dx-line)!important}
       </div>
       <button class="nav-btn" onclick="openChatPartnerProfile()" title="Профиль">👤</button>
       <button class="chat-btn" type="button" onclick="openReportChoiceMenu()" style="padding:9px 11px">🚩 Пожаловаться</button>
-    </div>
-
-    <div class="anti-fraud-notice" role="note" aria-label="Защита от мошенничества">
-      <span class="anti-fraud-icon">🛡️</span>
-      <div><strong>Безопасность сделки</strong>Не переводите деньги напрямую на карту и не переходите по подозрительным ссылкам. Никому не сообщайте пароли и коды из SMS. Сохраняйте переписку и используйте кнопку «Пожаловаться», если собеседник просит обойти оплату Delyvex.</div>
     </div>
 
     <div id="chatMessages" class="chat-messages"></div>
@@ -1472,8 +1454,6 @@ async function initialize(){
   renderAvatars();
 
   appInitialized = true;
-
-  await checkExpiredOrders();
 
   /*
     Проверяем, не вернулся ли пользователь
@@ -2465,27 +2445,6 @@ async function viewSellerProfile(sellerId){
   const {data:reviewsData,error:reviewsError} = await sb.rpc("get_public_seller_reviews", {p_seller_id:sellerId});
   if(reviewsError) console.error("Не удалось загрузить отзывы:",reviewsError);
   const reviews = reviewsData || [];
-  // Название товара берём из самой записи отзыва, если RPC его уже возвращает,
-  // иначе загружаем названия объявлений по listing_id. Остальные данные профиля не меняются.
-  const reviewListingIds = [...new Set(reviews.map(r=>r.listing_id).filter(id=>id!==null && id!==undefined && String(id).trim()!=="").map(String))];
-  const reviewProductTitles = new Map();
-  for(const review of reviews){
-    const id = review.listing_id;
-    const directTitle = review.listing_title || review.product_title || review.product_name || review.title;
-    if(id!==null && id!==undefined && directTitle) reviewProductTitles.set(String(id),String(directTitle));
-    if(id!==null && id!==undefined){
-      const localListing=(listings||[]).find(item=>String(item.id)===String(id));
-      if(localListing?.title && !reviewProductTitles.has(String(id))) reviewProductTitles.set(String(id),String(localListing.title));
-    }
-  }
-  const idsToFetch=reviewListingIds.filter(id=>!reviewProductTitles.has(id));
-  if(idsToFetch.length){
-    try{
-      const {data:reviewListings,error:reviewListingsError}=await sb.from("listings").select("id,title").in("id",idsToFetch);
-      if(reviewListingsError) console.warn("Не удалось получить названия товаров для отзывов:",reviewListingsError.message);
-      (reviewListings||[]).forEach(item=>{if(item?.id!=null && item?.title) reviewProductTitles.set(String(item.id),String(item.title));});
-    }catch(productLookupError){console.warn("Ошибка загрузки названий товаров для отзывов:",productLookupError);}
-  }
   const dateText = info.created_at ? new Date(info.created_at).toLocaleDateString("ru-RU",{day:"numeric",month:"long",year:"numeric"}) : "Неизвестно";
   const ratingValue = Number(info.average_rating || 0);
   const rating = ratingValue.toFixed(1);
@@ -2514,7 +2473,6 @@ async function viewSellerProfile(sellerId){
       <div class="public-review">
         <div class="public-review-head">
           <span class="public-review-author">${escapeHtml(review.buyer_nickname || "Покупатель")}</span>
-          ${(()=>{const productName=review.listing_id!=null?(reviewProductTitles.get(String(review.listing_id))||review.listing_title||review.product_title||review.product_name||review.title||""): (review.listing_title||review.product_title||review.product_name||review.title||"");return productName?`<span class="public-review-product verified" title="Товар, связанный с отзывом">🛒 ${escapeHtml(String(productName))}</span>`:(review.purchase_id?'<span class="public-review-product verified" title="Отзыв связан с заказом">✓ Покупка подтверждена</span>':'<span class="public-review-product" title="Название товара не передано базой данных">Товар не указан</span>');})()}
           <span class="public-review-date">${review.created_at ? escapeHtml(new Date(review.created_at).toLocaleDateString("ru-RU")) : ""}</span>
         </div>
         <div style="color:#fbbf24;margin-top:5px">${"★".repeat(Math.max(0,Math.min(5,Number(review.rating)||0)))}${"☆".repeat(5-Math.max(0,Math.min(5,Number(review.rating)||0)))}</div>
@@ -3068,8 +3026,6 @@ async function loadOrders(){
   if(!currentUser)
     return;
 
-  await checkExpiredOrders();
-
   const container =
     document.getElementById("ordersContainer");
 
@@ -3240,25 +3196,6 @@ async function loadOrders(){
         `;
 
       }
-
-    }
-
-    let timer = "";
-
-    if(
-      isBuyer &&
-      order.status === "waiting_confirmation" &&
-      order.auto_confirm_at
-    ){
-
-      timer = `
-
-        <div class="small">
-          Автоподтверждение:
-          ${formatDate(new Date(order.auto_confirm_at))}
-        </div>
-
-      `;
 
     }
 
@@ -3480,69 +3417,6 @@ async function confirmOrder(purchaseId){
 
   await loadBalance();
   await loadOrders();
-
-}
-
-
-/* =========================================
-   AUTO CONFIRM
-========================================= */
-
-async function checkExpiredOrders(){
-
-  if(!currentUser)
-    return;
-
-  const {
-    data,
-    error
-  } =
-    await sb
-      .from("purchases")
-      .select("id,auto_confirm_at,status")
-      .eq("buyer_id",currentUser.id)
-      .eq("status","waiting_confirmation")
-      .not("auto_confirm_at","is",null);
-
-  if(error){
-
-    console.error(error);
-    return;
-
-  }
-
-  const now = Date.now();
-
-  for(const order of data || []){
-
-    const deadline =
-      new Date(order.auto_confirm_at).getTime();
-
-    if(now >= deadline){
-
-      const {
-        error:completeError
-      } =
-        await sb.rpc(
-          "complete_purchase",
-          {
-            p_purchase_id:Number(order.id),
-            p_is_auto:true
-          }
-        );
-
-      if(completeError){
-
-        console.error(
-          "Auto confirm:",
-          completeError
-        );
-
-      }
-
-    }
-
-  }
 
 }
 
@@ -4118,18 +3992,6 @@ function showWithdrawForm(){
 
       </div>
 
-      <div class="form-group">
-        <label for="withdrawPayoutDetails">Реквизиты для выплаты</label>
-        <textarea
-          id="withdrawPayoutDetails"
-          rows="3"
-          maxlength="500"
-          placeholder="Укажи только необходимые реквизиты для перевода. Не вводи CVV, PIN или пароль."
-          autocomplete="off"
-        ></textarea>
-        <small>Реквизиты доступны только тебе и администраторам.</small>
-      </div>
-
       <div
         id="withdrawCalculation"
         class="withdraw-result"
@@ -4215,21 +4077,8 @@ async function createWithdrawal(){
   if(!input)
     return;
 
-  const detailsInput = document.getElementById("withdrawPayoutDetails");
-  const payoutDetails = (detailsInput?.value || "").trim();
-
   const amount =
     Number(input.value);
-
-  if(!payoutDetails){
-    alert("Укажи реквизиты для выплаты.");
-    return;
-  }
-
-  if(payoutDetails.length > 500){
-    alert("Реквизиты слишком длинные.");
-    return;
-  }
 
   if(!amount || amount <= 20){
 
@@ -4258,8 +4107,7 @@ async function createWithdrawal(){
     await sb.rpc(
       "create_withdrawal",
       {
-        p_amount:amount,
-        p_payout_details:payoutDetails
+        p_amount:amount
       }
     );
 
@@ -5371,8 +5219,7 @@ function showAdminReportTab(tab){
   const panels={
     listings:document.getElementById("adminListingReportsPanel"),
     users:document.getElementById("adminUserReportsPanel"),
-    chats:document.getElementById("adminReportChatsPanel"),
-    withdrawals:document.getElementById("adminWithdrawalsPanel")
+    chats:document.getElementById("adminReportChatsPanel")
   };
   Object.entries(panels).forEach(([key,panel])=>{if(panel) panel.hidden=key!==tab;});
   document.querySelectorAll(".admin-report-tab").forEach(button=>{
@@ -5382,49 +5229,20 @@ function showAdminReportTab(tab){
   });
   if(tab==="listings") loadAdminReports();
   if(tab==="users") loadAdminSupportCases();
-  if(tab==="withdrawals") loadAdminWithdrawals();
 }
 
-async function loadAdminWithdrawals(){
-  const container=document.getElementById("adminWithdrawalsContainer");
-  if(!container) return;
-  if(!currentUser){container.innerHTML="<p>Войди в аккаунт администратора.</p>";return;}
-  container.innerHTML="<p>Загрузка заявок...</p>";
-  try{
-    if(!(await isDelyvexAdmin())){container.innerHTML="<p>⛔ Доступ закрыт: аккаунт не добавлен в список администраторов.</p>";return;}
-    const {data,error}=await sb.rpc("admin_list_withdrawals");
-    if(error) throw error;
-    if(!Array.isArray(data)||!data.length){container.innerHTML="<p>Заявок на вывод пока нет.</p>";return;}
-    const labels={pending:"Ожидает решения",approved:"Принята — ожидает перевода",paid:"Выплачена",rejected:"Отклонена"};
-    container.innerHTML=data.map(w=>{
-      const id=adminEscape(w.id), status=String(w.status||"pending");
-      const date=w.created_at?new Date(w.created_at).toLocaleString("ru-RU"):"—";
-      const active=status==="pending";
-      const accepted=status==="approved";
-      return `<article class="admin-report-card">
-        <h3>Заявка на вывод №${id}</h3>
-        <div class="admin-report-meta">Пользователь ID: ${adminEscape(w.user_id)}<br>Создана: ${adminEscape(date)}<br>Сумма списания: ${Number(w.amount||0).toFixed(2)} ₽<br>Комиссия: ${Number(w.fee||20).toFixed(2)} ₽<br><b>К выплате: ${Number(w.payout_amount||0).toFixed(2)} ₽</b><br>Статус: ${adminEscape(labels[status]||status)}<br>Реквизиты: <span style="overflow-wrap:anywhere;white-space:pre-wrap">${adminEscape(w.payout_details||"Не указаны")}</span>${w.admin_note?`<br>Комментарий: ${adminEscape(w.admin_note)}`:""}</div>
-        ${active?`<div class="admin-report-actions"><button type="button" class="primary-btn" onclick="processWithdrawalAdmin(${Number(w.id)},'approve')">Принять</button><button type="button" class="admin-report-link" onclick="processWithdrawalAdmin(${Number(w.id)},'reject')">Отклонить и вернуть деньги</button></div>`:""}
-        ${accepted?`<div class="admin-report-actions"><button type="button" class="primary-btn" onclick="processWithdrawalAdmin(${Number(w.id)},'paid')">Отметить как выплаченную</button></div><p>После фактического перевода нажми эту кнопку.</p>`:""}
-      </article>`;
-    }).join("");
-  }catch(e){console.error(e);container.innerHTML=`<p>Не удалось загрузить заявки: ${adminEscape(e.message||"ошибка Supabase")}. Проверь, что выполнен withdrawals_setup.sql.</p>`;}
-}
-
-async function processWithdrawalAdmin(id,action){
-  const note=prompt(action==="reject"?"Причина отказа (деньги вернутся на баланс):":"Комментарий администратора (необязательно):","");
-  if(note===null) return;
-  if(action==="paid"&&!confirm("Подтверждаешь, что перевод пользователю уже выполнен?")) return;
-  if(action==="approve"&&!confirm("Принять заявку? Это ещё не означает, что деньги уже переведены.")) return;
-  try{
-    let result;
-    if(action==="approve") result=await sb.rpc("admin_approve_withdrawal",{p_withdrawal_id:id,p_admin_note:note||null});
-    else if(action==="reject") result=await sb.rpc("admin_reject_withdrawal",{p_withdrawal_id:id,p_admin_note:note||"Отклонено администратором"});
-    else result=await sb.rpc("admin_mark_withdrawal_paid",{p_withdrawal_id:id,p_admin_note:note||null});
-    if(result.error) throw result.error;
-    alert(action==="approve"?"Заявка принята. Выполни перевод отдельно.":action==="reject"?"Заявка отклонена, сумма возвращена на баланс.":"Заявка отмечена как выплаченная.");
-    await loadAdminWithdrawals();
-  }catch(e){console.error(e);alert("Не удалось обработать заявку: "+(e.message||"ошибка Supabase")+(action==="paid"?". Проверь, что в SQL добавлена функция admin_mark_withdrawal_paid.":""));}
+async function adminConfirmOrderFromComplaint(){
+  if(!currentUser || !(await isDelyvexAdmin())){alert("Доступ только для администратора.");return;}
+  const raw=(prompt("Введи номер заказа из спора (например, DVX-000123 или числовой ID). Сначала проверь переписку и доказательства.")||"").trim();
+  if(!raw) return;
+  const match=raw.match(/^DVX-(\d+)$/i);
+  const purchaseId=Number(match?match[1]:raw);
+  if(!Number.isSafeInteger(purchaseId)||purchaseId<=0){alert("Неверный номер заказа.");return;}
+  if(!confirm("Подтвердить завершение заказа №"+purchaseId+" и начислить сумму продавцу? Это действие нельзя отменить автоматически.")) return;
+  const {data,error}=await sb.rpc("admin_confirm_purchase_from_report",{p_purchase_id:purchaseId});
+  if(error){console.error(error);alert("Не удалось подтвердить заказ. Возможно, сначала нужно выполнить SQL-настройку администратора.\n\n"+error.message);return;}
+  if(data?.success){alert(data.already_completed?"Этот заказ уже был завершён.":"Заказ подтверждён, деньги начислены продавцу.");await loadBalance();await loadOrders();}
+  else alert("Сервер не подтвердил завершение заказа.");
 }
 
 async function loadAdminReports(){
@@ -5447,6 +5265,7 @@ async function loadAdminReports(){
       return `<article class="admin-report-card">
         <h3>${adminEscape(r.listing_title || "Объявление")}</h3>
         <div class="admin-report-meta">ID жалобы: ${adminEscape(r.id)}<br>ID товара: ${adminEscape(r.listing_id)}<br>Продавец: ${adminEscape(r.seller_id)}<br>Отправлена: ${adminEscape(date)}</div>
+        <button class="admin-report-link" type="button" onclick="adminConfirmOrderFromComplaint()">💰 Подтвердить заказ по жалобе</button>
         <button class="admin-report-link" type="button" onclick="openReportedListing('${escapeJs(String(r.listing_id || ""))}')">↗ Перейти к товару</button>
         <button class="admin-report-link" type="button" onclick="openAdminListingReportChat('${escapeJs(String(r.listing_id || ""))}','${escapeJs(String(r.reporter_id || ""))}','${escapeJs(String(r.seller_id || ""))}','${escapeJs(String(r.listing_title || "Товар"))}')">💬 Подключиться к чату</button>
         <p><strong>Причина:</strong> ${adminEscape(r.reason)}</p>
@@ -5521,6 +5340,7 @@ async function loadAdminSupportCases(){
         <p class="admin-report-details"><strong>Описание:</strong><br>${adminEscape(c.details||"Пользователь не добавил описание.")}</p>
         <span class="admin-status">Статус: ${adminEscape(labels[c.status]||c.status)}</span>
         <div class="admin-report-actions" style="margin-top:12px;flex-wrap:wrap">
+          <button class="admin-report-link" type="button" onclick="adminConfirmOrderFromComplaint()">💰 Подтвердить заказ по жалобе</button>
           <button class="admin-report-link" type="button" onclick="connectToUserReportChat(${Number(c.id)},'${escapeJs(String(c.chat_listing_id||""))}','${escapeJs(String(c.reporter_id||""))}','${escapeJs(String(c.reported_user_id||""))}','${escapeJs(String(c.reason||"Жалоба на пользователя"))}')">💬 Подключиться к чату</button>
           ${c.status!=="resolved"&&c.status!=="rejected"?`<button class="admin-resolve" type="button" onclick="setSupportCaseStatus(${Number(c.id)},'resolved')">✓ Рассмотрено</button><button class="admin-reject" type="button" onclick="setSupportCaseStatus(${Number(c.id)},'rejected')">✕ Отклонить</button>`:""}
         </div>
