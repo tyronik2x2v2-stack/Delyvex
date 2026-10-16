@@ -3360,6 +3360,35 @@ function formatDate(date){
 
 
 /* =========================================
+   СИСТЕМНЫЕ УВЕДОМЛЕНИЯ В ЧАТЕ О ЗАКАЗЕ
+========================================= */
+async function sendOrderSystemChatMessage({purchaseId, listingId, sellerId, buyerId, kind, rating}){
+  try{
+    if(!purchaseId || !listingId || !sellerId || !buyerId || !currentUser) return;
+    const {data:listing, error:listingError} = await sb
+      .from("listings").select("title").eq("id", Number(listingId)).maybeSingle();
+    if(listingError) console.warn("Не удалось получить название товара для системного сообщения:", listingError);
+    const title = String(listing?.title || "товар").replace(/[|\r\n]+/g, " ").trim().slice(0,180) || "товар";
+    const prefix = kind === "confirmed" ? `SYSTEM_ORDER_CONFIRMED|${Number(purchaseId)}|` : `SYSTEM_REVIEW_LEFT|${Number(purchaseId)}|${Number(rating)||5}|`;
+    const message = prefix + title;
+    // Защита от повторной отправки одного и того же системного события.
+    const {data:existing, error:checkError} = await sb.from("messages")
+      .select("id").eq("listing_id", Number(listingId))
+      .eq("sender_id", buyerId).eq("receiver_id", sellerId)
+      .eq("message", message).limit(1);
+    if(checkError) console.warn("Не удалось проверить дубликат системного сообщения:", checkError);
+    else if(existing && existing.length) return;
+    const {error:insertError} = await sb.from("messages").insert({
+      listing_id: Number(listingId), sender_id: buyerId, receiver_id: sellerId, message
+    });
+    if(insertError) console.warn("Заказ сохранён, но системное сообщение в чат не отправилось:", insertError);
+  }catch(error){
+    // Уведомление не должно отменять успешное подтверждение заказа или сохранение отзыва.
+    console.warn("Не удалось отправить системное сообщение в чат:", error);
+  }
+}
+
+/* =========================================
    CONFIRM ORDER
 ========================================= */
 
@@ -3380,6 +3409,15 @@ async function confirmOrder(purchaseId){
 
   if(!ok)
     return;
+
+  // Сохраняем данные заказа для системного уведомления продавцу в чате.
+  const {data:purchaseForNotice, error:purchaseNoticeError} = await sb
+    .from("purchases")
+    .select("id,listing_id,buyer_id,seller_id")
+    .eq("id", Number(purchaseId))
+    .eq("buyer_id", currentUser.id)
+    .maybeSingle();
+  if(purchaseNoticeError) console.warn("Не удалось загрузить заказ для уведомления:", purchaseNoticeError);
 
   const {
     data,
@@ -3412,6 +3450,16 @@ async function confirmOrder(purchaseId){
       "✅ Заказ завершён!\n\n"+
       "Теперь можешь оставить отзыв продавцу."
     );
+
+    if(purchaseForNotice){
+      await sendOrderSystemChatMessage({
+        purchaseId: purchaseForNotice.id,
+        listingId: purchaseForNotice.listing_id,
+        sellerId: purchaseForNotice.seller_id,
+        buyerId: purchaseForNotice.buyer_id,
+        kind: "confirmed"
+      });
+    }
 
   }
 
@@ -3543,7 +3591,16 @@ async function writeReview(purchaseId,listingId){
 
   }
 
-  alert("⭐ Спасибо! Отзыв сохранён.");
+  await sendOrderSystemChatMessage({
+    purchaseId: purchase.id,
+    listingId: purchase.listing_id || listingId,
+    sellerId: purchase.seller_id,
+    buyerId: currentUser.id,
+    kind: "review",
+    rating: rating
+  });
+
+  alert("⭐ Спасибо! Отзыв сохранён. Продавец получит уведомление в чате.");
 
   await loadOrders();
   await loadProfileRating(currentUser.id);
@@ -4325,7 +4382,10 @@ async function loadChats(){
     entries.forEach(({message,otherId})=>{
       const person = profileMap.get(String(otherId)) || {nickname:"Пользователь",avatar_url:avatarUrl(AVATAR_STYLES[0][1],otherId)};
       const rawText = String(message.message || "");
-      const preview = rawText.startsWith("SYSTEM_PURCHASE|") ? "🛒 Информация о покупке" : (rawText.startsWith("DELYVEX_AUTO_DELIVERY|") ? "📦 Автовыдача цифрового товара" : rawText);
+      const preview = rawText.startsWith("SYSTEM_PURCHASE|") ? "🛒 Информация о покупке" :
+        (rawText.startsWith("SYSTEM_ORDER_CONFIRMED|") ? "✅ Покупатель подтвердил заказ" :
+        (rawText.startsWith("SYSTEM_REVIEW_LEFT|") ? "⭐ Покупатель оставил отзыв" :
+        (rawText.startsWith("DELYVEX_AUTO_DELIVERY|") ? "📦 Автовыдача цифрового товара" : rawText)));
       const item = document.createElement("div");
       item.className = "chat-item";
       const avatarWrap = document.createElement("div"); avatarWrap.className = "avatar-ban-wrap";
@@ -4430,29 +4490,29 @@ function openChatPartnerProfile(){
 }
 
 function formatSystemMessage(message){
+  const parts = String(message).split("|");
+  const kind = parts[0] || "";
 
-  const parts =
-    String(message).split("|");
-
-  if(parts[0] !== "SYSTEM_PURCHASE"){
-
-    return escapeHtml(message);
-
+  if(kind === "SYSTEM_PURCHASE"){
+    const nickname = parts[1] || "Пользователь";
+    const title = parts.slice(2).join("|") || "товар";
+    return `🛒 <b>${escapeHtml(nickname)}</b> купил товар <b>«${escapeHtml(title)}»</b>`;
   }
 
-  const nickname =
-    parts[1] || "Пользователь";
+  if(kind === "SYSTEM_ORDER_CONFIRMED"){
+    const orderId = parts[1] || "";
+    const title = parts.slice(2).join("|") || "товар";
+    return `✅ Покупатель подтвердил получение товара <b>«${escapeHtml(title)}»</b>${orderId ? `<br><small>Заказ №${escapeHtml(orderId)}</small>` : ""}`;
+  }
 
-  const title =
-    parts.slice(2).join("|") || "товар";
+  if(kind === "SYSTEM_REVIEW_LEFT"){
+    const orderId = parts[1] || "";
+    const rating = Math.max(1, Math.min(5, Number(parts[2]) || 5));
+    const title = parts.slice(3).join("|") || "товар";
+    return `⭐ Покупатель оставил отзыв о товаре <b>«${escapeHtml(title)}»</b><br><span style="color:#fbbf24">${"★".repeat(rating)}${"☆".repeat(5-rating)}</span>${orderId ? `<br><small>Заказ №${escapeHtml(orderId)}</small>` : ""}`;
+  }
 
-  return `
-    🛒
-    <b>${escapeHtml(nickname)}</b>
-    купил товар
-    <b>«${escapeHtml(title)}»</b>
-  `;
-
+  return escapeHtml(message);
 }
 
 
@@ -4541,7 +4601,7 @@ async function loadMessages(){
     const recentSystemPurchases = new Map();
     messages.forEach(message=>{
       const text = String(message.message || "");
-      if(text.startsWith("SYSTEM_PURCHASE|")){
+      if(text.startsWith("SYSTEM_PURCHASE|") || text.startsWith("SYSTEM_ORDER_CONFIRMED|") || text.startsWith("SYSTEM_REVIEW_LEFT|")){
         const messageTime = Date.parse(message.created_at || "") || 0;
         const duplicateKey = text.trim();
         const previousTime = recentSystemPurchases.get(duplicateKey);
@@ -4552,6 +4612,10 @@ async function loadMessages(){
         const div = document.createElement("div");
         div.className = "system-message";
         div.innerHTML = formatSystemMessage(text);
+        const time = document.createElement("span");
+        time.className = "message-time";
+        time.textContent = chatTime(message.created_at);
+        div.appendChild(time);
         container.appendChild(div);
         return;
       }
