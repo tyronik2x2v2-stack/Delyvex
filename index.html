@@ -142,6 +142,7 @@ main{max-width:1100px;margin:auto;padding:25px 18px 100px}
 .public-review{background:#100b1a;border:1px solid #2b1b3d;border-radius:13px;padding:14px;margin:10px 0}
 .public-review-head{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
 .public-review-author{font-weight:700;color:#e9d5ff}
+.public-review-product{margin-top:6px;color:#a78bfa;font-size:13px;overflow-wrap:anywhere}
 .public-review-date{font-size:12px;color:#888}
 .public-review-text{margin-top:9px;color:#ddd;line-height:1.5;white-space:pre-wrap;overflow-wrap:anywhere}
 .avatar-option img{background:#100b1a}
@@ -2475,6 +2476,7 @@ async function viewSellerProfile(sellerId){
           <span class="public-review-author">${escapeHtml(review.buyer_nickname || "Покупатель")}</span>
           <span class="public-review-date">${review.created_at ? escapeHtml(new Date(review.created_at).toLocaleDateString("ru-RU")) : ""}</span>
         </div>
+        ${review.product_title ? `<div class="public-review-product">Товар: ${escapeHtml(review.product_title)}</div>` : `<div class="public-review-product">Товар не указан</div>`}
         <div style="color:#fbbf24;margin-top:5px">${"★".repeat(Math.max(0,Math.min(5,Number(review.rating)||0)))}${"☆".repeat(5-Math.max(0,Math.min(5,Number(review.rating)||0)))}</div>
         <div class="public-review-text">${escapeHtml(review.review || "Покупатель не оставил текстовый комментарий.")}</div>
       </div>`).join("") : `<div class="empty">У этого продавца пока нет отзывов.</div>`}
