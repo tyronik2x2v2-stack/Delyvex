@@ -3201,6 +3201,10 @@ async function loadOrders(){
 
     }
 
+    // В этой версии таймер заказа не используется. Раньше переменная timer
+    // оставалась неопределённой, из-за чего loadOrders() падал при отрисовке
+    // первой карточки и список заказов оставался пустым.
+    const timer = "";
     const orderNumber = "DVX-" + String(order.id).padStart(6, "0");
 
     card.innerHTML = `
