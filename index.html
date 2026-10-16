@@ -5304,20 +5304,34 @@ function showAdminReportTab(tab){
 async function adminConfirmOrderFromComplaint(listingId, reporterId, otherUserId, complaintType){
   if(!currentUser || !(await isDelyvexAdmin())){alert("Доступ только для администратора.");return;}
   const listing=String(listingId||"").trim();
-  if(!/^\d+$/.test(listing)){alert("В этой жалобе нет корректного ID объявления.");return;}
+  const hasListingId=/^\d+$/.test(listing);
+  const reporter=String(reporterId||"").trim();
+  const other=String(otherUserId||"").trim();
   try{
-    const {data:orders,error}=await sb.from("purchases")
-      .select("id,listing_id,buyer_id,seller_id,price,status,paid_at")
-      .eq("listing_id",Number(listing))
+    // Некоторые старые жалобы не содержат listing_id. В таком случае ищем заказ
+    // по участникам жалобы, а не прекращаем возврат сразу.
+    let query=sb.from("purchases")
+      .select("id,listing_id,buyer_id,seller_id,price,status,paid_at,created_at")
       .eq("status","waiting_confirmation")
       .order("created_at",{ascending:false});
+    if(hasListingId) query=query.eq("listing_id",Number(listing));
+    const {data:orders,error}=await query;
     if(error) throw error;
     let eligible=orders||[];
-    const reporter=String(reporterId||"");
-    const other=String(otherUserId||"");
     if(complaintType==="user" && reporter && other){
       eligible=eligible.filter(o=>(String(o.buyer_id)===reporter && String(o.seller_id)===other)||(String(o.buyer_id)===other && String(o.seller_id)===reporter));
-    } else if(other){eligible=eligible.filter(o=>String(o.seller_id)===other);}
+    } else if(other && reporter){
+      // Для жалобы на объявление сопоставляем покупателя-жалобщика с продавцом.
+      eligible=eligible.filter(o=>String(o.seller_id)===other && String(o.buyer_id)===reporter);
+    } else if(other){
+      eligible=eligible.filter(o=>String(o.seller_id)===other);
+    } else {
+      alert("В жалобе нет ID объявления и данных участников, по которым можно безопасно найти заказ.");
+      return;
+    }
+    if(!hasListingId && eligible.length>1){
+      console.warn("Жалоба без listing_id: найдено несколько заказов по участникам; администратор должен выбрать конкретный заказ.");
+    }
     if(!eligible.length){alert("Для этой жалобы не найден заказ со статусом «Ожидает подтверждения». Ничего не изменено.");return;}
     const options=eligible.map(o=>`№${o.id} — ${Number(o.price).toFixed(2)} ₽ — покупатель ${String(o.buyer_id).slice(0,8)} — продавец ${String(o.seller_id).slice(0,8)}`).join("\n");
     const raw=(prompt("Выбери ID заказа после проверки переписки и доказательств:\n\n"+options+"\n\nВведи номер заказа:")||"").trim();
