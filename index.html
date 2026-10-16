@@ -5300,9 +5300,8 @@ function showAdminReportTab(tab){
 async function adminConfirmOrderFromComplaint(listingId, reporterId, otherUserId, complaintType){
   if(!currentUser || !(await isDelyvexAdmin())){alert("Доступ только для администратора.");return;}
   const listing=String(listingId||"").trim();
-  if(!/^\d+$/.test(listing)){alert("В этой жалобе нет корректного ID объявления, поэтому нельзя безопасно подобрать заказ.");return;}
+  if(!/^\d+$/.test(listing)){alert("В этой жалобе нет корректного ID объявления.");return;}
   try{
-    // Получаем только заказы, которые ещё ожидают подтверждения и относятся к объявлению этой жалобы.
     const {data:orders,error}=await sb.from("purchases")
       .select("id,listing_id,buyer_id,seller_id,price,status,paid_at")
       .eq("listing_id",Number(listing))
@@ -5313,28 +5312,35 @@ async function adminConfirmOrderFromComplaint(listingId, reporterId, otherUserId
     const reporter=String(reporterId||"");
     const other=String(otherUserId||"");
     if(complaintType==="user" && reporter && other){
-      eligible=eligible.filter(o=>
-        (String(o.buyer_id)===reporter && String(o.seller_id)===other) ||
-        (String(o.buyer_id)===other && String(o.seller_id)===reporter)
-      );
-    } else if(other){
-      // Для жалобы на объявление ограничиваем список продавцом, указанным в жалобе.
-      eligible=eligible.filter(o=>String(o.seller_id)===other);
-    }
-    if(!eligible.length){alert("Для этого объявления не найден заказ со статусом «Ожидает подтверждения», подходящий под эту жалобу. Ничего не изменено.");return;}
+      eligible=eligible.filter(o=>(String(o.buyer_id)===reporter && String(o.seller_id)===other)||(String(o.buyer_id)===other && String(o.seller_id)===reporter));
+    } else if(other){eligible=eligible.filter(o=>String(o.seller_id)===other);}
+    if(!eligible.length){alert("Для этой жалобы не найден заказ со статусом «Ожидает подтверждения». Ничего не изменено.");return;}
     const options=eligible.map(o=>`№${o.id} — ${Number(o.price).toFixed(2)} ₽ — покупатель ${String(o.buyer_id).slice(0,8)} — продавец ${String(o.seller_id).slice(0,8)}`).join("\n");
-    const raw=(prompt("Выбери ID одного из найденных заказов. Подтверждай только после проверки переписки и доказательств:\n\n"+options+"\n\nВведи только номер заказа:")||"").trim();
-    if(!raw) return;
+    const raw=(prompt("Выбери ID заказа после проверки переписки и доказательств:\n\n"+options+"\n\nВведи номер заказа:")||"").trim();
+    if(!raw)return;
     const match=raw.match(/^(?:DVX-)?(\d+)$/i);
     const purchaseId=Number(match?match[1]:raw);
-    if(!Number.isSafeInteger(purchaseId)||!eligible.some(o=>Number(o.id)===purchaseId)){alert("Выбери ID из списка заказов, показанного выше.");return;}
     const selected=eligible.find(o=>Number(o.id)===purchaseId);
-    if(!confirm(`Подтвердить заказ №${purchaseId} на ${Number(selected.price).toFixed(2)} ₽ и начислить сумму продавцу? Это действие нельзя отменить автоматически. Продолжай только после проверки доказательств.`)) return;
-    const {data,error:rpcError}=await sb.rpc("admin_confirm_purchase_from_report",{p_purchase_id:purchaseId});
-    if(rpcError){console.error(rpcError);alert("Не удалось подтвердить заказ.\n\n"+rpcError.message);return;}
-    if(data?.success){alert(data.already_completed?"Этот заказ уже был завершён.":"Заказ подтверждён, деньги начислены продавцу.");await loadBalance();await loadOrders();if(complaintType==="user") await loadAdminSupportCases();else await loadAdminReports();}
-    else alert("Сервер не подтвердил завершение заказа.");
-  }catch(e){console.error("Подтверждение заказа по жалобе:",e);alert("Не удалось найти заказ. Проверь права чтения таблицы purchases для администратора.\n\n"+(e?.message||"Неизвестная ошибка"));}
+    if(!Number.isSafeInteger(purchaseId)||!selected){alert("Выбери ID из списка.");return;}
+    const action=(prompt("Что сделать с заказом №"+purchaseId+"?\n\n1 — Подтвердить заказ и начислить деньги продавцу\n2 — Вернуть деньги покупателю\n3 — Вернуть деньги продавцу\n\nВведи 1, 2 или 3:")||"").trim();
+    if(!["1","2","3"].includes(action))return;
+    if(action==="1"){
+      if(!confirm(`Подтвердить заказ №${purchaseId} на ${Number(selected.price).toFixed(2)} ₽ и начислить сумму продавцу?`))return;
+      const {data,error:rpcError}=await sb.rpc("admin_confirm_purchase_from_report",{p_purchase_id:purchaseId});
+      if(rpcError)throw rpcError;
+      if(data?.success){alert(data.already_completed?"Этот заказ уже завершён.":"Заказ подтверждён, деньги начислены продавцу.");}
+      else {alert("Сервер не подтвердил завершение заказа.");return;}
+    } else {
+      const recipient=action==="2"?"buyer":"seller";
+      const recipientName=action==="2"?"покупателю":"продавцу";
+      if(!confirm(`Вернуть ${Number(selected.price).toFixed(2)} ₽ ${recipientName} по заказу №${purchaseId}?\n\nПолучатель: ${recipientName}. Действие выполняется сервером и должно быть подтверждено там.`))return;
+      const {data,error:rpcError}=await sb.rpc("admin_refund_purchase_from_report",{p_purchase_id:purchaseId,p_recipient:recipient});
+      if(rpcError){console.error(rpcError);alert("Сервер возврата ещё не настроен или отклонил операцию. Деньги не должны измениться. Выполни SQL-функцию возврата из приложенного файла.\n\n"+rpcError.message);return;}
+      if(!data?.success){alert("Сервер не подтвердил возврат.");return;}
+      alert(data.already_refunded?"Этот заказ уже был возвращён.":`Возврат ${Number(selected.price).toFixed(2)} ₽ выполнен ${recipientName}.`);
+    }
+    await loadBalance();await loadOrders();if(complaintType==="user")await loadAdminSupportCases();else await loadAdminReports();
+  }catch(e){console.error("Обработка заказа по жалобе:",e);alert("Не удалось обработать заказ.\n\n"+(e?.message||"Неизвестная ошибка"));}
 }
 
 async function loadAdminReports(){
