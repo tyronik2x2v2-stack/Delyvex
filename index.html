@@ -133,32 +133,6 @@ main{max-width:1100px;margin:auto;padding:25px 18px 100px}
 .seller-name{color:#fff;font-weight:700;cursor:pointer;text-decoration:underline;text-decoration-color:#6d3cc7;text-underline-offset:3px}
 .seller-name:hover{color:#c084fc}
 .public-profile-card{max-width:760px;margin:auto}
-
-.public-profile-card{overflow:hidden}
-.public-profile-cover{height:150px;border-radius:16px;background:radial-gradient(ellipse at 75% 15%,#55418b 0,transparent 40%),linear-gradient(125deg,#171329,#30205a 48%,#111827);margin:14px 0 0;position:relative;overflow:hidden}
-.public-profile-cover:after{content:"DELYVEX";position:absolute;right:18px;bottom:10px;font-weight:1000;letter-spacing:5px;font-size:clamp(20px,5vw,42px);color:#ffffff16}
-.public-profile-top{position:relative;display:flex;align-items:center;gap:18px;margin-bottom:18px;padding:0 4px}
-.public-profile-avatar{width:104px;height:104px;background:#171329;box-shadow:0 0 0 5px var(--card,#100b1a)}
-.public-profile-summary{min-width:0;flex:1}
-.public-profile-meta{font-size:14px}
-.public-profile-statrow{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin:16px 0}
-.public-profile-stat{padding:12px 9px;border:1px solid #302342;border-radius:12px;background:#100b1a;text-align:center}
-.public-profile-stat strong{display:block;font-size:20px;color:#e9d5ff}
-.public-profile-stat span{display:block;font-size:11px;color:#aaa;margin-top:4px}
-.public-rating-layout{display:grid;grid-template-columns:minmax(90px, .8fr) minmax(0,2fr);gap:16px;align-items:center}
-.public-rating-total{text-align:center}
-.public-rating-total .rating-number{font-size:clamp(42px,10vw,64px);line-height:1}
-.public-rating-total small{color:#aaa;font-weight:700}
-.public-rating-bars{display:grid;gap:5px}
-.public-rating-bar{display:grid;grid-template-columns:22px 1fr 22px;gap:7px;align-items:center;font-size:12px;color:#aaa}
-.public-rating-track{height:7px;background:#302a36;border-radius:10px;overflow:hidden}
-.public-rating-fill{height:100%;background:#facc15;border-radius:10px}
-.public-offers{display:grid;gap:10px;margin-top:12px}
-.public-offer{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;padding:15px;border:1px solid #302342;border-radius:13px;background:#100b1a}
-.public-offer-title{font-weight:800;color:#c4b5fd;overflow-wrap:anywhere}
-.public-offer-description{font-size:13px;color:#aaa;margin-top:6px;overflow-wrap:anywhere;white-space:pre-line}
-.public-offer-price{font-weight:900;white-space:nowrap;color:#fff}
-@media(max-width:520px){.public-profile-cover{height:115px}.public-profile-top{gap:13px}.public-profile-avatar{width:82px;height:82px}.public-rating-layout{grid-template-columns:1fr}.public-rating-total{display:flex;align-items:baseline;justify-content:center;gap:8px}.public-rating-total .rating-number{font-size:46px}.public-profile-stat{padding:10px 5px}.public-profile-stat strong{font-size:17px}.public-offer{padding:12px;gap:8px}.public-offer-price{font-size:13px}}
 .public-profile-top{display:flex;align-items:center;gap:18px;margin-bottom:18px}
 .public-profile-avatar{width:92px;height:92px;border-radius:50%;object-fit:cover;border:3px solid #8b5cf6}
 .avatar-ban-wrap{position:relative;display:inline-flex;flex:0 0 auto;align-items:center;justify-content:center}
@@ -171,6 +145,7 @@ main{max-width:1100px;margin:auto;padding:25px 18px 100px}
 .public-review-product{margin-top:6px;color:#a78bfa;font-size:13px;overflow-wrap:anywhere}
 .public-review-date{font-size:12px;color:#888}
 .public-review-text{margin-top:9px;color:#ddd;line-height:1.5;white-space:pre-wrap;overflow-wrap:anywhere}
+.seller-review-reply{margin-top:12px;padding:11px 13px;border-left:3px solid #8b5cf6;border-radius:8px;background:rgba(139,92,246,.09);color:#ddd;white-space:pre-wrap;overflow-wrap:anywhere}.seller-review-reply strong{display:block;color:#d8b4fe;margin-bottom:6px}.seller-review-reply small{display:block;color:#999;margin-top:7px}.seller-review-reply-editor{margin-top:12px;display:grid;gap:8px}.seller-review-reply-editor textarea{width:100%;min-height:75px;resize:vertical;padding:10px;border-radius:10px;border:1px solid #49315f;background:#0e0b16;color:#fff}.seller-review-reply-editor button{justify-self:start}
 .avatar-option img{background:#100b1a}
 .seller-rating{color:#fbbf24;font-size:14px;margin-top:3px}
 
@@ -982,6 +957,10 @@ hr{border-color:var(--dx-line)!important}
 
       </div>
 
+    </div>
+
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin:14px 0 20px">
+      <button type="button" class="primary-btn" onclick="viewSellerProfile(currentUser.id)">👁️ Посмотреть мой публичный профиль</button>
     </div>
 
     <div class="rating-box">
@@ -2479,6 +2458,13 @@ async function viewSellerProfile(sellerId){
   const {data:reviewsData,error:reviewsError} = await sb.rpc("get_public_seller_reviews", {p_seller_id:sellerId});
   if(reviewsError) console.error("Не удалось загрузить отзывы:",reviewsError);
   const reviews = reviewsData || [];
+  const reviewIds = reviews.map(r=>r.id).filter(id=>id!==undefined && id!==null);
+  let repliesByReview = {};
+  if(reviewIds.length){
+    const {data:replyRows,error:replyError}=await sb.from("review_replies").select("review_id,seller_id,reply,updated_at").in("review_id",reviewIds);
+    if(replyError) console.warn("Ответы продавца пока недоступны. Проверь SQL-настройку review_replies:",replyError);
+    (replyRows||[]).forEach(row=>{repliesByReview[String(row.review_id)]=row;});
+  }
   const dateText = info.created_at ? new Date(info.created_at).toLocaleDateString("ru-RU",{day:"numeric",month:"long",year:"numeric"}) : "Неизвестно";
   const ratingValue = Number(info.average_rating || 0);
   const rating = ratingValue.toFixed(1);
@@ -2487,61 +2473,21 @@ async function viewSellerProfile(sellerId){
   const avatar = info.avatar_url || avatarUrl(AVATAR_STYLES[0][1], sellerId);
   const sellerBanned = await isDelyvexUserBanned(sellerId);
 
-  const reviewCount = Number(info.review_count || 0);
-  const ratingBuckets = [5,4,3,2,1].map(star => ({
-    star,
-    count: reviews.filter(review => Number(review.rating) === star).length
-  }));
-  const ratingTotal = ratingBuckets.reduce((sum, item) => sum + item.count, 0);
-  const sellerOffers = (Array.isArray(listings) ? listings : [])
-    .filter(item => String(item.seller_id || item.user_id || "") === String(sellerId) && item.is_active !== false)
-    .slice(0, 30);
-  const offerMarkup = sellerOffers.length ? sellerOffers.map(item => `
-    <article class="public-offer">
-      <div style="min-width:0;flex:1">
-        <div class="public-offer-title">${escapeHtml(item.title || "Объявление")}</div>
-        <div class="public-offer-description">${escapeHtml(String(item.description || "").slice(0,220))}${String(item.description || "").length>220?"…":""}</div>
-        ${item.category || item.game ? `<div style="font-size:12px;color:#888;margin-top:7px">${escapeHtml(item.game || item.category)}</div>` : ""}
-      </div>
-      <div class="public-offer-price">${Number(item.price || 0).toLocaleString("ru-RU",{minimumFractionDigits:2,maximumFractionDigits:2})} ₽</div>
-    </article>`).join("") : `<div class="empty">У продавца пока нет активных объявлений.</div>`;
-
   container.innerHTML = `
-    <div class="public-profile-cover" aria-label="Обложка профиля"></div>
     <div class="public-profile-top">
       <div class="avatar-ban-wrap"><img class="public-profile-avatar" src="${escapeHtml(avatar)}" alt="Аватар продавца">${sellerBanned ? '<span class="avatar-ban-badge">БАН</span>' : ''}</div>
-      <div class="public-profile-summary">
+      <div>
         <div class="profile-name">${escapeHtml(info.nickname || "Пользователь")}${sellerBanned ? '<span class="banned-name-label">Забанен</span>' : ''}</div>
-        <div class="public-profile-meta">⭐ ${rating} из 5 · ${getReviewText(reviewCount)}<br>📅 На Delyvex с ${escapeHtml(dateText)}</div>
-        ${sellerLevelMarkup(reviewCount, ratingValue)}
+        <div class="public-profile-meta">⭐ ${rating} · ${getReviewText(Number(info.review_count || 0))}<br>📅 На Delyvex с ${escapeHtml(dateText)}</div>
+        ${sellerLevelMarkup(Number(info.review_count || 0), ratingValue)}
         ${currentUser && String(currentUser.id)!==String(sellerId) ? `<button class="report-btn" type="button" style="display:block;margin-top:12px" onclick="openUserReportModal('${escapeJs(String(sellerId))}','${escapeJs(String(info.nickname || 'Пользователь'))}')">🛡️ Пожаловаться на пользователя</button>` : ''}
       </div>
     </div>
-
-    <div class="public-profile-statrow">
-      <div class="public-profile-stat"><strong>${rating}</strong><span>Рейтинг продавца</span></div>
-      <div class="public-profile-stat"><strong>${reviewCount}</strong><span>Всего отзывов</span></div>
-      <div class="public-profile-stat"><strong>${sellerOffers.length}</strong><span>Объявлений</span></div>
+    <div class="rating-box">
+      <div class="rating-number">${rating}</div>
+      <div class="rating-stars">${stars}</div>
+      <div class="rating-count">${getReviewText(Number(info.review_count || 0))}</div>
     </div>
-
-    <section class="rating-box">
-      <h2 style="margin:0 0 14px;text-align:left">Рейтинг продавца</h2>
-      <div class="public-rating-layout">
-        <div class="public-rating-total"><div class="rating-number">${rating}</div><small>из 5</small><div class="rating-stars" style="font-size:18px;letter-spacing:1px">${stars}</div></div>
-        <div class="public-rating-bars">
-          ${ratingBuckets.map(bucket => {
-            const count = bucket.count;
-            const percent = ratingTotal ? Math.round(count / ratingTotal * 100) : 0;
-            return `<div class="public-rating-bar"><span>${bucket.star}★</span><div class="public-rating-track"><div class="public-rating-fill" style="width:${percent}%"></div></div><span>${count}</span></div>`;
-          }).join("")}
-        </div>
-      </div>
-      <div class="rating-count" style="margin-top:10px">Всего ${reviewCount} ${getReviewText(reviewCount)}</div>
-    </section>
-
-    <h2 style="margin-top:24px">Предложения продавца</h2>
-    <div class="public-offers">${offerMarkup}</div>
-
     <h2 style="margin-top:24px">Отзывы покупателей</h2>
     ${reviewsError ? `<div class="empty">Не удалось загрузить отзывы. Проверь SQL-настройки Supabase.</div>` : reviews.length ? reviews.map(review=>`
       <div class="public-review">
@@ -2552,10 +2498,27 @@ async function viewSellerProfile(sellerId){
         ${review.product_title ? `<div class="public-review-product">Товар: ${escapeHtml(review.product_title)}</div>` : `<div class="public-review-product">Товар не указан</div>`}
         <div style="color:#fbbf24;margin-top:5px">${"★".repeat(Math.max(0,Math.min(5,Number(review.rating)||0)))}${"☆".repeat(5-Math.max(0,Math.min(5,Number(review.rating)||0)))}</div>
         <div class="public-review-text">${escapeHtml(review.review || "Покупатель не оставил текстовый комментарий.")}</div>
+        ${repliesByReview[String(review.id)] ? `<div class="seller-review-reply"><strong>↩️ Ответ продавца</strong><div>${escapeHtml(repliesByReview[String(review.id)].reply||"")}</div><small>${repliesByReview[String(review.id)].updated_at ? escapeHtml(new Date(repliesByReview[String(review.id)].updated_at).toLocaleDateString("ru-RU")) : ""}</small></div>` : ""}
+        ${currentUser && String(currentUser.id)===String(sellerId) && review.id!==undefined ? `<div class="seller-review-reply-editor"><textarea id="sellerReviewReply-${Number(review.id)}" maxlength="1500" placeholder="Ответить на отзыв...">${escapeHtml(repliesByReview[String(review.id)]?.reply||"")}</textarea><button type="button" class="primary-btn" onclick="saveSellerReviewReply(${Number(review.id)},'${escapeJs(String(sellerId))}')">${repliesByReview[String(review.id)] ? "Сохранить ответ" : "Опубликовать ответ"}</button></div>` : ""}
       </div>`).join("") : `<div class="empty">У этого продавца пока нет отзывов.</div>`}
   `;
 }
 
+
+async function saveSellerReviewReply(reviewId,sellerId){
+  if(!currentUser){alert("Войди в аккаунт, чтобы ответить на отзыв.");return;}
+  if(String(currentUser.id)!==String(sellerId)){alert("Отвечать на этот отзыв может только владелец профиля.");return;}
+  const field=document.getElementById(`sellerReviewReply-${Number(reviewId)}`);
+  const reply=String(field?.value||"").trim();
+  if(!reply){alert("Напиши ответ перед публикацией.");return;}
+  if(reply.length>1500){alert("Ответ слишком длинный (максимум 1500 символов).");return;}
+  const button=field?.parentElement?.querySelector("button");
+  if(button){button.disabled=true;button.textContent="Сохранение...";}
+  const {error}=await sb.from("review_replies").upsert({review_id:Number(reviewId),seller_id:currentUser.id,reply,updated_at:new Date().toISOString()},{onConflict:"review_id"});
+  if(error){console.error("Не удалось сохранить ответ продавца:",error);alert("Не удалось сохранить ответ. Сначала выполни SQL для таблицы review_replies в Supabase. Ошибка: "+error.message);if(button){button.disabled=false;button.textContent="Повторить";}return;}
+  alert("Ответ на отзыв опубликован.");
+  await viewSellerProfile(sellerId);
+}
 
 function refreshCatalogGameOptions(){
   const select = document.getElementById("catalogGameFilter");
