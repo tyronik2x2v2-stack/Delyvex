@@ -3323,12 +3323,21 @@ async function loadOrders(){
 
     }
 
+    if(isSeller && order.status === "waiting_confirmation"){
+      buttons += `
+        <button class="secondary-btn" type="button" style="margin-top:13px;margin-right:8px;border-color:#f87171;color:#fecaca"
+          onclick="sellerRefundPurchase('${order.id}')">
+          ↩️ Вернуть деньги покупателю
+        </button>
+      `;
+    }
+
     if(
       isSeller &&
       order.status === "completed"
     ){
 
-      buttons = `
+      buttons += `
 
         <div style="
           margin-top:12px;
@@ -3463,6 +3472,45 @@ async function loadOrders(){
 
 }
 
+
+async function sellerRefundPurchase(purchaseId){
+  if(!currentUser){showAuthGate();return;}
+  const id=Number(purchaseId);
+  if(!Number.isSafeInteger(id) || id<=0){alert("Не удалось определить номер заказа.");return;}
+
+  // Проверяем данные для понятного подтверждения; право на возврат
+  // повторно и окончательно проверяет серверная SQL-функция.
+  const {data:order,error:orderError}=await sb
+    .from("purchases")
+    .select("id,seller_id,buyer_id,price,status")
+    .eq("id",id)
+    .maybeSingle();
+  if(orderError || !order){
+    console.error("Загрузка заказа для возврата:",orderError);
+    alert("Не удалось загрузить заказ. Деньги не изменены.");
+    return;
+  }
+  if(order.seller_id!==currentUser.id){alert("Возврат может оформить только продавец этого заказа.");return;}
+  if(order.status==="refunded"){alert("Этот заказ уже возвращён.");await loadOrders();return;}
+  if(order.status!=="waiting_confirmation"){
+    alert("Продавец может вернуть деньги только до завершения заказа. Если заказ уже завершён, обратись к администрации.");
+    return;
+  }
+  const amount=Number(order.price);
+  if(!Number.isFinite(amount)||amount<=0){alert("У заказа некорректная сумма.");return;}
+  if(!confirm(`Вернуть покупателю ${amount.toFixed(2)} ₽ по заказу DVX-${String(id).padStart(6,"0")}?\n\nСумма будет зачислена на внутренний баланс покупателя. Отменить операцию после выполнения нельзя.`))return;
+
+  const {data,error}=await sb.rpc("delyvex_seller_refund_purchase",{p_purchase_id:id});
+  if(error){
+    console.error("Возврат продавцом:",error);
+    alert("Не удалось выполнить возврат. Деньги не должны измениться. Проверь, что выполнил Delyvex_seller_refund_setup.sql в Supabase SQL Editor.\n\n"+error.message);
+    return;
+  }
+  if(!data?.success){alert("Сервер не подтвердил возврат. Проверь заказ и историю баланса.");return;}
+  alert(data.already_refunded?"Этот заказ уже был возвращён.":`Возврат выполнен. ${amount.toFixed(2)} ₽ зачислено на внутренний баланс покупателя.`);
+  await loadBalance();
+  await loadOrders();
+}
 
 async function showPurchaseDelivery(purchaseId){
   if(!currentUser){showAuthGate();return;}
