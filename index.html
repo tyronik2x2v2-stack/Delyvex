@@ -901,6 +901,7 @@ hr{border-color:var(--dx-line)!important}
       <button type="button" class="admin-report-tab active" data-report-tab="listings" onclick="showAdminReportTab('listings')">📦 Жалобы на товары</button>
       <button type="button" class="admin-report-tab" data-report-tab="users" onclick="showAdminReportTab('users')">👤 Жалобы на пользователей</button>
       <button type="button" class="admin-report-tab" data-report-tab="chats" onclick="showAdminReportTab('chats')">💬 Чаты по жалобам</button>
+      <button type="button" class="admin-report-tab" data-report-tab="links" onclick="showAdminReportTab('links')">🔗 Подозрительные ссылки</button>
     </div>
     <div id="adminListingReportsPanel" class="admin-report-panel">
       <h3>📦 Жалобы на товары</h3>
@@ -923,6 +924,12 @@ hr{border-color:var(--dx-line)!important}
       <h3>💬 Чаты по жалобам</h3>
       <p>Чтобы войти в общий чат, открой жалобы на пользователей и нажми «Зайти в общий чат» у нужного обращения.</p>
       <button type="button" class="admin-report-link" onclick="showAdminReportTab('users')">Перейти к жалобам пользователей</button>
+    </div>
+    <div id="adminSuspiciousLinksPanel" class="admin-report-panel" hidden>
+      <h3>🔗 Подозрительные ссылки</h3>
+      <p>Сюда попадают ссылки из чатов и объявлений, которые требуют проверки. Наличие ссылки не означает автоматически, что она вредоносная.</p>
+      <button type="button" class="admin-report-link" onclick="loadSuspiciousLinkReports()">↻ Обновить список</button>
+      <div id="adminSuspiciousLinksContainer" class="admin-reports"><p>Открой раздел, чтобы загрузить сообщения.</p></div>
     </div>
   </div>
 </section>
@@ -2797,6 +2804,8 @@ async function createListing(){
     return;
 
   }
+
+  try{ await reportDelyvexSuspiciousLinks(title+"\n"+description,"listing",createdListing?.id); }catch(reportError){ console.warn(reportError); }
 
   if(deliveryContent && createdListing?.id){
     const {error:deliveryError}=await sb.rpc("delyvex_save_listing_delivery",{
@@ -4755,6 +4764,90 @@ function clearChatImage(){
   const thumb=document.getElementById("chatImagePreviewThumb"); if(thumb){ if(thumb.dataset.objectUrl) URL.revokeObjectURL(thumb.dataset.objectUrl); thumb.removeAttribute("src"); delete thumb.dataset.objectUrl; }
 }
 
+/* =========================================
+   SUSPICIOUS LINK REPORTING
+   Requires Delyvex_suspicious_links_setup.sql in Supabase.
+========================================= */
+function extractDelyvexUrls(text){
+  const matches=String(text||"").match(/(?:https?:\/\/|www\.)[^\s<>"'`]+/gi)||[];
+  return [...new Set(matches.map(raw=>raw.replace(/[),.!?;:\]}]+$/g,"").slice(0,1000)))].filter(Boolean).slice(0,10);
+}
+function inspectDelyvexLinks(text){
+  const urls=extractDelyvexUrls(text);
+  const shorteners=["bit.ly","tinyurl.com","t.co","is.gd","cutt.ly","rb.gy","shorturl.at","ow.ly","tiny.cc"];
+  const suspicious=[];
+  for(const raw of urls){
+    try{
+      const parsed=new URL(raw.startsWith("www.")?"https://"+raw:raw);
+      const host=parsed.hostname.toLowerCase();
+      const reasons=[];
+      if(parsed.protocol!=="https:") reasons.push("ссылка использует HTTP вместо HTTPS");
+      if(host.startsWith("xn--")||host.split(".").some(part=>part.startsWith("xn--"))) reasons.push("домен содержит Punycode");
+      if(/^(\d{1,3}\.){3}\d{1,3}$/.test(host)) reasons.push("в качестве домена указан IP-адрес");
+      if(shorteners.includes(host)) reasons.push("используется сокращатель ссылок");
+      if(host.includes("@")) reasons.push("необычная структура адреса");
+      if(/login|verify|secure|wallet|password|account|steam|roblox|telegram|discord|gift|free/i.test(parsed.pathname+" "+parsed.search)) reasons.push("путь или параметры содержат слова, часто используемые в фишинге");
+      if(reasons.length) suspicious.push({url:raw,host,reasons});
+    }catch(e){ suspicious.push({url:raw,host:"не удалось разобрать",reasons:["необычный или некорректный формат ссылки"]}); }
+  }
+  return {urls,suspicious};
+}
+async function reportDelyvexSuspiciousLinks(text,context,referenceId){
+  if(!currentUser) return;
+  const result=inspectDelyvexLinks(text);
+  if(!result.suspicious.length) return;
+  const payload={
+    reporter_id:currentUser.id,
+    context:String(context||"unknown").slice(0,40),
+    reference_id:referenceId==null?null:String(referenceId).slice(0,100),
+    content_excerpt:String(text||"").slice(0,1500),
+    urls:result.suspicious.map(x=>x.url).slice(0,10),
+    reasons:[...new Set(result.suspicious.flatMap(x=>x.reasons))].join("; ").slice(0,1000),
+    status:"new"
+  };
+  const {error}=await sb.from("suspicious_link_reports").insert(payload);
+  if(error){
+    console.warn("Не удалось сообщить администраторам о подозрительной ссылке. Выполни Delyvex_suspicious_links_setup.sql:",error);
+    return;
+  }
+  console.warn("Delyvex: ссылка отмечена для проверки администраторами.",payload.urls);
+}
+async function loadSuspiciousLinkReports(){
+  const container=document.getElementById("adminSuspiciousLinksContainer");
+  if(!container) return;
+  if(!currentUser){container.innerHTML="<p>Войди в аккаунт.</p>";return;}
+  container.innerHTML="<p>Загрузка подозрительных ссылок...</p>";
+  try{
+    if(!(await isDelyvexAdmin())){container.innerHTML="<p>⛔ Доступ закрыт: этот аккаунт не добавлен в admin_users.</p>";return;}
+    const {data,error}=await sb.from("suspicious_link_reports").select("*").order("created_at",{ascending:false}).limit(200);
+    if(error) throw error;
+    if(!data?.length){container.innerHTML="<p>Новых сообщений о подозрительных ссылках пока нет.</p>";return;}
+    container.innerHTML=data.map(r=>{
+      const date=r.created_at?new Date(r.created_at).toLocaleString("ru-RU"):"не указана";
+      const urls=Array.isArray(r.urls)?r.urls:[];
+      const safeUrls=urls.map(u=>`<li><code>${adminEscape(u)}</code></li>`).join("");
+      const isNew=r.status==="new";
+      return `<article class="admin-report-card">
+        <h3>⚠️ Ссылка требует проверки · ${adminEscape(r.context||"контекст неизвестен")}</h3>
+        <div class="admin-report-meta">ID сообщения: ${adminEscape(r.id)}<br>Отправитель ID: ${adminEscape(r.reporter_id||"не указан")}<br>Связанный объект: ${adminEscape(r.reference_id||"не указан")}<br>Дата: ${adminEscape(date)}<br>Статус: ${adminEscape(r.status||"new")}</div>
+        <p><strong>Причины проверки:</strong> ${adminEscape(r.reasons||"Не указаны")}</p>
+        <p><strong>Обнаруженные ссылки:</strong></p><ul>${safeUrls||"<li>Нет распознанных ссылок</li>"}</ul>
+        <p><strong>Фрагмент сообщения:</strong><br>${adminEscape(r.content_excerpt||"").replace(/\n/g,"<br>")}</p>
+        ${isNew?`<button class="admin-resolve" type="button" onclick="markSuspiciousLinkReviewed(${Number(r.id)})">✓ Отметить проверенным</button>`:""}
+      </article>`;
+    }).join("");
+  }catch(e){
+    console.error("Загрузка подозрительных ссылок:",e);
+    container.innerHTML=`<div class="admin-report-error"><strong>Не удалось загрузить сообщения.</strong><br>${adminEscape(e?.message||"Неизвестная ошибка")}<br>Выполни файл Delyvex_suspicious_links_setup.sql в SQL Editor Supabase.</div>`;
+  }
+}
+async function markSuspiciousLinkReviewed(id){
+  if(!currentUser || !(await isDelyvexAdmin())){alert("Доступ только для администратора.");return;}
+  const {error}=await sb.from("suspicious_link_reports").update({status:"reviewed",reviewed_by:currentUser.id,reviewed_at:new Date().toISOString()}).eq("id",id);
+  if(error){alert("Не удалось обновить статус: "+error.message);return;}
+  await loadSuspiciousLinkReports();
+}
+
 async function sendMessage(){
   if(!currentUser || !currentReceiver) return;
   const input=document.getElementById("chatInput");
@@ -4780,6 +4873,8 @@ async function sendMessage(){
     }
     const {error}=await sb.from("messages").insert({listing_id:currentListing,sender_id:currentUser.id,receiver_id:currentReceiver,message});
     if(error) throw error;
+    // Отправка сообщения не блокируется; подозрительные ссылки отдельно попадают на проверку админам.
+    try{ await reportDelyvexSuspiciousLinks(message,"chat",currentListing); }catch(reportError){ console.warn(reportError); }
     input.value="";
     if(imageFile) clearChatImage();
     lastMessagesSignature="";
@@ -5289,7 +5384,8 @@ function showAdminReportTab(tab){
   const panels={
     listings:document.getElementById("adminListingReportsPanel"),
     users:document.getElementById("adminUserReportsPanel"),
-    chats:document.getElementById("adminReportChatsPanel")
+    chats:document.getElementById("adminReportChatsPanel"),
+    links:document.getElementById("adminSuspiciousLinksPanel")
   };
   Object.entries(panels).forEach(([key,panel])=>{if(panel) panel.hidden=key!==tab;});
   document.querySelectorAll(".admin-report-tab").forEach(button=>{
