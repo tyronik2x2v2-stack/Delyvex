@@ -657,7 +657,7 @@ hr{border-color:var(--dx-line)!important}
     <button class="nav-btn" onclick="showSection('chats')">💬 Чаты <span id="chatNotificationBadge" class="notification-badge" hidden>0</span></button>
     <button class="nav-btn" onclick="showSection('orders')">📦 Заказы <span id="orderNotificationBadge" class="notification-badge" hidden>0</span></button>
     <button class="nav-btn" onclick="showSection('balance')">💰 Баланс</button>
-    <button class="nav-btn" onclick="showSection('profile')">👤 Профиль</button>
+    <button class="nav-btn" onclick="showMyProfile()">👤 Профиль</button>
     <button class="nav-btn" onclick="showSection('admin')">🛡️ Жалобы</button>
 
 
@@ -960,7 +960,7 @@ hr{border-color:var(--dx-line)!important}
     </div>
 
     <div style="display:flex;gap:10px;flex-wrap:wrap;margin:14px 0 20px">
-      <button type="button" class="primary-btn" onclick="viewSellerProfile(currentUser.id)">👁️ Посмотреть мой публичный профиль</button>
+      <button type="button" class="secondary-btn" onclick="viewSellerProfile(currentUser.id)">👁️ Открыть публичный профиль</button>
     </div>
 
     <div class="rating-box">
@@ -1018,6 +1018,8 @@ hr{border-color:var(--dx-line)!important}
       <img id="selectedAvatarPreview" src="" alt="">
 
     </div>
+
+    <button class="secondary-btn" type="button" style="margin-bottom:10px" onclick="viewSellerProfile(currentUser.id)">← Назад к моему публичному профилю</button>
 
     <button class="primary-btn" onclick="saveProfile()">
       Сохранить профиль
@@ -2435,6 +2437,36 @@ function goBackFromSellerProfile(){
   showSection(previousSectionBeforeSeller || "home");
 }
 
+function showMyProfile(){
+  if(!currentUser){ alert("Сначала войди в аккаунт."); return; }
+  viewSellerProfile(currentUser.id);
+}
+
+async function openListingFromProfile(listingId){
+  if(!listingId) return;
+  try {
+    showSection("home");
+    const search = document.getElementById("searchInput");
+    if(search) search.value = "";
+    await loadListings();
+    await searchListings();
+    let card = document.querySelector(`[data-listing-id="${CSS.escape(String(listingId))}"]`);
+    if(!card){
+      const {data,error} = await sb.from("listings").select("*").eq("id", listingId).eq("is_active", true).maybeSingle();
+      if(error) throw error;
+      if(!data){ alert("Это объявление больше недоступно."); return; }
+      listings = [data, ...(listings||[]).filter(x=>String(x.id)!==String(data.id))];
+      await renderListings(listings);
+      card = document.querySelector(`[data-listing-id="${CSS.escape(String(listingId))}"]`);
+    }
+    if(card){
+      card.scrollIntoView({behavior:"smooth",block:"center"});
+      card.style.outline="3px solid #60a5fa"; card.style.outlineOffset="4px";
+      setTimeout(()=>{card.style.outline="";card.style.outlineOffset="";},3000);
+    } else alert("Не удалось показать объявление. Возможно, оно скрыто или недоступно.");
+  } catch(e){ console.error("Ошибка открытия товара из профиля:",e); alert("Не удалось открыть товар. Попробуй обновить страницу."); }
+}
+
 async function viewSellerProfile(sellerId){
   const active = document.querySelector(".section.active");
   if(active && active.id !== "publicSellerProfile") previousSectionBeforeSeller = active.id;
@@ -2472,6 +2504,16 @@ async function viewSellerProfile(sellerId){
   const stars = "★".repeat(roundedRating) + "☆".repeat(5-roundedRating);
   const avatar = info.avatar_url || avatarUrl(AVATAR_STYLES[0][1], sellerId);
   const sellerBanned = await isDelyvexUserBanned(sellerId);
+  let sellerListings = [];
+  let sellerListingsError = null;
+  try {
+    const result = await sb.from("listings").select("id,title,description,price,game,category,image_url,created_at,is_active")
+      .eq("seller_id", sellerId).eq("is_active", true).order("created_at", {ascending:false});
+    sellerListings = result.data || [];
+    sellerListingsError = result.error;
+    if(sellerListingsError) console.warn("Не удалось загрузить предложения профиля:", sellerListingsError);
+  } catch(e) { sellerListingsError = e; console.warn("Не удалось загрузить предложения профиля:", e); }
+  const isOwnProfile = !!currentUser && String(currentUser.id) === String(sellerId);
 
   container.innerHTML = `
     <div class="public-profile-top">
@@ -2480,6 +2522,7 @@ async function viewSellerProfile(sellerId){
         <div class="profile-name">${escapeHtml(info.nickname || "Пользователь")}${sellerBanned ? '<span class="banned-name-label">Забанен</span>' : ''}</div>
         <div class="public-profile-meta">⭐ ${rating} · ${getReviewText(Number(info.review_count || 0))}<br>📅 На Delyvex с ${escapeHtml(dateText)}</div>
         ${sellerLevelMarkup(Number(info.review_count || 0), ratingValue)}
+        ${isOwnProfile ? `<button class="primary-btn" type="button" style="display:block;margin-top:12px" onclick="showSection('profile')">✏️ Редактировать профиль</button>` : ''}
         ${currentUser && String(currentUser.id)!==String(sellerId) ? `<button class="report-btn" type="button" style="display:block;margin-top:12px" onclick="openUserReportModal('${escapeJs(String(sellerId))}','${escapeJs(String(info.nickname || 'Пользователь'))}')">🛡️ Пожаловаться на пользователя</button>` : ''}
       </div>
     </div>
@@ -2488,6 +2531,12 @@ async function viewSellerProfile(sellerId){
       <div class="rating-stars">${stars}</div>
       <div class="rating-count">${getReviewText(Number(info.review_count || 0))}</div>
     </div>
+    <h2 style="margin-top:24px">Предложения продавца</h2>
+    ${sellerListingsError ? `<div class="empty">Не удалось загрузить предложения этого пользователя.</div>` : sellerListings.length ? `<div class="seller-profile-listings">${sellerListings.map(item=>`
+      <article class="card" style="margin:10px 0;padding:14px;display:flex;gap:12px;align-items:center;cursor:pointer" role="link" tabindex="0" onclick="openListingFromProfile('${escapeJs(String(item.id))}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openListingFromProfile('${escapeJs(String(item.id))}')}" aria-label="Открыть товар ${escapeHtml(item.title||'Без названия')}">
+        ${item.image_url ? `<img src="${escapeHtml(item.image_url)}" alt="" loading="lazy" style="width:76px;height:76px;object-fit:cover;border-radius:12px;flex-shrink:0">` : ''}
+        <div style="min-width:0;flex:1"><div style="font-weight:800;color:#60a5fa;text-decoration:underline;text-underline-offset:3px">${escapeHtml(item.title||'Без названия')}</div><div style="font-size:13px;color:#aaa;margin:5px 0">${escapeHtml(item.game||item.category||'Игра')}</div><div style="font-weight:800">${Number(item.price||0).toFixed(2)} ₽</div></div><div aria-hidden="true" style="font-size:24px;color:#60a5fa">›</div>
+      </article>`).join('')}</div>` : `<div class="empty">У этого пользователя пока нет активных предложений.</div>`}
     <h2 style="margin-top:24px">Отзывы покупателей</h2>
     ${reviewsError ? `<div class="empty">Не удалось загрузить отзывы. Проверь SQL-настройки Supabase.</div>` : reviews.length ? reviews.map(review=>`
       <div class="public-review">
