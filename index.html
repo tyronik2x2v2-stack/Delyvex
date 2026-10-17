@@ -556,6 +556,28 @@ hr{border-color:var(--dx-line)!important}
 }
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;transition-duration:.01ms!important}}
 
+
+/* Delyvex общий чат на главной */
+.dx-global-chat{margin:22px 0 28px;padding:18px;border:1px solid var(--dx-line,#332044);border-radius:18px;background:linear-gradient(145deg,rgba(28,22,44,.96),rgba(15,13,25,.98));box-shadow:0 10px 28px rgba(0,0,0,.12)}
+.dx-global-chat-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+.dx-global-chat-head h2{margin:0;font-size:22px;color:var(--text,#f5efff)}
+.dx-global-chat-head p{margin:5px 0 0;color:var(--muted,#a99eb6);font-size:13px}
+.dx-global-chat-feed{display:flex;flex-direction:column;gap:10px;max-height:360px;overflow-y:auto;padding:4px 2px 10px;scrollbar-width:thin}
+.dx-global-chat-empty{padding:18px 10px;text-align:center;color:#a99eb6}
+.dx-global-chat-message{display:flex;align-items:flex-start;gap:10px;padding:10px 11px;border:1px solid rgba(167,139,250,.13);border-radius:13px;background:rgba(255,255,255,.025)}
+.dx-global-chat-avatar{width:38px;height:38px;flex:0 0 38px;object-fit:cover;border-radius:50%;border:1px solid #8b5cf6;background:#100b1a;cursor:pointer}
+.dx-global-chat-body{min-width:0;flex:1}
+.dx-global-chat-meta{display:flex;align-items:baseline;flex-wrap:wrap;gap:8px;margin-bottom:4px}
+.dx-global-chat-nickname{border:0;padding:0;background:none;color:#c4a7ff;font-weight:800;cursor:pointer;text-align:left;overflow-wrap:anywhere}
+.dx-global-chat-nickname:hover{text-decoration:underline}
+.dx-global-chat-time{font-size:11px;color:#82778e}
+.dx-global-chat-text{color:var(--text,#f4efff);white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.45}
+.dx-global-chat-compose{display:flex;gap:9px;margin-top:10px}
+.dx-global-chat-compose input{min-width:0;flex:1;background:rgba(8,7,14,.7);border:1px solid var(--dx-line,#332044);border-radius:12px;padding:13px;color:var(--text,#fff);outline:none}
+.dx-global-chat-compose input:focus{border-color:#9b7af7;box-shadow:0 0 0 3px rgba(139,92,246,.12)}
+.dx-global-chat-compose button{flex:0 0 auto}
+.dx-global-chat-note{font-size:12px;color:#9b90aa;margin-top:8px}
+@media(max-width:600px){.dx-global-chat{padding:13px}.dx-global-chat-head h2{font-size:19px}.dx-global-chat-compose{gap:6px}.dx-global-chat-compose button{padding:11px 12px}}
 </style>
 
 <style id="delyvex-market-home-styles">
@@ -766,6 +788,20 @@ hr{border-color:var(--dx-line)!important}
     </button>
 
   </div>
+
+
+  <section class="dx-global-chat" id="delyvexGlobalChat" aria-label="Общий чат пользователей">
+    <div class="dx-global-chat-head">
+      <div><h2>💬 Общий чат</h2><p>Общайся с пользователями Delyvex</p></div>
+      <button type="button" class="secondary-btn" onclick="loadGlobalChat(true)">↻ Обновить</button>
+    </div>
+    <div id="dxGlobalChatFeed" class="dx-global-chat-feed" aria-live="polite"><div class="dx-global-chat-empty">Загрузка сообщений…</div></div>
+    <form class="dx-global-chat-compose" id="dxGlobalChatForm" onsubmit="sendGlobalChatMessage(event)">
+      <input id="dxGlobalChatInput" type="text" maxlength="1000" placeholder="Напиши сообщение в общий чат…" autocomplete="off" aria-label="Сообщение в общий чат">
+      <button type="submit" class="primary-btn" id="dxGlobalChatSend">Отправить</button>
+    </form>
+    <div class="dx-global-chat-note" id="dxGlobalChatNote">Для отправки сообщения войди в аккаунт. Никнейм и аватар отображаются рядом с сообщением.</div>
+  </section>
 
   <div id="listingsContainer"></div>
 
@@ -6128,6 +6164,80 @@ function delyvexChooseGame(gameName){
   if(typeof searchListings==="function") searchListings();
   window.setTimeout(()=>{if(listingsArea)listingsArea.scrollIntoView({behavior:"smooth",block:"start"});},100);
 }
+</script>
+
+
+<script id="delyvex-global-chat-script">
+(function(){
+  const TABLE="global_chat_messages";
+  let busy=false;
+  let refreshTimer=null;
+  function el(id){return document.getElementById(id)}
+  function safeText(value){return String(value==null?"":value)}
+  function chatDate(value){
+    try{return new Date(value).toLocaleString("ru-RU",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"})}
+    catch(_){return ""}
+  }
+  async function profileMapFor(ids){
+    const unique=[...new Set(ids.map(String))];
+    const map=new Map();
+    if(!unique.length)return map;
+    try{
+      const {data,error}=await sb.from("profiles").select("id,nickname,avatar_url").in("id",unique);
+      if(!error)(data||[]).forEach(p=>map.set(String(p.id),p));
+    }catch(e){console.warn("Общий чат: профили не загрузились",e)}
+    return map;
+  }
+  window.loadGlobalChat=async function(manual){
+    const feed=el("dxGlobalChatFeed"); if(!feed||busy)return;
+    busy=true;
+    try{
+      const {data,error}=await sb.from(TABLE).select("id,sender_id,message,created_at").order("created_at",{ascending:true}).limit(100);
+      if(error)throw error;
+      const rows=data||[];
+      const profiles=await profileMapFor(rows.map(x=>x.sender_id));
+      if(!rows.length){feed.innerHTML='<div class="dx-global-chat-empty">Пока сообщений нет. Будь первым, кто напишет!</div>';return}
+      feed.innerHTML=rows.map(row=>{
+        const p=profiles.get(String(row.sender_id))||{};
+        const nick=p.nickname||"Пользователь";
+        const avatar=p.avatar_url||((typeof AVATARS!=="undefined"&&AVATARS[0])?AVATARS[0]:"");
+        const id=String(row.sender_id||"").replace(/[^a-zA-Z0-9-]/g,"");
+        const profileAction=id?`onclick="viewSellerProfile('${id}')"`:"";
+        return `<article class="dx-global-chat-message"><img class="dx-global-chat-avatar" src="${escapeHtml(avatar)}" alt="Аватар ${escapeHtml(nick)}" ${profileAction} onerror="this.style.visibility='hidden'"><div class="dx-global-chat-body"><div class="dx-global-chat-meta"><button type="button" class="dx-global-chat-nickname" ${profileAction}>${escapeHtml(nick)}</button><time class="dx-global-chat-time">${escapeHtml(chatDate(row.created_at))}</time></div><div class="dx-global-chat-text">${escapeHtml(row.message||"")}</div></div></article>`;
+      }).join("");
+      feed.scrollTop=feed.scrollHeight;
+      const note=el("dxGlobalChatNote");
+      if(note)note.textContent=currentUser?"Пожалуйста, соблюдай правила общения. Спам и оскорбления запрещены.":"Читать общий чат можно без входа. Чтобы писать сообщения, войди в аккаунт.";
+    }catch(e){
+      console.error("Общий чат Delyvex:",e);
+      feed.innerHTML='<div class="dx-global-chat-empty">Общий чат пока не настроен. Администратору нужно выполнить SQL-файл Delyvex_global_chat_setup.sql в Supabase.</div>';
+    }finally{busy=false}
+  };
+  window.sendGlobalChatMessage=async function(event){
+    if(event)event.preventDefault();
+    const input=el("dxGlobalChatInput"),button=el("dxGlobalChatSend");
+    const message=(input?.value||"").trim();
+    if(!currentUser){if(typeof showAuthGate==="function")showAuthGate();else alert("Войди в аккаунт, чтобы писать в общий чат.");return}
+    if(!message)return;
+    if(message.length>1000){alert("Сообщение не должно быть длиннее 1000 символов.");return}
+    if(busy)return;
+    if(button)button.disabled=true;
+    try{
+      const {error}=await sb.from(TABLE).insert({sender_id:currentUser.id,message:message});
+      if(error)throw error;
+      input.value="";
+      await window.loadGlobalChat(true);
+    }catch(e){
+      console.error("Не удалось отправить сообщение в общий чат:",e);
+      alert("Не удалось отправить сообщение. Проверь, что администратор выполнил SQL-файл для общего чата в Supabase.");
+    }finally{if(button)button.disabled=false}
+  };
+  document.addEventListener("DOMContentLoaded",function(){
+    window.loadGlobalChat();
+    if(refreshTimer)clearInterval(refreshTimer);
+    refreshTimer=setInterval(()=>window.loadGlobalChat(),15000);
+  });
+})();
 </script>
 
 </body>
