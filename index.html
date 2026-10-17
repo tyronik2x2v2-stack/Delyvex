@@ -604,6 +604,29 @@ hr{border-color:var(--dx-line)!important}
 
 </style>
 
+
+<style id="delyvex-unified-profile-editor-styles">
+.public-profile-card{max-width:980px;margin:0 auto;padding:clamp(14px,3vw,28px)}
+.public-profile-top{position:relative;display:flex;align-items:center;gap:18px;flex-wrap:wrap;padding:22px 18px 24px;border-radius:22px;background:linear-gradient(135deg,rgba(124,58,237,.24),rgba(168,85,247,.08) 55%,rgba(20,16,35,.9));border:1px solid rgba(168,85,247,.34);overflow:hidden}
+.public-profile-top:before{content:"";position:absolute;inset:0 0 auto;height:7px;background:linear-gradient(90deg,#7c3aed,#c084fc,#7c3aed);opacity:.9}
+.public-profile-avatar{width:104px;height:104px;object-fit:cover;border-radius:50%;border:3px solid #a855f7;box-shadow:0 0 0 5px rgba(168,85,247,.12);background:#171323}
+.public-profile-top .profile-name{font-size:clamp(25px,5vw,38px);font-weight:850;overflow-wrap:anywhere}
+.public-profile-meta{line-height:1.75;color:var(--muted,#a7a0ba);margin-top:5px}
+.seller-profile-listings .card{transition:transform .16s ease,border-color .16s ease}
+.seller-profile-listings .card:hover{transform:translateY(-2px);border-color:#a855f7!important}
+.dx-profile-edit-modal{display:none;position:fixed;inset:0;z-index:12000;background:rgba(5,3,12,.78);backdrop-filter:blur(8px);padding:18px;overflow:auto;align-items:center;justify-content:center}
+.dx-profile-edit-modal.is-open{display:flex}
+.dx-profile-edit-card{width:min(100%,620px);max-height:min(90vh,900px);overflow:auto;background:#15111f;color:#f6f0ff;border:1px solid rgba(168,85,247,.48);border-radius:22px;padding:20px;box-shadow:0 24px 90px #0009}
+.dx-profile-edit-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.dx-profile-edit-head h2{font-size:21px;margin:0}
+.dx-profile-edit-close{border:1px solid #55416f;background:#241a34;color:#fff;border-radius:12px;width:42px;height:42px;font-size:20px;flex-shrink:0}
+#dxProfileEditFields .form-group{margin:16px 0}
+#dxProfileEditFields input[type=text]{width:100%;box-sizing:border-box}
+#dxProfileEditFields .avatar-grid{max-height:220px;overflow:auto}
+#dxProfileEditFields .selected-avatar{margin:12px 0}
+@media(max-width:560px){.public-profile-top{gap:13px;padding:20px 14px}.public-profile-avatar{width:82px;height:82px}.dx-profile-edit-modal{padding:10px}.dx-profile-edit-card{padding:15px;border-radius:18px}}
+</style>
+
 </head>
 
 <body>
@@ -1652,6 +1675,14 @@ function canAfford(price){
 
 async function showSection(section){
 
+  // Единый новый экран профиля используется и для своего, и для чужих профилей.
+  // Старый экран остаётся только как хранилище полей редактирования, но не открывается пользователю.
+  if(section === "profile"){
+    if(!currentUser){ showAuthGate(); return; }
+    showMyProfile();
+    return;
+  }
+
   if(!currentUser){
 
     if(section === "home"){
@@ -1891,8 +1922,12 @@ async function saveProfile(){
   document.getElementById("headerAvatar").src = selectedAvatar;
 
   await loadListings();
-
+  closeProfileEditor();
   alert("Профиль сохранён!");
+  // Перерисовываем новый публичный профиль, чтобы ник и аватар сразу обновились.
+  if(document.getElementById("publicSellerProfile")?.classList.contains("active")){
+    await viewSellerProfile(currentUser.id);
+  }
 
 }
 
@@ -2503,6 +2538,53 @@ async function openListingFromProfile(listingId){
   } catch(e){ console.error("Ошибка открытия товара из профиля:",e); alert("Не удалось открыть товар. Попробуй обновить страницу."); }
 }
 
+let delyvexProfileEditorInitialized = false;
+
+async function openProfileEditor(){
+  if(!currentUser){ showAuthGate(); return; }
+  await loadProfile();
+  renderAvatars();
+  let modal=document.getElementById("delyvexProfileEditModal");
+  if(!modal){
+    modal=document.createElement("div");
+    modal.id="delyvexProfileEditModal";
+    modal.className="dx-profile-edit-modal";
+    modal.setAttribute("role","dialog");
+    modal.setAttribute("aria-modal","true");
+    modal.setAttribute("aria-labelledby","dxProfileEditTitle");
+    modal.innerHTML=`<div class="dx-profile-edit-card"><div class="dx-profile-edit-head"><h2 id="dxProfileEditTitle">✏️ Редактирование профиля</h2><button type="button" class="dx-profile-edit-close" onclick="closeProfileEditor()" aria-label="Закрыть">✕</button></div><p class="small">Изменения будут видны в твоём публичном профиле.</p><div id="dxProfileEditFields"></div><button type="button" class="secondary-btn" onclick="closeProfileEditor()">Отмена</button></div>`;
+    modal.addEventListener("click",e=>{if(e.target===modal)closeProfileEditor();});
+    document.body.appendChild(modal);
+  }
+  const holder=document.getElementById("dxProfileEditFields");
+  if(!delyvexProfileEditorInitialized){
+    const nickname=document.getElementById("nicknameInput");
+    const avatarGrid=document.getElementById("avatarGrid");
+    const selectedPreview=document.getElementById("selectedAvatarPreview");
+    const nicknameGroup=nickname?.closest(".form-group");
+    const avatarGroup=avatarGrid?.closest(".form-group");
+    const selectedBox=selectedPreview?.closest(".selected-avatar");
+    const saveButton=Array.from(document.querySelectorAll("button")).find(b=>(b.getAttribute("onclick")||"").includes("saveProfile()"));
+    const logoutButton=Array.from(document.querySelectorAll("button")).find(b=>(b.getAttribute("onclick")||"").includes("logout()"));
+    [nicknameGroup,avatarGroup,selectedBox,saveButton,logoutButton].filter(Boolean).forEach(node=>holder.appendChild(node));
+    if(saveButton){saveButton.textContent="Сохранить изменения";saveButton.style.marginTop="12px";}
+    if(logoutButton){logoutButton.style.marginTop="10px";}
+    delyvexProfileEditorInitialized=true;
+  }
+  modal.classList.add("is-open");
+  document.body.style.overflow="hidden";
+}
+
+function closeProfileEditor(){
+  const modal=document.getElementById("delyvexProfileEditModal");
+  if(modal)modal.classList.remove("is-open");
+  document.body.style.overflow="";
+}
+
+document.addEventListener("keydown",function(e){
+  if(e.key==="Escape")closeProfileEditor();
+});
+
 async function viewSellerProfile(sellerId){
   const active = document.querySelector(".section.active");
   if(active && active.id !== "publicSellerProfile") previousSectionBeforeSeller = active.id;
@@ -2558,7 +2640,7 @@ async function viewSellerProfile(sellerId){
         <div class="profile-name">${escapeHtml(info.nickname || "Пользователь")}${sellerBanned ? '<span class="banned-name-label">Забанен</span>' : ''}</div>
         <div class="public-profile-meta">⭐ ${rating} · ${getReviewText(Number(info.review_count || 0))}<br>📅 На Delyvex с ${escapeHtml(dateText)}</div>
         ${sellerLevelMarkup(Number(info.review_count || 0), ratingValue)}
-        ${isOwnProfile ? `<button class="primary-btn" type="button" style="display:block;margin-top:12px" onclick="showSection('profile')">✏️ Редактировать профиль</button>` : ''}
+        ${isOwnProfile ? `<button class="primary-btn" type="button" style="display:block;margin-top:12px" onclick="openProfileEditor()">✏️ Редактировать профиль</button>` : ''}
         ${currentUser && String(currentUser.id)!==String(sellerId) ? `<button class="report-btn" type="button" style="display:block;margin-top:12px" onclick="openUserReportModal('${escapeJs(String(sellerId))}','${escapeJs(String(info.nickname || 'Пользователь'))}')">🛡️ Пожаловаться на пользователя</button>` : ''}
       </div>
     </div>
